@@ -92,7 +92,7 @@ def main(argv):
     thePlane = -1;
     theCapture = -1;
     try:
-        opts, args = getopt.getopt(argv,'hlc:p:i:o:',['ifile=','list','plane','ofile='])
+        opts, args = getopt.getopt(argv,'hln:p:i:o:',['ifile=','list','plane','ofile='])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -142,7 +142,7 @@ def main(argv):
     for theTimepoint in range(theNumTimepoints):
         for theChannel in range(theNumChannels):
 
-            image = theSBFileReader.ReadImagePlaneBuf(theCapture,0,theTimepoint,thePlane,0,True) #captureid,position,timepoint,zplane,channel,as 2d
+            image = theSBFileReader.ReadImagePlaneBuf(theCapture,0,theTimepoint,thePlane,theChannel,True) #captureid,position,timepoint,zplane,channel,as 2d
             print ("*** The read buffer len is: " , len(image))
 
             theOutFile = "{0}C{1:d}Z{2:04d}T{3:04d}.tiff".format(theTiffFileName,theChannel,thePlane,theTimepoint)
