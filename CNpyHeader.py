@@ -8,6 +8,7 @@ class CNpyHeader(object):
     mHeaderSize = int()
     mDataType = str()
     mBytesPerPixel = int()
+    mCompressionFlag = int()
 
     def ByteArrayToShort(self, byteArrau, offset):
         """ generated source for method ByteArrayToShort """
@@ -27,6 +28,7 @@ class CNpyHeader(object):
             inStream.seek(0)
 
             major, minor = numpy.lib.format.read_magic(inStream)
+            self.mCompressionFlag = minor
             self.mShape, self.mFortranOrder, self.mDataType = numpy.lib.format.read_array_header_1_0(inStream)
             if self.mDataType == 'uint16':
                 self.mBytesPerPixel = 2

@@ -73,7 +73,26 @@ class CImageGroup(BaseDecoder):
         self.mNpyHeader = None
         self.mFile = inFile
         self.mImageTitle = inImageTitle
+        self.mSingleTimepointFile = False
         self.mDebugPrint = False
+
+    def IsSFMT(self,inPath):
+        theStream = open(inPath,"rb")
+        theNpyHeader = CNpyHeader()
+        theRes = theNpyHeader.ParseNpyHeader(theStream)
+        self.mSingleTimepointFile = False
+        if not theRes:
+            return False,0
+        if len(theNpyHeader.mShape) == 3:
+            theNumTimepoints = theNpyHeader.mShape[0]
+            theRes = True
+            self.mSingleTimepointFile = True
+            if theNumTimepoints == 0:
+                theRes = False
+                self.mSingleTimepointFile = False
+            return theRes, theNumTimepoints
+        return False,0
+
 
     def CountImageDataFiles(self):
         theImageFileNames = self.mFile.GetListOfImageDataFiles(self.mImageTitle)
@@ -82,8 +101,28 @@ class CImageGroup(BaseDecoder):
             print ("CountImageDataFiles: mImageRecord.mNumChannels " , self.mImageRecord.mNumChannels)
             print ("CountImageDataFiles: mImageRecord.mNumTimepoints " , self.mImageRecord.mNumTimepoints)
         if len(theImageFileNames) == self.mImageRecord.mNumChannels * self.mImageRecord.mNumTimepoints:
-            # all in order
+            if not self.mImageRecord.mNumPlanes == 1:
+                # all in order
+                return True
+
+        #check for single file containing multi time points
+        if len(theImageFileNames) == self.mImageRecord.mNumChannels and self.mImageRecord.mNumPlanes == 1:
+            theNumTimepoints = 0
+            for theImageFile in theImageFileNames:
+                theShapeTP = 0
+                (theRes,theShapeTP) =  self.IsSFMT(theImageFile)
+                if not theRes:
+                    continue
+                if theShapeTP <= 0:
+                    continue
+                # we are using min in case a channel has less timepoints than another one (crashed between channels)
+                if theNumTimepoints < theShapeTP:
+                    theNumTimepoints = theShapeTP
+            if theNumTimepoints == 0:
+                theNumTimepoints = 1
+            self.mImageRecord.mNumTimepoints = theNumTimepoints
             return True
+        # end of check for single file containing multi time points
 
         #discrepancy
 

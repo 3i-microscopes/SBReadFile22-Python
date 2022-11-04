@@ -1,8 +1,10 @@
 from CMetadataLib import *
+from CCompressionBase import *
 from CSBFile70 import *
 from CImageGroup import *
 import numpy as np
 import yaml
+import os.path
 
 class DataLoader(object):
 
@@ -17,6 +19,9 @@ class DataLoader(object):
         self.kMaxNumberOpenFiles = 100
         self.mCurrentFileCounter = 0
         self.mDebugPrint = False
+        self.mFirstPlaneOffset = 0
+        self.mCompressionFlag = int()
+        self.mCompressor = CCompressionBase()
 
     def CheckCaptureIndex(self,inCaptureIndex):
         if len(self.mCImageGroupList) == 0:
@@ -90,6 +95,15 @@ class DataLoader(object):
         theImageGroup = self.GetImageGroup(inCaptureId)
         theSbTimepointIndex = inTimepointIndex
         thePath = theImageGroup.mFile.GetImageDataFile(theImageGroup.mImageTitle, inChannelIndex, theSbTimepointIndex)
+        theNumRows = theImageGroup.GetNumRows()
+        theNumColumns = theImageGroup.GetNumColumns()
+        theNumPlanes = theImageGroup.GetNumPlanes()
+        if theNumPlanes == 1:
+            if theSbTimepointIndex > 0:
+                if theImageGroup.mSingleTimepointFile:
+                    teRes, theT0Path = theImageGroup.mFile.RenamePathToTimepoint0(thePath)
+                    thePath = theT0Path
+
         if thePath not in self.mPathToStreamMap:
             if len(self.mCounterToPathMap) > self.kMaxNumberOpenFiles:
                 theKeyValue = next(iter(mCounterToPathMap.values()))  # gets the first value
@@ -106,23 +120,31 @@ class DataLoader(object):
                 theRes = theImageGroup.mNpyHeader.ParseNpyHeader( theStream)
                 if not theRes:
                     return False
+                self.mCompressionFlag = theImageGroup.mNpyHeader.mCompressionFlag;
+                if self.mCompressionFlag > 0:
+                    self.mCompressor.Initialize(theImageGroup.mNpyHeader.mHeaderSize,self.mCompressionFlag,theNumColumns,theNumRows,theNumPlanes,0)
+                    self.mCompressor.ReadDictionary(theStream)
+
             self.mPathToStreamMap[thePath] = theStream
             self.mCounterToPathMap[self.mCurrentFileCounter] = thePath
             self.mCurrentFileCounter += 1
         else:
             theStream = self.mPathToStreamMap[thePath]
 
-        theNumRows = theImageGroup.GetNumRows()
-        theNumColumns = theImageGroup.GetNumColumns()
-        thePlaneSize = theNumColumns * theNumRows * theImageGroup.mNpyHeader.mBytesPerPixel
-        if self.mDebugPrint:
-            print ("ReadPlane: thePlaneSize: " , thePlaneSize)
-        theSeekOffset = theImageGroup.mNpyHeader.mHeaderSize + thePlaneSize * inZPlaneIndex
-        if self.mDebugPrint:
-            print ("ReadPlane: theSeekOffset: " , theSeekOffset)
-        theStream.seek(theSeekOffset,0)
+        if self.mCompressionFlag == 0:
+            thePlaneSize = theNumColumns * theNumRows * theImageGroup.mNpyHeader.mBytesPerPixel
+            if self.mDebugPrint:
+                print ("ReadPlane: thePlaneSize: " , thePlaneSize)
+            theSeekOffset = theImageGroup.mNpyHeader.mHeaderSize + thePlaneSize * inZPlaneIndex
+            if theImageGroup.mSingleTimepointFile:
+                theSeekOffset = theImageGroup.mNpyHeader.mHeaderSize + thePlaneSize * theSbTimepointIndex
+            if self.mDebugPrint:
+                print ("ReadPlane: theSeekOffset: " , theSeekOffset)
+            theStream.seek(theSeekOffset,0)
 
-        ouBuf = theStream.read(thePlaneSize)
+            ouBuf = theStream.read(thePlaneSize)
+        else:
+            ouBuf = self.mCompressor.ReadData(theStream,inZPlaneIndex)
 
         theNpBuf = np.frombuffer(ouBuf,dtype=np.uint16)
         if inAs2D:

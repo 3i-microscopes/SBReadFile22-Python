@@ -42,6 +42,9 @@ def main(argv):
     theNumPositions = theSBFileReader.GetNumPositions(theCapture)
     print ("*** the image num positions: ",theNumPositions)
 
+    theNumTimepoints = theSBFileReader.GetNumTimepoints(theCapture)
+    print ("*** the image num timepoints: ",theNumTimepoints)
+
     theNumChannels = theSBFileReader.GetNumChannels(theCapture)
     print ("*** the image num channels: ",theNumChannels)
 
@@ -64,14 +67,15 @@ def main(argv):
     theNumColumns = theSBFileReader.GetNumXColumns(theCapture)
     theNumPlanes = theSBFileReader.GetNumZPlanes(theCapture)
     theZplane = int(theNumPlanes/2)
+    theZplane = 0
+    for theTimepoint in range(0,theNumTimepoints):
+        image = theSBFileReader.ReadImagePlaneBuf(theCapture,0,theTimepoint,theZplane,0,True) #captureid,position,timepoint,zplane,channel,as 2d
+        print ("*** The read buffer len is: " , len(image))
 
-    image = theSBFileReader.ReadImagePlaneBuf(theCapture,0,0,theZplane,0,True) #captureid,position,timepoint,zplane,channel,as 2d
-    print ("*** The read buffer len is: " , len(image))
+        #plot the slice
 
-    #plot the slice
-
-    plt.imshow(image)
-    plt.pause(0.001)
+        plt.imshow(image)
+        plt.pause(0.101)
 
     data = input("Please hit Enter to exit:\n")
     print("Done")

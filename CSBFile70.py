@@ -4,6 +4,7 @@ import os
 class CSBFile70(object):
     """ generated source for class CSBFile70 """
     kSlideSuffix = ".sldy"
+    kSlideSuffixCompressed = ".sldyz"
     kRootDirSuffix = ".dir"
     kImageDirSuffix = ".imgdir"
     kBinaryFileSuffix = ".npy"
@@ -26,6 +27,8 @@ class CSBFile70(object):
     def GetSlideRootDirectory(self):
         """ generated source for method GetSlideRootDirectory """
         theRootDirectory = re.sub(self.kSlideSuffix + "$", self.kRootDirSuffix,self.mSlidePath)
+        if theRootDirectory == self.mSlidePath:
+            theRootDirectory = re.sub(self.kSlideSuffixCompressed + "$", self.kRootDirSuffix,self.mSlidePath)
         return theRootDirectory
 
     def GetListOfImageGroupTitles(self):
@@ -125,6 +128,14 @@ class CSBFile70(object):
         theDigit = inPath.substring(thePos + 3, self.kNumDigitsInTimepoint)
         theTimepoint = Integer.valueOf(theDigit)
         return theTimepoint
+
+    def RenamePathToTimepoint0(self,inPath):
+        ouPath = inPath
+        thePos = inPath.rfind("_TP")
+        if thePos == -1:
+            return False,ouPath
+        ouPath = "{f1}{f2}{f3}".format(f1=inPath[:thePos],f2='_TP0000000',f3=inPath[thePos + 3 + self.kNumDigitsInTimepoint:])
+        return True,ouPath
 
     def getListOfNpyDataFiles(self, inTitle, inStartWith):
         """ generated source for method getListOfNpyDataFiles """
