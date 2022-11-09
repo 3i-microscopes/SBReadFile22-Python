@@ -4,10 +4,11 @@ import os
 class CSBFile70(object):
     """ generated source for class CSBFile70 """
     kSlideSuffix = ".sldy"
-    kSlideSuffixCompressed = ".sldyz"
+    kZSlideSuffix = ".sldyz"
     kRootDirSuffix = ".dir"
     kImageDirSuffix = ".imgdir"
     kBinaryFileSuffix = ".npy"
+    kZBinaryFileSuffix = ".npyz";
     kImageRecordFilename = "ImageRecord.yaml"
     kChannelRecordFilename = "ChannelRecord.yaml"
     kAnnotationRecordFilename = "AnnotationRecord.yaml"
@@ -18,17 +19,21 @@ class CSBFile70(object):
     kStagePositionDataFilename = "StagePositionData.yaml"
     kNumDigitsInTimepoint = 7
     mSlidePath = str()
+    mIsCompressed = False
 
     def __init__(self, inSlidePath):
         """ generated source for method __init__ """
         self.mSlidePath = inSlidePath
         self.mDebugPrint = False
+        if(self.mSlidePath.endswith(self.kZSlideSuffix)):
+            self.mIsCompressed = True
 
     def GetSlideRootDirectory(self):
         """ generated source for method GetSlideRootDirectory """
-        theRootDirectory = re.sub(self.kSlideSuffix + "$", self.kRootDirSuffix,self.mSlidePath)
-        if theRootDirectory == self.mSlidePath:
-            theRootDirectory = re.sub(self.kSlideSuffixCompressed + "$", self.kRootDirSuffix,self.mSlidePath)
+        if(not self.mIsCompressed):
+            theRootDirectory = re.sub(self.kSlideSuffix + "$", self.kRootDirSuffix,self.mSlidePath)
+        else:
+            theRootDirectory = re.sub(self.kZSlideSuffix + "$", self.kRootDirSuffix,self.mSlidePath)
         return theRootDirectory
 
     def GetListOfImageGroupTitles(self):
@@ -49,6 +54,9 @@ class CSBFile70(object):
             found = False
             for subentry in os.scandir(entry.path):
                 if subentry.name.endswith(self.kBinaryFileSuffix):
+                    found = True
+                    break
+                if subentry.name.endswith(self.kZBinaryFileSuffix):
                     found = True
                     break
             if found == False: 
@@ -90,7 +98,11 @@ class CSBFile70(object):
         theImageGroupDirectory = self.GetImageGroupDirectory(inTitle)
         # buf = "A = %d\n , B = %s\n" % (a, b)
 
-        thePath = "%s%s%s_Ch%1d_TP%07d%s" %( theImageGroupDirectory, os.sep, "ImageData", inChannel, inTimepoint, self.kBinaryFileSuffix)
+        theSuffix = self.kBinaryFileSuffix
+        if(self.mIsCompressed):
+            theSuffix = self.kZBinaryFileSuffix
+
+        thePath = "%s%s%s_Ch%1d_TP%07d%s" %( theImageGroupDirectory, os.sep, "ImageData", inChannel, inTimepoint, theSuffix)
         return thePath
 
     def GetMaskDataFile(self, inTitle, inTimepoint):
@@ -144,7 +156,7 @@ class CSBFile70(object):
             print ("getListOfNpyDataFiles: theImageGroupDirectory " + theImageGroupDirectory)
         theFilePaths = []
         for entry in os.scandir(theImageGroupDirectory):
-            if not entry.name.endswith(self.kBinaryFileSuffix):
+            if not entry.name.endswith(self.kBinaryFileSuffix) and not entry.name.endswith(self.kZBinaryFileSuffix):
                 continue
             if not entry.name.startswith(inStartWith):
                 continue

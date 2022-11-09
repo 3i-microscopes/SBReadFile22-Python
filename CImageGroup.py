@@ -2,6 +2,7 @@ from BaseDecoder import BaseDecoder
 from CMetadataLib import *
 from CNpyHeader import *
 from CSBFile70 import *
+from CCompressionBase import *
 from CSBPoint import *
 import os
 import yaml
@@ -74,7 +75,11 @@ class CImageGroup(BaseDecoder):
         self.mFile = inFile
         self.mImageTitle = inImageTitle
         self.mSingleTimepointFile = False
+        self.mCompressor = CCompressionBase()
+        self.mCompressionFlag = self.mCompressor.eCompressionNone
         self.mDebugPrint = False
+        self.mLastTimepoint = -1;
+        self.mLastChannel = -1;
 
     def IsSFMT(self,inPath):
         theStream = open(inPath,"rb")

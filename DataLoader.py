@@ -20,8 +20,6 @@ class DataLoader(object):
         self.mCurrentFileCounter = 0
         self.mDebugPrint = False
         self.mFirstPlaneOffset = 0
-        self.mCompressionFlag = int()
-        self.mCompressor = CCompressionBase()
 
     def CheckCaptureIndex(self,inCaptureIndex):
         if len(self.mCImageGroupList) == 0:
@@ -115,15 +113,18 @@ class DataLoader(object):
                         del self.mCounterToPathMap[theKeyValue]
                         del self.mPathToStreamMap[theKeyPath]
             theStream = open(thePath,"rb")
-            if theImageGroup.mNpyHeader == None:
+            if theImageGroup.mNpyHeader == None or inTimepointIndex != theImageGroup.mLastTimepoint or inChannelIndex != theImageGroup.mLastChannel:
+                theImageGroup.mLastTimepoint = inTimepointIndex
+                theImageGroup.mLastChannel = inChannelIndex
                 theImageGroup.mNpyHeader = CNpyHeader()
                 theRes = theImageGroup.mNpyHeader.ParseNpyHeader( theStream)
                 if not theRes:
                     return False
-                self.mCompressionFlag = theImageGroup.mNpyHeader.mCompressionFlag;
-                if self.mCompressionFlag > 0:
-                    self.mCompressor.Initialize(theImageGroup.mNpyHeader.mHeaderSize,self.mCompressionFlag,theNumColumns,theNumRows,theNumPlanes,0)
-                    self.mCompressor.ReadDictionary(theStream)
+                theImageGroup.mCompressionFlag = theImageGroup.mNpyHeader.mCompressionFlag;
+                if theImageGroup.mCompressionFlag > 0:
+                    theImageGroup.mCompressor = CCompressionBase()
+                    theImageGroup.mCompressor.Initialize(theImageGroup.mNpyHeader.mHeaderSize,theImageGroup.mCompressionFlag,theNumColumns,theNumRows,theNumPlanes,0)
+                    theImageGroup.mCompressor.ReadDictionary(theStream)
 
             self.mPathToStreamMap[thePath] = theStream
             self.mCounterToPathMap[self.mCurrentFileCounter] = thePath
@@ -131,7 +132,7 @@ class DataLoader(object):
         else:
             theStream = self.mPathToStreamMap[thePath]
 
-        if self.mCompressionFlag == 0:
+        if theImageGroup.mCompressionFlag == 0:
             thePlaneSize = theNumColumns * theNumRows * theImageGroup.mNpyHeader.mBytesPerPixel
             if self.mDebugPrint:
                 print ("ReadPlane: thePlaneSize: " , thePlaneSize)
@@ -144,7 +145,7 @@ class DataLoader(object):
 
             ouBuf = theStream.read(thePlaneSize)
         else:
-            ouBuf = self.mCompressor.ReadData(theStream,inZPlaneIndex)
+            ouBuf = theImageGroup.mCompressor.ReadData(theStream,inZPlaneIndex)
 
         theNpBuf = np.frombuffer(ouBuf,dtype=np.uint16)
         if inAs2D:

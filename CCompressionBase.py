@@ -37,7 +37,7 @@ class CCompressionBase(object):
         self.mDataPosition = self.mDictionaryPosition + self.mNumZ * self.mBlockDictionarySize
         self.mDataLenBY = self.mNumX * self.mNumY * self.mUint16Size
 
-    def Initialize(self,inDictionaryPosition,inAlgorythm,inNumX,inNumY,inNumZ,inNumBlocks,inNumberOfThreads):
+    def InitializeEx(self,inDictionaryPosition,inAlgorythm,inNumX,inNumY,inNumZ,inNumBlocks,inNumberOfThreads):
 
         self.mAlgorythm = inAlgorythm
         self.mNumX = inNumX
