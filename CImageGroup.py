@@ -584,7 +584,7 @@ class CImageGroup(BaseDecoder):
     def GetVoxelSize(self):
         theSize = self.mImageRecord.mLensDef.mMicronPerPixel
         if self.mImageRecord.mOptovarDef.mMagnification > 0:
-            theSize /= self.mImageRecord.mLensDef.mMicronPerPixel
+            theSize /= self.mImageRecord.mOptovarDef.mMicronPerPixel
         theXFactor = self.mChannelRecordList[0].mExposureRecord.mXFactor
         if theXFactor > 0:
             theSize *= theXFactor
