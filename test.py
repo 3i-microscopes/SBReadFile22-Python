@@ -36,6 +36,8 @@ def main(argv):
 
     theCapture = 0
     theChannel = 0
+    theThumbnail = theSBFileReader.GetThumbnail(theCapture)
+    
     theImageName = theSBFileReader.GetImageName(theCapture)
     print ("*** the image name: ",theImageName)
 

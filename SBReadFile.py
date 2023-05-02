@@ -441,6 +441,23 @@ class SBReadFile(object):
         theImageGroup = self.mDL.GetImageGroup(inCaptureIndex)
         return theImageGroup.GetCaptureDate()
 
+    def GetThumbnail(self,inCaptureIndex):
+        """ Gets the thumbnail
+
+        Parameters
+        ----------
+        inCaptureIndex: int
+            The index of the image group. Must be in range(0,number of captures)
+
+        Returns
+        numpy uint32 array 
+            The thumbnail is returned as list of 1024 integers values. Each value is a 32 bit color value. The thumbnail is 32x32 pixels ordered by rows.
+        """
+
+        self.mDL.CheckCaptureIndex(inCaptureIndex)
+        theImageGroup = self.mDL.GetImageGroup(inCaptureIndex)
+        return theImageGroup.GetThumbnail()
+
     def ReadImagePlaneBuf(self,inCaptureIndex,inPositionIndex,inTimepointIndex,inZPlaneIndex,inChannelIndex,inAs2D=False):
         """ Reads a z plane of an image into a numpy array
 

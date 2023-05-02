@@ -584,7 +584,7 @@ class CImageGroup(BaseDecoder):
     def GetVoxelSize(self):
         theSize = self.mImageRecord.mLensDef.mMicronPerPixel
         if self.mImageRecord.mOptovarDef.mMagnification > 0:
-            theSize /= self.mImageRecord.mLensDef.mMicronPerPixel
+            theSize /= self.mImageRecord.mOptovarDef.mMagnification
         theXFactor = self.mChannelRecordList[0].mExposureRecord.mXFactor
         if theXFactor > 0:
             theSize *= theXFactor
@@ -616,6 +616,9 @@ class CImageGroup(BaseDecoder):
 
     def GetCaptureDate(self):
         return self.mImageRecord.mYear, self.mImageRecord.mMonth, self.mImageRecord.mDay, self.mImageRecord.mHour, self.mImageRecord.mMinute, self.mImageRecord.mSecond
+
+    def GetThumbnail(self):
+        return self.mImageRecord.mThumbNail[1:len(self.mImageRecord.mThumbNail)]
 
     def GetAuxDataXMLDescriptor(self,inChannelIndex):
         mXmlDescriptor = ""
