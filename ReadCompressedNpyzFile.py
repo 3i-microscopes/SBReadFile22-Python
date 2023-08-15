@@ -50,7 +50,7 @@ def main(argv):
 
     theCompressor = CCompressionBase()
     if theNumDim == 4:
-        theCompressor.Initialize(theNpyHeader.mHeaderSize,theNpyHeader.mCompressionFlag,theNumColumns,theNumRows,theNumPlanes,theNumBlocks,0)
+        theCompressor.InitializeEx(theNpyHeader.mHeaderSize,theNpyHeader.mCompressionFlag,theNumColumns,theNumRows,theNumPlanes,theNumBlocks,0)
         theCompressor.ReadDictionary(theStream)
     else:
         theCompressor.Initialize(theNpyHeader.mHeaderSize,theNpyHeader.mCompressionFlag,theNumColumns,theNumRows,theNumPlanes,0)
