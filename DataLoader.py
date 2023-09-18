@@ -54,7 +54,7 @@ class DataLoader(object):
         inputStream.close()
         return res
 
-    def LoadMetadata(self):
+    def LoadMetadata(self,All=True):
         try:
             theResult = self.ReadSld()
 
@@ -70,7 +70,7 @@ class DataLoader(object):
             theImageGroupIndex = 0
             for theImageTitle in  theImageTitles:
                 theImageGroup = CImageGroup(self.mFile,theImageTitle)
-                theResult = theImageGroup.Load()
+                theResult = theImageGroup.Load(All)
                 if theResult:
                     self.mCImageGroupList.append(theImageGroup)
                 else:
@@ -105,17 +105,24 @@ class DataLoader(object):
                     teRes, theT0Path = theImageGroup.mFile.RenamePathToTimepoint0(thePath)
                     thePath = theT0Path
 
-        if thePath not in self.mPathToStreamMap:
-            if len(self.mCounterToPathMap) > self.kMaxNumberOpenFiles:
-                theKeyValue = next(iter(mCounterToPathMap.values()))  # gets the first value
-                theKeyPath = mCounterToPathMap.get(theKeyValue)
-                if theKeyPath != None:
-                    theKeyStream = mPathToStreamMap.get(theKeyPath)
-                    if theKeyStream != None:
-                        theKeyStream.close()
-                        del self.mCounterToPathMap[theKeyValue]
-                        del self.mPathToStreamMap[theKeyPath]
-            theStream = open(thePath,"rb")
+            if thePath not in self.mPathToStreamMap:
+                if len(self.mCounterToPathMap) > self.kMaxNumberOpenFiles:
+                    theKeyValue = next(iter(self.mCounterToPathMap.values()))  # gets the first value
+                    theKeyPath = self.mCounterToPathMap.get(theKeyValue)
+                    if theKeyPath != None:
+                        theKeyStream = mPathToStreamMap.get(theKeyPath)
+                        if theKeyStream != None:
+                            theKeyStream.close()
+                            del self.mCounterToPathMap[theKeyValue]
+                            del self.mPathToStreamMap[theKeyPath]
+                try:
+                    theStream = open(thePath,"rb")
+                except:
+                    self.mErrorMessage += "Could not open file: " + thePath
+                    theNpBuf = np.zeros(theNumRows*theNumColumns,dtype=np.uint16);
+                    if inAs2D:
+                        theNpBuf = theNpBuf.reshape(theNumRows,theNumColumns)
+                    return theNpBuf
             if theImageGroup.mNpyHeader == None or inTimepointIndex != theImageGroup.mLastTimepoint or inChannelIndex != theImageGroup.mLastChannel:
                 theImageGroup.mLastTimepoint = inTimepointIndex
                 theImageGroup.mLastChannel = inChannelIndex
@@ -150,7 +157,11 @@ class DataLoader(object):
         else:
             ouBuf = theImageGroup.mCompressor.ReadData(theStream,inZPlaneIndex)
 
-        theNpBuf = np.frombuffer(ouBuf,dtype=np.uint16)
+        if len(ouBuf) < theNumRows*theNumColumns:
+            self.mErrorMessage += "Could not read the plane for path: " + thePath + "length found: " + str(len(ouBuf))
+            theNpBuf = np.zeros(theNumRows*theNumColumns,dtype=np.uint16);
+        else:
+            theNpBuf = np.frombuffer(ouBuf,dtype=np.uint16)
         if inAs2D:
             theNpBuf = theNpBuf.reshape(theNumRows,theNumColumns)
 

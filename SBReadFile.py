@@ -10,7 +10,7 @@ class SBReadFile(object):
 
     # All access functions as in SBReadFile.h
 
-    def Open(self,inPath):
+    def Open(self,inPath,All=True):
         """Open a SlideBook file and loads the Metadata
 
         Parameters
@@ -24,7 +24,7 @@ class SBReadFile(object):
         """
 
         self.mDL = DataLoader(inPath)
-        res = self.mDL.LoadMetadata()
+        res = self.mDL.LoadMetadata(All)
         return res
 
 
@@ -113,6 +113,18 @@ class SBReadFile(object):
         self.mDL.CheckCaptureIndex(inCaptureIndex)
         theImageGroup = self.mDL.GetImageGroup(inCaptureIndex)
         return theImageGroup.GetNumPlanes()
+
+    def Refresh(self,inCaptureIndex):
+        """ Refresh metadata
+
+        Parameters
+        ----------
+        inCaptureIndex: int
+            The index of the image group. Must be in range(0,number of captures)
+        """
+        self.mDL.CheckCaptureIndex(inCaptureIndex)
+        theImageGroup = self.mDL.GetImageGroup(inCaptureIndex)
+        theImageGroup.Refresh()
 
     def GetNumTimepoints(self,inCaptureIndex):
         """ Gets the number of time points in an image group

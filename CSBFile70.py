@@ -128,20 +128,20 @@ class CSBFile70(object):
 
     def GetChannelIndexOfPath(self, inPath):
         """ generated source for method GetChannelIndexOfPath """
-        thePos = inPath.lastIndexOf("_Ch")
+        thePos = inPath.rindex("_Ch")
         if thePos == -1:
             return -1
-        theDigit = inPath.substring(thePos + 3, 1)
-        theChannel = Integer.valueOf(theDigit)
+        theDigit = inPath[thePos + 3: thePos+4]
+        theChannel = int(theDigit)
         return theChannel
 
     def GetTimepointOfPath(self, inPath):
         """ generated source for method GetTimepointOfPath """
-        thePos = inPath.lastIndexOf("_TP")
+        thePos = inPath.rindex("_TP")
         if thePos == -1:
             return -1
-        theDigit = inPath.substring(thePos + 3, self.kNumDigitsInTimepoint)
-        theTimepoint = Integer.valueOf(theDigit)
+        theDigit = inPath[thePos + 3: thePos + 3 + self.kNumDigitsInTimepoint]
+        theTimepoint = int(theDigit)
         return theTimepoint
 
     def RenamePathToTimepoint0(self,inPath):

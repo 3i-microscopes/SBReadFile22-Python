@@ -153,10 +153,11 @@ class CImageGroup(BaseDecoder):
         self.mImageDataList = []
         theTimepoint = 0
         while theTimepoint < self.mImageRecord.mNumTimepoints:
-            self.mImageDataList.append(CImageData())
+            #self.mImageDataList.append(CImageData())
             theTimepoint += 1
         if self.mDebugPrint:
-            print ("CountImageDataFiles: mImageDataList.length " , len(self.mImageDataList))
+            #print ("CountImageDataFiles: mImageDataList.length " , len(self.mImageDataList))
+            print ("CountImageDataFiles: mImageDataList.length " , theTimepoint)
         return True
 
     def LoadImageRecord(self):
@@ -525,6 +526,9 @@ class CImageGroup(BaseDecoder):
             print ("CImageGroup::LoadAuxData error")
         return True
 
+    def Refresh(self):
+        self.CountImageDataFiles()
+
     def GetNumChannels(self):
         return self.mImageRecord.mNumChannels
 
@@ -714,7 +718,7 @@ class CImageGroup(BaseDecoder):
 
 
 
-    def Load(self):
+    def Load(self,All=True):
         theResult = False
         if self.mDebugPrint:
             print ("CImageGroup: Load")
@@ -730,26 +734,31 @@ class CImageGroup(BaseDecoder):
         if not theResult:
             print ("LoadMaks: result " , theResult)
             return False
-        theResult = self.LoadAnnotations()
-        if not theResult:
-            print ("LoadAnnotations: result " , theResult)
-            return False
-        theResult = self.LoadElapsedTimes()
-        if not theResult:
-            print ("LoadElapsedTimes: result " , theResult)
-            return False
-        theResult = self.LoadSAPositions()
-        if not theResult:
-            print ("LoadSAPositions: result " , theResult)
-            return False
-        theResult = self.LoadStagePosition()
-        if not theResult:
-            print ("LoadStagePosition: result " , theResult)
-            return False
-        theResult = self.LoadAuxData()
-        if not theResult:
-            print ("LoadAuxData: result " , theResult)
-            return False
+        if All:
+            theResult = self.LoadAnnotations()
+            if not theResult:
+                print ("LoadAnnotations: result " , theResult)
+                return False
+        if All:
+            theResult = self.LoadElapsedTimes()
+            if not theResult:
+                print ("LoadElapsedTimes: result " , theResult)
+                return False
+        if All:
+            theResult = self.LoadSAPositions()
+            if not theResult:
+                print ("LoadSAPositions: result " , theResult)
+                return False
+        if All:
+            theResult = self.LoadStagePosition()
+            if not theResult:
+                print ("LoadStagePosition: result " , theResult)
+                return False
+        if All:
+            theResult = self.LoadAuxData()
+            if not theResult:
+                print ("LoadAuxData: result " , theResult)
+                return False
         return True
 
 
