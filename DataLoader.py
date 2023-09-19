@@ -105,24 +105,24 @@ class DataLoader(object):
                     teRes, theT0Path = theImageGroup.mFile.RenamePathToTimepoint0(thePath)
                     thePath = theT0Path
 
-            if thePath not in self.mPathToStreamMap:
-                if len(self.mCounterToPathMap) > self.kMaxNumberOpenFiles:
-                    theKeyValue = next(iter(self.mCounterToPathMap.values()))  # gets the first value
-                    theKeyPath = self.mCounterToPathMap.get(theKeyValue)
-                    if theKeyPath != None:
-                        theKeyStream = mPathToStreamMap.get(theKeyPath)
-                        if theKeyStream != None:
-                            theKeyStream.close()
-                            del self.mCounterToPathMap[theKeyValue]
-                            del self.mPathToStreamMap[theKeyPath]
-                try:
-                    theStream = open(thePath,"rb")
-                except:
-                    self.mErrorMessage += "Could not open file: " + thePath
-                    theNpBuf = np.zeros(theNumRows*theNumColumns,dtype=np.uint16);
-                    if inAs2D:
-                        theNpBuf = theNpBuf.reshape(theNumRows,theNumColumns)
-                    return theNpBuf
+        if thePath not in self.mPathToStreamMap:
+            if len(self.mCounterToPathMap) > self.kMaxNumberOpenFiles:
+                theKeyValue = next(iter(self.mCounterToPathMap.values()))  # gets the first value
+                theKeyPath = self.mCounterToPathMap.get(theKeyValue)
+                if theKeyPath != None:
+                    theKeyStream = mPathToStreamMap.get(theKeyPath)
+                    if theKeyStream != None:
+                        theKeyStream.close()
+                        del self.mCounterToPathMap[theKeyValue]
+                        del self.mPathToStreamMap[theKeyPath]
+            try:
+                theStream = open(thePath,"rb")
+            except:
+                self.mErrorMessage += "Could not open file: " + thePath
+                theNpBuf = np.zeros(theNumRows*theNumColumns,dtype=np.uint16);
+                if inAs2D:
+                    theNpBuf = theNpBuf.reshape(theNumRows,theNumColumns)
+                return theNpBuf
             if theImageGroup.mNpyHeader == None or inTimepointIndex != theImageGroup.mLastTimepoint or inChannelIndex != theImageGroup.mLastChannel:
                 theImageGroup.mLastTimepoint = inTimepointIndex
                 theImageGroup.mLastChannel = inChannelIndex
