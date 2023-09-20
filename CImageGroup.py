@@ -238,7 +238,7 @@ class CImageGroup(BaseDecoder):
             print ("CImageGroup::LoadChannelRecord error")
         return True
 
-    def LoadMaks(self):
+    def LoadMask(self):
         try:
             thePath = self.mFile.GetImageGroupDirectory(self.mImageTitle) + os.sep +  self.mFile.kMaskRecordFilename
             inputStream = open(thePath,"r")
@@ -283,7 +283,7 @@ class CImageGroup(BaseDecoder):
                     self.mMaskPosList.append(thePos)
 
         except:
-            print ("CImageGroup::LoadMaks error")
+            print ("CImageGroup::LoadMask error")
         return True
 
     def LoadAnnotations(self):
@@ -730,10 +730,11 @@ class CImageGroup(BaseDecoder):
         if not theResult:
             print ("LoadChannelRecord: result " , theResult)
             return False
-        theResult = self.LoadMaks()
-        if not theResult:
-            print ("LoadMaks: result " , theResult)
-            return False
+        if All:
+            theResult = self.LoadMask()
+            if not theResult:
+                print ("LoadMask: result " , theResult)
+                return False
         if All:
             theResult = self.LoadAnnotations()
             if not theResult:
