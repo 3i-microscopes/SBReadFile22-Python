@@ -53,6 +53,14 @@ def main(argv):
     theNumChannels = theSBFileReader.GetNumChannels(theCapture)
     print ("*** the image num channels: ",theNumChannels)
 
+    theNumAnnotations = theSBFileReader.GetNumROIAnnotations(theCapture)
+    print ("*** the image num annotations: ",theNumAnnotations)
+    for theAnnoIndex in range (0,theNumAnnotations):
+        theShape,theVertexes = theSBFileReader.GetROIAnnotation(theCapture,theAnnoIndex)
+        print ("theShape: ",theShape)
+        for theVertex in theVertexes:
+            print(" x: ",theVertex.mX," y: ",theVertex.mY)
+
     theX,theY,theZ = theSBFileReader.GetVoxelSize(theCapture)
     print ("*** the the voxel x,y,z size is: ",theX,theY,theZ)
 

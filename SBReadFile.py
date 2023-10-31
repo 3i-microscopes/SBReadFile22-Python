@@ -3,6 +3,20 @@ __license__  = "This source code is licensed under the BSD-style license found i
 
 from DataLoader import *
 from CImageGroup import *
+from enum import Enum
+
+
+class EROI_Shapes(Enum):
+    """ Enum with shapes retuirned from GetROIAnnotation
+    """
+    ePoint = 1
+    eLine = 2
+    eRectangle = 3
+    ePolygon = 4
+    eEllipse = 5
+    eArrow = 6
+    eError = 7
+
 
 class SBReadFile(object):
     
@@ -161,6 +175,65 @@ class SBReadFile(object):
         self.mDL.CheckCaptureIndex(inCaptureIndex)
         theImageGroup = self.mDL.GetImageGroup(inCaptureIndex)
         return theImageGroup.GetNumChannels()
+
+    def GetNumROIAnnotations(self,inCaptureIndex):
+        """ Gets the number of ROI Annotations in an image group
+
+        Parameters
+        ----------
+        inCaptureIndex: int
+            The index of the image group. Must be in range(0,number of captures)
+
+        Returns
+        -------
+        int
+            The number of ROI Annotations
+        """
+
+        self.mDL.CheckCaptureIndex(inCaptureIndex)
+        theImageGroup = self.mDL.GetImageGroup(inCaptureIndex)
+        size = len(theImageGroup.mAnnotationList)
+        if(size == 0):
+            return 0;
+        theAnno = theImageGroup.mAnnotationList[0]
+        size = len(theAnno.mCubeAnnotationList)
+        return size
+
+
+    def GetROIAnnotation(self,inCaptureIndex, inAnnotationIndex):
+        """ Gets a ROI Annotation in an image group
+
+        Parameters
+        ----------
+        inCaptureIndex: int
+            The index of the image group. Must be in range(0,number of captures)
+
+        inAnnotationIndex: int
+            The index of the desired annotation. Must be in range(0,number of ROI annotations)
+
+        Returns
+        -------
+        int
+            the ROI Shape in the Enum EROI_Shapes
+        int
+            the number of (x,y) points in the annotation
+        list
+            list of points
+        """
+        theShapeList = [1,2,3,4,7,7,6,7,5]
+
+        self.mDL.CheckCaptureIndex(inCaptureIndex)
+        theImageGroup = self.mDL.GetImageGroup(inCaptureIndex)
+        theNumAnno = self.GetNumROIAnnotations(inCaptureIndex);
+        if(inAnnotationIndex < 0 or inAnnotationIndex >= theNumAnno):
+            print ("GetROIAnnotation: inAnnotationIndex out of range ")
+            return  EROI_Shapes.eROI_Error,[]
+
+        theAnno = theImageGroup.mAnnotationList[0]
+        theCubeAnno = theAnno.mCubeAnnotationList[inAnnotationIndex]
+        theGraphicType =  theCubeAnno.mAnn.mGraphicType70
+        return theShapeList[theGraphicType],theCubeAnno.mAnn.mVertexes
+
 
     def GetExposureTime(self,inCaptureIndex,inChannelIndex):
         """ Gets the exposure time in ms for a particular channel of an image group
@@ -631,4 +704,5 @@ class SBReadFile(object):
         self.mDL.CheckCaptureIndex(inCaptureIndex)
         theImageGroup = self.mDL.GetImageGroup(inCaptureIndex)
         return theImageGroup.GetAuxSerializedData(inChannelIndex,inElementIndex)
+
 
