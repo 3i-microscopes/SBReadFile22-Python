@@ -1,6 +1,3 @@
-Help obtatined with command:
-python -c "import SBReadFile ; help(SBReadFile)"
-
 Help on module SBReadFile:
 
 NAME
@@ -9,6 +6,52 @@ NAME
 CLASSES
     builtins.object
         SBReadFile
+    enum.Enum(builtins.object)
+        EROI_Shapes
+    
+    class EROI_Shapes(enum.Enum)
+     |  EROI_Shapes(value, names=None, *, module=None, qualname=None, type=None, start=1)
+     |  
+     |  Enum with shapes retuirned from GetROIAnnotation
+     |  
+     |  Method resolution order:
+     |      EROI_Shapes
+     |      enum.Enum
+     |      builtins.object
+     |  
+     |  Data and other attributes defined here:
+     |  
+     |  eArrow = <EROI_Shapes.eArrow: 6>
+     |  
+     |  eEllipse = <EROI_Shapes.eEllipse: 5>
+     |  
+     |  eError = <EROI_Shapes.eError: 7>
+     |  
+     |  eLine = <EROI_Shapes.eLine: 2>
+     |  
+     |  ePoint = <EROI_Shapes.ePoint: 1>
+     |  
+     |  ePolygon = <EROI_Shapes.ePolygon: 4>
+     |  
+     |  eRectangle = <EROI_Shapes.eRectangle: 3>
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from enum.Enum:
+     |  
+     |  name
+     |      The name of the Enum member.
+     |  
+     |  value
+     |      The value of the Enum member.
+     |  
+     |  ----------------------------------------------------------------------
+     |  Readonly properties inherited from enum.EnumMeta:
+     |  
+     |  __members__
+     |      Returns a mapping of member name->value.
+     |      
+     |      This mapping lists all enum members, including aliases. Note that this
+     |      is a read-only view of the internal mapping.
     
     class SBReadFile(builtins.object)
      |  A Class to Read Slide Book Format 7 Files
@@ -183,6 +226,49 @@ CLASSES
      |      int
      |          The exposure time in ms
      |  
+     |  GetFRAPAnnotation(self, inCaptureIndex, inTimepointIndex)
+     |      Gets a FRAP Annotation in an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      inTimepointIndex: int
+     |          The time point number
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          the FRAP Shape in the Enum EROI_Shapes
+     |      int
+     |          the number of (x,y) points in the annotation
+     |      list
+     |          list of points
+     |  
+     |  GetFRAPRegion(self, inCaptureIndex, inTimepointIndex, inRegionIndex)
+     |      Gets a FRAP Region in an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      inRegionIndex: int
+     |          The index of the desired annotation. Must be in range(0,number of ROI annotations)
+     |      
+     |      inTimepointIndex: int
+     |          The time point number
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          the FRAP Shape in the Enum EROI_Shapes
+     |      int
+     |          the number of (x,y) points in the annotation
+     |      list
+     |          list of points
+     |  
      |  GetImageComments(self, inCaptureIndex)
      |      Gets the comments of an image group
      |      
@@ -286,6 +372,22 @@ CLASSES
      |      int
      |          The number of channels
      |  
+     |  GetNumFRAPRegions(self, inCaptureIndex, inTimepointIndex)
+     |      Gets the number of FRAP Regions in an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      inTimepointIndex: int
+     |          The time point number
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          The number of ROI Annotations
+     |  
      |  GetNumPositions(self, inCaptureIndex)
      |      Gets the number of (montage) positions in an image group
      |      
@@ -298,6 +400,19 @@ CLASSES
      |      -------
      |      int
      |          The number of positions
+     |  
+     |  GetNumROIAnnotations(self, inCaptureIndex)
+     |      Gets the number of ROI Annotations in an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          The number of ROI Annotations
      |  
      |  GetNumTimepoints(self, inCaptureIndex)
      |      Gets the number of time points in an image group
@@ -350,6 +465,38 @@ CLASSES
      |      -------
      |      int
      |          The number of z planes of the image
+     |  
+     |  GetROIAnnotation(self, inCaptureIndex, inAnnotationIndex)
+     |      Gets a ROI Annotation in an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      inAnnotationIndex: int
+     |          The index of the desired annotation. Must be in range(0,number of ROI annotations)
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          the ROI Shape in the Enum EROI_Shapes
+     |      int
+     |          the number of (x,y) points in the annotation
+     |      list
+     |          list of points
+     |  
+     |  GetThumbnail(self, inCaptureIndex)
+     |      Gets the thumbnail
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      Returns
+     |      numpy uint32 array 
+     |          The thumbnail is returned as list of 1024 integers values. Each value is a 32 bit color value. The thumbnail is 32x32 pixels ordered by rows.
      |  
      |  GetVoxelSize(self, inCaptureIndex)
      |      Gets the voxel size in microns of an image group
@@ -413,7 +560,7 @@ CLASSES
      |      float
      |          The Z position in um
      |  
-     |  Open(self, inPath)
+     |  Open(self, inPath, All=True)
      |      Open a SlideBook file and loads the Metadata
      |      
      |      Parameters
@@ -423,7 +570,7 @@ CLASSES
      |      Returns
      |      -------
      |      bool
-     |          true if file opened successfully, else false
+     |          true if file opeend succesfully, else false
      |  
      |  ReadImagePlaneBuf(self, inCaptureIndex, inPositionIndex, inTimepointIndex, inZPlaneIndex, inChannelIndex, inAs2D=False)
      |      Reads a z plane of an image into a numpy array
@@ -449,6 +596,14 @@ CLASSES
      |          The image is returned as 1D numpy uint16 array if inAs2D is false
      |          Otherwise is returned as a 2D array of (NumRows,NumColumns)
      |  
+     |  Refresh(self, inCaptureIndex)
+     |      Refresh metadata
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |  
      |  ----------------------------------------------------------------------
      |  Data descriptors defined here:
      |  
@@ -457,6 +612,10 @@ CLASSES
      |  
      |  __weakref__
      |      list of weak references to the object (if defined)
+
+DATA
+    __copyright__ = 'Copyright (c) 2022, Intelligent Imaging Innovations, ...
+    __license__ = 'This source code is licensed under the BSD-style...E fi...
 
 FILE
     c:\users\nicola papp\perforce\nicola_msi_552\dev\sb_7.0_bcg\sbreadfile\dist\python\format 7\sbreadfile.py

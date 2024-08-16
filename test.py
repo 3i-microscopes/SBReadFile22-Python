@@ -54,12 +54,27 @@ def main(argv):
     print ("*** the image num channels: ",theNumChannels)
 
     theNumAnnotations = theSBFileReader.GetNumROIAnnotations(theCapture)
-    print ("*** the image num annotations: ",theNumAnnotations)
+    print ("*** the image num ROI annotations: ",theNumAnnotations)
     for theAnnoIndex in range (0,theNumAnnotations):
         theShape,theVertexes = theSBFileReader.GetROIAnnotation(theCapture,theAnnoIndex)
         print ("theShape: ",theShape)
         for theVertex in theVertexes:
             print(" x: ",theVertex.mX," y: ",theVertex.mY)
+
+    for theTimepoint in range(0,theNumTimepoints):
+        theNumRegions = theSBFileReader.GetNumFRAPRegions(theCapture,theTimepoint)
+        if(theNumRegions == 0):
+            continue
+        print ("*** the image num FRAP Regions ",theNumRegions, " for timepoint: ",theTimepoint)
+        theShape,theVertexes = theSBFileReader.GetFRAPAnnotation(theCapture,theTimepoint)
+        print ("the FRAPP Annotation shape : ",theShape)
+        for theVertex in theVertexes:
+            print(" x: ",theVertex.mX," y: ",theVertex.mY)
+        for theRegionIndex in range (0,theNumRegions):
+            theShape,theVertexes = theSBFileReader.GetFRAPRegion(theCapture,theTimepoint,theRegionIndex)
+            print ("the Frap Region shape: ",theShape)
+            for theVertex in theVertexes:
+                print(" x: ",theVertex.mX," y: ",theVertex.mY)
 
     theX,theY,theZ = theSBFileReader.GetVoxelSize(theCapture)
     print ("*** the the voxel x,y,z size is: ",theX,theY,theZ)

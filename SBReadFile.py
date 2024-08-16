@@ -1,6 +1,9 @@
 __copyright__  = "Copyright (c) 2022, Intelligent Imaging Innovations, Inc. All rights reserved.  All rights reserved."
 __license__  = "This source code is licensed under the BSD-style license found in the LICENSE file in the root directory of this source tree."
 
+#Help obtained with the command:
+#python -c "import SBReadFile ; help(SBReadFile)" > help.txt
+`
 from DataLoader import *
 from CImageGroup import *
 from enum import Enum
@@ -233,6 +236,108 @@ class SBReadFile(object):
         theCubeAnno = theAnno.mCubeAnnotationList[inAnnotationIndex]
         theGraphicType =  theCubeAnno.mAnn.mGraphicType70
         return theShapeList[theGraphicType],theCubeAnno.mAnn.mVertexes
+
+    def GetNumFRAPRegions(self,inCaptureIndex, inTimepointIndex):
+        """ Gets the number of FRAP Regions in an image group
+
+        Parameters
+        ----------
+        inCaptureIndex: int
+            The index of the image group. Must be in range(0,number of captures)
+
+        inTimepointIndex: int
+            The time point number
+
+        Returns
+        -------
+        int
+            The number of ROI Annotations
+        """
+
+        self.mDL.CheckCaptureIndex(inCaptureIndex)
+        theImageGroup = self.mDL.GetImageGroup(inCaptureIndex)
+        size = len(theImageGroup.mAnnotationList)
+        if(size == 0):
+            return 0;
+        if(inTimepointIndex < 0 or inTimepointIndex >= size):
+            print ("GetNumFRAPRegions: inTimepointIndex out of range ")
+            return  0
+        theAnno = theImageGroup.mAnnotationList[inTimepointIndex]
+        size = len(theAnno.mFRAPRegionAnnotationList)
+        if(size == 0):
+            return 0;
+
+        theFRAPAnno = theAnno.mFRAPRegionAnnotationList[0]
+        size = len(theFRAPAnno.mRegions)
+        return size
+
+    def GetFRAPAnnotation(self,inCaptureIndex, inTimepointIndex):
+        """ Gets a FRAP Annotation in an image group
+
+        Parameters
+        ----------
+        inCaptureIndex: int
+            The index of the image group. Must be in range(0,number of captures)
+
+        inTimepointIndex: int
+            The time point number
+
+        Returns
+        -------
+        int
+            the FRAP Shape in the Enum EROI_Shapes
+        int
+            the number of (x,y) points in the annotation
+        list
+            list of points
+        """
+        theShapeList = [1,2,3,4,7,7,6,7,5]
+
+        self.mDL.CheckCaptureIndex(inCaptureIndex)
+        theImageGroup = self.mDL.GetImageGroup(inCaptureIndex)
+        theAnno = theImageGroup.mAnnotationList[inTimepointIndex]
+        theFRAPAnno = theAnno.mFRAPRegionAnnotationList[0]
+        theGraphicType =  theFRAPAnno.mAnn.mGraphicType70
+        return theShapeList[theGraphicType],theFRAPAnno.mAnn.mVertexes
+
+    def GetFRAPRegion(self,inCaptureIndex, inTimepointIndex, inRegionIndex):
+        """ Gets a FRAP Region in an image group
+
+        Parameters
+        ----------
+        inCaptureIndex: int
+            The index of the image group. Must be in range(0,number of captures)
+
+        inRegionIndex: int
+            The index of the desired annotation. Must be in range(0,number of ROI annotations)
+
+        inTimepointIndex: int
+            The time point number
+
+        Returns
+        -------
+        int
+            the FRAP Shape in the Enum EROI_Shapes
+        int
+            the number of (x,y) points in the annotation
+        list
+            list of points
+        """
+        theShapeList = [1,2,3,4,7,7,6,7,5]
+
+        self.mDL.CheckCaptureIndex(inCaptureIndex)
+        theImageGroup = self.mDL.GetImageGroup(inCaptureIndex)
+        theNumRegions = self.GetNumFRAPRegions(inCaptureIndex, inTimepointIndex);
+        if(inRegionIndex < 0 or inRegionIndex >= theNumRegions):
+            print ("GetFRAPRegion: inRegionIndex out of range ")
+            return  EROI_Shapes.eROI_Error,[]
+
+        theAnno = theImageGroup.mAnnotationList[inTimepointIndex]
+        theFRAPAnno = theAnno.mFRAPRegionAnnotationList[0]
+        theRegion = theFRAPAnno.mRegions[inRegionIndex]
+
+        theGraphicType =  theRegion.mAnn.mGraphicType70
+        return theShapeList[theGraphicType],theRegion.mAnn.mVertexes
 
 
     def GetExposureTime(self,inCaptureIndex,inChannelIndex):
@@ -704,5 +809,4 @@ class SBReadFile(object):
         self.mDL.CheckCaptureIndex(inCaptureIndex)
         theImageGroup = self.mDL.GetImageGroup(inCaptureIndex)
         return theImageGroup.GetAuxSerializedData(inChannelIndex,inElementIndex)
-
 

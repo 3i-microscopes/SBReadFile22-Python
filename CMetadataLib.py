@@ -460,14 +460,15 @@ class CFRAPRegionAnnotation70(BaseDecoder):
         self.mAnn = CAnnotation70()
         theLastIndex = super().Decode(inNode, inStartIndex)
         theLastIndex = self.mAnn.Decode(inNode, theLastIndex)
-        theIIPair = GetIntegerValue(inNode, theLastIndex, "theNumRegions")
-        theNumRegions = theIIPair.mInt1
-        theLastIndex = theIIPair.mInt2
+        theIIPair = self.GetIntValue(inNode, theLastIndex, "theNumRegions")
+        theNumRegions = theIIPair[0]
+        theLastIndex = theIIPair[1]
         self.mRegions = []
         theRegionIndex = 0
         while theRegionIndex < theNumRegions:
+            theCubeAnnotation70 = CCubeAnnotation70()
             theLastIndex = theCubeAnnotation70.Decode(inNode, theLastIndex)
-            self.mRegions.add(theCubeAnnotation70)
+            self.mRegions.append(theCubeAnnotation70)
             theRegionIndex += 1
         return theLastIndex
 

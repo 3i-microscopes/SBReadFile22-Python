@@ -15,11 +15,12 @@ class CMaskPositions(object):
     mCompressedSizes = []
     mFileOffsets = []
 
-class CAnnotations(object):
-    mCubeAnnotationList = []
-    mBaseAnnotationList = []
-    mFRAPRegionAnnotationList = []
-    mUnknownAnnotationList = []
+class CAnnotations:
+    def __init__(self):
+        self.mCubeAnnotationList = []
+        self.mBaseAnnotationList = []
+        self.mFRAPRegionAnnotationList = []
+        self.mUnknownAnnotationList = []
 
 class CBaseAuxData(object):
     def __init__(self):
