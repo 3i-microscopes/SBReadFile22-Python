@@ -1,0 +1,1341 @@
+Help on module SBAccess:
+
+NAME
+    SBAccess
+
+DESCRIPTION
+    #Help obtained with the command:
+    #python -c "import SBAccess ; help(SBAccess)"
+    #check syntax with: pyflakes SBaccess.py
+
+CLASSES
+    builtins.object
+        SBAccess
+    
+    class SBAccess(builtins.object)
+     |  SBAccess(inSocket)
+     |  
+     |  A Class to Read Slide Book Format 7 Files
+     |  
+     |  Methods defined here:
+     |  
+     |  AddXYZPoint(self, inXum, inYum, inZum, inAuxZum=0, inIsAuxZ=False)
+     |      Adds a point the the Focus Window XY Tab
+     |      
+     |      Parameters
+     |      ----------
+     |      inXum: float
+     |          The point X coordinate in microns
+     |      
+     |      inYum: float
+     |          The point Y coordinate in microns
+     |      
+     |      inZum: float
+     |          The point Z coordinate in microns
+     |      
+     |      inAuxZum: float
+     |          The auxiliary Z stage coordinate in microns
+     |      
+     |      inIsAuxZ: bool
+     |          True if the Auxiliary Z Stage is enabled, False otherwise
+     |  
+     |  CopyImageGroup(self, inCopyCaptureIndex)
+     |      Copy an image group from another one
+     |      
+     |      Parameters
+     |      ----------
+     |      inCopyCaptureIndex: int
+     |          The index of the source image group. Must be in range(0,number of captures)
+     |      Returns
+     |      -------
+     |      none
+     |  
+     |  CreateImageGroup(self, inImageName, inNumChannels, inNumPlanes, inNumRows, inNumColumns, inNumTimepoints)
+     |      creates a new image in the current slide
+     |      
+     |      Parameters
+     |      ----------
+     |      inImageName:    str
+     |          The name of the image
+     |      inNumChannels: int
+     |          The number of channels in the image. Must be in the range(1,8)
+     |      inNumPlanes: int
+     |          The number of planes in the image (numZ). Must be in the range(1,65535)
+     |      inNumRows: int
+     |          The number of rows in the image (numY). Must be in the range(2,2^11)
+     |      inNumColumns: int
+     |          The number of columns in the image (numX). Must be in the range(2,2^11)
+     |      inNumTimepoints: int
+     |          The number of timepoints in the image (numT). Must be in the range(1,2^11)
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          The index of the image group.
+     |  
+     |  CreateNewSlide(self)
+     |      Creates a new Slide
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          The Slide Id
+     |  
+     |  FocusWindowMainMoveX(self, inFloatParam)
+     |      Moves the XY stage in the X direction in the Focus Window
+     |      
+     |      Parameters
+     |      ----------
+     |      inFloatParam: float
+     |          The movement in microns in the X direction
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowMainMoveY(self, inFloatParam)
+     |      Moves the XY stage in the Y direction in the Focus Window
+     |      
+     |      Parameters
+     |      ----------
+     |      inFloatParam: float
+     |          The movement in microns in the Y direction
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowMainMoveZAuxilary(self, inFloatParam)
+     |      Moves the Z auxiliary stage in the Z direction in the Focus Window
+     |      
+     |      Parameters
+     |      ----------
+     |      inFloatParam: float
+     |          The movement in microns of the auxiliary stage in the Z direction
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowMainMoveZPrimary(self, inFloatParam)
+     |      Moves the Z primary stage in the Z direction in the Focus Window
+     |      
+     |      Parameters
+     |      ----------
+     |      inFloatParam: float
+     |          The movement in microns of the primary stage in the Z direction
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowMainSelectBin(self, inStringParam)
+     |      Selects a string in the Bin ComboBox of the Focus Window
+     |      
+     |      Parameters
+     |      ----------
+     |      inStringParam: string
+     |          One of the strings in the Bin ComboBox
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowMainSelectChannel(self, inStringParam)
+     |      Selects a Channel in the Focus Window
+     |      
+     |      Parameters
+     |      ----------
+     |      inStringParam: string
+     |          The channel name
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowMainSelectFilterSet(self, inStringParam)
+     |      Selects a string in the Filter Set ComboBox of the Focus Window
+     |      
+     |      Parameters
+     |      ----------
+     |      inStringParam: string
+     |          One of the strings in the Filter Set ComboBox
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowMainSelectLaserPower(self, inStringParam)
+     |      Selects a string in the Laser Power ComboBox of the Focus Window
+     |      
+     |      Parameters
+     |      ----------
+     |      inStringParam: string
+     |          One of the strings in the Lser Power ComboBox
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowMainSelectNDAuxiliary(self, inStringParam)
+     |      Selects a string in the Neutral Density Auxiliary ComboBox of the Focus Window
+     |      
+     |      Parameters
+     |      ----------
+     |      inStringParam: string
+     |          One of the strings in the Neutral Density Auxiliary ComboBox
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowMainSelectNDPrimary(self, inStringParam)
+     |      Selects a string in the Neutral Density Primary ComboBox of the Focus Window
+     |      
+     |      Parameters
+     |      ----------
+     |      inStringParam: string
+     |          One of the strings in the Neutral Density Primary ComboBox
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowMainSelectZStage(self, inStringParam)
+     |      Selects a string in the Z Stage ComboBox of the Focus Window
+     |      
+     |      Parameters
+     |      ----------
+     |      inStringParam: string
+     |          One of the strings in the Z Stage ComboBox
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowMainSetAltClose(self)
+     |      Sets the Open Alt/Close Alt button to Close in the Focus Window
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowMainSetAltOpen(self)
+     |      Set the Open Alt/Close Alt button to Open in the Focus Window
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowMainSetBrightClose(self)
+     |      Sets the Open Bright/Close Bright button to Close in the Focus Window
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowMainSetBrightOpen(self)
+     |      Set the Open Bright/Close Bright button to Open in the Focus Window
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowMainSetExposure(self, inIntParam)
+     |      Sets the Exposure value in the Focus Window
+     |      
+     |      Parameters
+     |      ----------
+     |      inIntParam: int
+     |          The Exposure value
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowMainSetFluorClose(self)
+     |      Sets the Open Fluor/Close Fluor button to Close in the Focus Window
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowMainSetFluorOpen(self)
+     |      Sets the Open Fluor/Close Fluor button to Open in the Focus Window
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowMainSetLive(self)
+     |      Sets the Live/Stop button to Live in the Focus Window
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowMainSetSnap(self)
+     |      Snaps an image from the Live Window of the Focus Window
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowMainSetStop(self)
+     |      Sets the Live/Stop button to Stop in the Focus Window
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowScopeSelectCameraOrVideo(self, inIntParam)
+     |      Selects the Camera or the Video button in the Scope tab of the Focus Window
+     |      
+     |      Parameters
+     |      ----------
+     |      inIntParam: int
+     |          The value of 0 selects Camera
+     |          The value of 1 selects Video
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowScopeSelectCondenserPosition(self, inStringParam)
+     |      Selects a string in the Condenser Position ComboBox of the Scope tab of the Focus Window
+     |      
+     |      Parameters
+     |      ----------
+     |      inStringParam: string
+     |          One of the strings in the Condenser Position ComboBox
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowScopeSelectEmissionSelection(self, inIntParam)
+     |      Selects the 100% Camera or the 50%-50% or 100% Eyes button in the Scope tab of the Focus Window
+     |      
+     |      Parameters
+     |      ----------
+     |      inIntParam: int
+     |          The value of 0 selects 100% Camera
+     |          The value of 1 selects 50%-50%
+     |          The value of 2 selects 100% Eyes
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowScopeSelectMagnificationChanger(self, inStringParam)
+     |      Selects a string in the Magnification Changer ComboBox of the Scope tab of the Focus Window
+     |      
+     |      Parameters
+     |      ----------
+     |      inStringParam: string
+     |          One of the strings in the Magnification Changer ComboBox
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowScopeSelectObjective(self, inStringParam)
+     |      Selects one of the Objectives button in the Scope tab of the Focus Window. This function causes SlideBook to open an information popup
+     |      
+     |      Parameters
+     |      ----------
+     |      inStringParam: string
+     |          The name of the Objective to select
+     |      
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowScopeSetCondenserAperture(self, inIntParam)
+     |      Sets the Condenser Aperture in the Scope tab of the Focus Window
+     |      
+     |      Parameters
+     |      ----------
+     |      inIntParam: int
+     |          The condenser aperture value
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowScopeSetLampVoltage(self, inIntParam)
+     |      Sets the Lamp Voltage in the Scope tab of the Focus Window
+     |      
+     |      Parameters
+     |      ----------
+     |      inIntParam: int
+     |          The voltage value
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowStreamSetNumberFrames(self, inIntParam)
+     |      Sets the Number of Frames to capture in the Stream tab of the Focus Window
+     |      
+     |      Parameters
+     |      ----------
+     |      inIntParam: int
+     |          The number of frames to capture
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowStreamSetNumberFramesToAverage(self, inStringParam)
+     |      Selects a string in the Number of frames to average ComboBox in the Stream tab of the Focus Window
+     |      
+     |      Parameters
+     |      ----------
+     |      inStringParam: string
+     |          One of the strings in the Number of frames to average ComboBox
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
+     |  
+     |  GetAuxDataNumElements(self, inCaptureIndex, inChannelIndex)
+     |      Gets the Auxiliary Data number of elements for an image group and a channel
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inChannelIndex: int
+     |          The channel number
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          The number of elements
+     |  
+     |  GetAuxDataXMLDescriptor(self, inCaptureIndex, inChannelIndex)
+     |      Gets the Auxiliary Data XML Descriptor for an image group and a channel
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inChannelIndex: int
+     |          The channel number
+     |      
+     |      Returns
+     |      -------
+     |      str
+     |          The XML Descriptor
+     |  
+     |  GetAuxDoubleData(self, inCaptureIndex, inChannelIndex)
+     |      Gets the Auxiliary Double Data for an image group and a channel
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inChannelIndex: int
+     |          The channel number
+     |      
+     |      Returns
+     |      -------
+     |      list : float
+     |          The Double Data as a list
+     |  
+     |  GetAuxFloatData(self, inCaptureIndex, inChannelIndex)
+     |      Gets the Auxiliary Float Data for an image group and a channel
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inChannelIndex: int
+     |          The channel number
+     |      
+     |      Returns
+     |      -------
+     |      list : float
+     |          The Float Data as a list
+     |  
+     |  GetAuxSInt32Data(self, inCaptureIndex, inChannelIndex)
+     |      Gets the Auxiliary Signed Int32 Data for an image group and a channel
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inChannelIndex: int
+     |          The channel number
+     |      
+     |      Returns
+     |      -------
+     |      list: int
+     |          The Signed Int32 Data as a list
+     |  
+     |  GetAuxSInt64Data(self, inCaptureIndex, inChannelIndex)
+     |      Gets the Auxiliary Signed Int64 Data for an image group and a channel
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inChannelIndex: int
+     |          The channel number
+     |      
+     |      Returns
+     |      -------
+     |      list: int
+     |          The Signed Int64 Data as a list
+     |  
+     |  GetAuxSerializedData(self, inCaptureIndex, inChannelIndex, inElementIndex)
+     |      Gets the Auxiliary XML Data for an image group and a channel
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inChannelIndex: int
+     |          The channel number
+     |      
+     |      Returns
+     |      -------
+     |      list: str
+     |          The XML Data as a list
+     |  
+     |  GetCaptureDate(self, inCaptureIndex)
+     |      Gets the date of acquisition of an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      Returns
+     |      -------
+     |      str
+     |          date is inhe format: yyyy:MM:dd:hh:mm:ss
+     |  
+     |  GetChannelName(self, inCaptureIndex, inChannelIndex)
+     |      Gets the name of a given channel of an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      inChannelIndex: int
+     |          The index of the channel. Must be in range(0,number of channels)
+     |      
+     |      Returns
+     |      -------
+     |      str
+     |          The name of the channel
+     |  
+     |  GetCurrentCaptureId(self, inPositionIndex)
+     |      Gets the id of the capture which is currently taking place.
+     |      
+     |      Parameters
+     |      ----------
+     |      inPositionIndex: int
+     |          The index of the montage position. For non montage capture, use 0
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          the capture id
+     |  
+     |  GetCurrentSlideId(self)
+     |      returns the Slide Id of the active slide
+     |      Returns
+     |      -------
+     |      int
+     |          The Slide Id
+     |  
+     |  GetElapsedTime(self, inCaptureIndex, inTimepointIndex)
+     |      Gets the elapsed time in ms at a given time point in an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inTimepointIndex: int
+     |          The time point number
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          The elapsed time in ms
+     |  
+     |  GetExposureTime(self, inCaptureIndex, inChannelIndex)
+     |      Gets the exposure time in ms for a particular channel of an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      inChannelIndex: int
+     |          The index of the channel. Must be in range(0,number of channels)
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          The exposure time in ms
+     |  
+     |  GetFilters(self)
+     |      Gets the filters
+     |      
+     |      Parameters
+     |      ----------
+     |          none
+     |      
+     |      Returns
+     |      -------
+     |      list
+     |          a list of CFluorDef70 objects
+     |  
+     |  GetImageComment(self, inCaptureIndex)
+     |      Gets the comments of an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      Returns
+     |      -------
+     |      str
+     |          The comments of the image group
+     |  
+     |  GetImageName(self, inCaptureIndex)
+     |      Gets the name of an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      Returns
+     |      -------
+     |      str
+     |          The name of the image group
+     |  
+     |  GetLastChannelCaptured(self, inCaptureIndex)
+     |      Gets the index of the last Channel captured
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the capture
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          the index (plane) of the last plane captured
+     |  
+     |  GetLastImageCaptured(self, inCaptureIndex)
+     |      Gets the index of the last image captured
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the capture
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          the index (timepoint) of the last image captured
+     |  
+     |  GetLastImageStreamed(self, inCaptureIndex)
+     |      Gets the index of the last image captured in streaming mode
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the capture
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          the index (timepoint) of the last image captured
+     |  
+     |  GetLastPlaneCaptured(self, inCaptureIndex)
+     |      Gets the index of the last plane captured
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the capture
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          the index (plane) of the last plane captured
+     |  
+     |  GetLensInfo(self)
+     |      Gets the lens info
+     |      
+     |      Parameters
+     |      ----------
+     |          none
+     |      
+     |      Returns
+     |      -------
+     |      str
+     |          the objectives
+     |  
+     |  GetLensName(self, inCaptureIndex)
+     |      Gets the name of the lens of an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      Returns
+     |      -------
+     |      str
+     |          The name of the lens
+     |  
+     |  GetMagnification(self, inCaptureIndex)
+     |      Gets the magnification of the lens of an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      Returns
+     |      -------
+     |      float
+     |          The magnification of the lens
+     |  
+     |  GetMagnificationChangers(self)
+     |      Gets the Magnification Changers
+     |      
+     |      Parameters
+     |      ----------
+     |          none
+     |      
+     |      Returns
+     |      -------
+     |      list
+     |          a list of COptovarDef70 objects
+     |  
+     |  GetMaskName(self, inCaptureIndex, inMaskIndex)
+     |      Gets the name of a mask
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      inMaskIndex: int
+     |          The index of the mask. Must be in range(0,number of masks)
+     |      
+     |      Returns
+     |      -------
+     |      str
+     |          The name of the mask
+     |  
+     |  GetMontageColumn(self, inCaptureIndex, inPositionIndex)
+     |      Gets the number of columns of the montage at a given position in an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inPositionIndex: int
+     |          The position of an image whose column is to be retrieved
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          The column number (first column is 0)
+     |  
+     |  GetMontageRow(self, inCaptureIndex, inPositionIndex)
+     |      Gets the rows of the montage at a given position in an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inPositionIndex: int
+     |          The position of an image whose row is to be retrieved
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          The row number (first row is 0)
+     |  
+     |  GetNumCaptures(self)
+     |      Gets the number of captures (image groups) in the file
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          The number of captures
+     |  
+     |  GetNumChannels(self, inCaptureIndex)
+     |      Gets the number of channels in an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          The number of channels
+     |  
+     |  GetNumLiveCaptures(self)
+     |      Gets the number of live captures (image groups) in the file
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          The number of live captures
+     |  
+     |  GetNumMasks(self, inCaptureIndex)
+     |      Gets the number of masks in an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          The number of masks
+     |  
+     |  GetNumPositions(self, inCaptureIndex)
+     |      Gets the number of (montage) positions in an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          The number of positions
+     |  
+     |  GetNumTimepoints(self, inCaptureIndex)
+     |      Gets the number of time points in an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          The number of time points
+     |  
+     |  GetNumXColumns(self, inCaptureIndex)
+     |      Gets the number of columns (width) of an image in an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          The number of columns or width of the image
+     |  
+     |  GetNumYRows(self, inCaptureIndex)
+     |      Gets the number of rows (height) of an image in an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          The number of rows or height of the image
+     |  
+     |  GetNumZPlanes(self, inCaptureIndex)
+     |      Gets the number of z planes of an image in an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          The number of z planes of the image
+     |  
+     |  GetObjectives(self)
+     |      Gets the objectives
+     |      
+     |      Parameters
+     |      ----------
+     |          none
+     |      
+     |      Returns
+     |      -------
+     |      list
+     |          a list of CLensDef70 objects
+     |  
+     |  GetVoxelSize(self, inCaptureIndex)
+     |      Gets the voxel size in microns of an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      Returns
+     |      -------
+     |      float
+     |          The X voxel size in um
+     |      float
+     |          The Y voxel size in um
+     |      float
+     |          The Z voxel size in um
+     |  
+     |  GetXPosition(self, inCaptureIndex, inPositionIndex)
+     |      Gets the X position in microns of the center of an image of an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inPositionIndex: int
+     |          The index of the image in the montage, or 0 if all images are at the same location
+     |      
+     |      Returns
+     |      -------
+     |      float
+     |          The X position in um
+     |  
+     |  GetYPosition(self, inCaptureIndex, inPositionIndex)
+     |      Gets the Y position in microns of the center of an image of an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inPositionIndex: int
+     |          The index of the image in the montage, or 0 if all images are at the same location
+     |      
+     |      Returns
+     |      -------
+     |      float
+     |          The Y position in um
+     |  
+     |  GetZPosition(self, inCaptureIndex, inPositionIndex, inZPlaneIndex)
+     |      Gets the Z position in microns of the center of an image of an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inPositionIndex: int
+     |          The index of the image in the montage, or 0 if all images are at the same location
+     |      
+     |      Returns
+     |      -------
+     |      float
+     |          The Z position in um
+     |  
+     |  IsCapturing(self)
+     |      Checks if there is an active capture
+     |      
+     |      Parameters
+     |      ----------
+     |      
+     |      Returns
+     |      -------
+     |      bool
+     |          True if is capturing, false if it is not
+     |  
+     |  IsStreaming(self)
+     |      Checks if there is an active streaming acquisition
+     |      
+     |      Parameters
+     |      ----------
+     |      
+     |      Returns
+     |      -------
+     |      bool
+     |          True if is capturing, false if it is not
+     |  
+     |  LiveWindowAddEllipseRegion(self, inWindowIndex, inX, inY, inWidth, inHeight, inIsStimulation=False)
+     |      Adds a elliptical region the a given Live Window
+     |      
+     |      Parameters
+     |      ----------
+     |      inWindowIndex: int
+     |          The live window index
+     |      inXum: int
+     |          The ellipse X left corner in pixels
+     |      inYum: int
+     |          The ellipse Y top corner in pixels
+     |      inWidth: int
+     |          The ellipse width in pixels
+     |      inHeight:int 
+     |          The ellipse height in pixels
+     |      inIsStimulation: bool
+     |          True if is a stimulation region, False otherwise
+     |  
+     |  LiveWindowAddLineRegion(self, inWindowIndex, inX, inY, inWidth, inHeight, inIsStimulation=False)
+     |      Adds a line region the a given Live Window
+     |      
+     |      Parameters
+     |      ----------
+     |      inWindowIndex: int
+     |          The live window index
+     |      inXum: int
+     |          The line X first point in pixels
+     |      inYum: int
+     |          The line Y first point in pixels
+     |      inWidth: int
+     |          The line X second point in pixels
+     |      inHeight:int 
+     |          The line Y second point in pixels
+     |      inIsStimulation: bool
+     |          True if is a stimulation region, False otherwise
+     |  
+     |  LiveWindowAddPolygonRegion(self, inWindowIndex, inXYPointList, inIsStimulation=False)
+     |      Adds a rectangular region the a given Live Window
+     |      
+     |      Parameters
+     |      ----------
+     |      inWindowIndex: int
+     |          The live window index
+     |      inXYPointList: list of int
+     |          a list of the polygon corners xy pixel coordinates
+     |      inIsStimulation: bool
+     |          True if is a stimulation region, False otherwise
+     |  
+     |  LiveWindowAddRectangleRegion(self, inWindowIndex, inX, inY, inWidth, inHeight, inIsStimulation=False)
+     |      Adds a rectangular region the a given Live Window
+     |      
+     |      Parameters
+     |      ----------
+     |      inWindowIndex: int
+     |          The live window index
+     |      inXum: int
+     |          The rectangle X left corner in pixels
+     |      inYum: int
+     |          The rectangle Y top corner in pixels
+     |      inWidth: int
+     |          The rectangle width in pixels
+     |      inHeight:int 
+     |          The rectangle height in pixels
+     |      inIsStimulation: bool
+     |          True if is a stimulation region, False otherwise
+     |  
+     |  Open(self, inPath)
+     |      Open a SlideBook file and loads the Metadata
+     |      
+     |      Parameters
+     |      ----------
+     |      inPath : str
+     |          The path of the SlideBook file to open
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          The Slide Id
+     |  
+     |  ReadImagePlaneBuf(self, inCaptureIndex, inPositionIndex, inTimepointIndex, inZPlaneIndex, inChannelIndex)
+     |      Reads a z plane of an image into a numpy array
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inPositionIndex: int
+     |          The position of the image. If the image group is not a montage, use 0
+     |      inTimepointIndex: int
+     |          The time point
+     |      inZPlaneIndex: int
+     |          The z plane number
+     |      inChannelIndex: int
+     |          The channel number
+     |      
+     |      Returns
+     |      -------
+     |      numpy uint16 array 
+     |          The image is returned as 1D numpy uint16 array
+     |  
+     |  ReadMaskPlaneBuf(self, inCaptureIndex, inMaskIndex, inTimepointIndex, inZPlaneIndex)
+     |      Reads a z plane of a mask into a numpy array
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inMaskIndex: int
+     |          The nindex of the mask
+     |      inTimepointIndex: int
+     |          The time point
+     |      inZPlaneIndex: int
+     |          The z plane number
+     |      Returns
+     |      -------
+     |      numpy uint16 array 
+     |          The mask is returned as 1D numpy uint16 array
+     |  
+     |  Recv(self)
+     |  
+     |  RecvBigData(self, n)
+     |  
+     |  SendByteArray(self, inBytes)
+     |  
+     |  SendCommand(self, inCommand)
+     |  
+     |  SendFloatParam(self, inCommandName, inFloatParam)
+     |  
+     |  SendIntParam(self, inCommandName, inIntParam)
+     |  
+     |  SendNullParam(self, inCommandName)
+     |  
+     |  SendStringParam(self, inCommandName, inStringParam)
+     |  
+     |  SendVal(self, inVal, inType)
+     |  
+     |  SetCaptureDate(self, inCaptureIndex, inYear, inMonth, inDay, inHour, inMinute, inSecond)
+     |      Sets the date of acquisition of an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inDateStr: str
+     |          date is in the format: yyyy:MM:dd:hh:mm:ss
+     |      
+     |      Returns
+     |      -------
+     |      none
+     |  
+     |  SetChannelName(self, inCaptureIndex, inChannelIndex, inChannelName)
+     |      Sets the name of an channel
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inChannelIndex: int
+     |          The index of the channel in range(0,NumChannels-1)
+     |      inChannelName:  str
+     |          The name of the channel
+     |      
+     |      Returns
+     |      -------
+     |      none
+     |  
+     |  SetImageComment(self, inCaptureIndex, inComment)
+     |      Sets the comment (info) of an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inComment:    str
+     |          The comments of the image
+     |      
+     |      Returns
+     |      -------
+     |      none
+     |  
+     |  SetMagnification(self, inCaptureIndex, inLensMagnification, inOptovarMagnification)
+     |      Sets the Magnification of an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inMagnification: float
+     |          The inMagnification of the image
+     |      
+     |      Returns
+     |      -------
+     |      none
+     |  
+     |  SetTargetSlide(self, inSlideId)
+     |      Sets the target slide for subsequent operations 
+     |      
+     |      Parameters
+     |      ----------
+     |      int
+     |          The Slide Id
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 on success
+     |  
+     |  SetVoxelSize(self, inCaptureIndex, inSizeX, inSizeY, inSizeZ)
+     |      Sets the voxel size in microns of an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inSizeX: float
+     |          The X voxel size in um
+     |      inSizeY: float
+     |          The Y voxel size in um
+     |      inSizeZ: float
+     |          The Z voxel size in um
+     |      
+     |      Returns
+     |      -------
+     |      none
+     |  
+     |  SetXYZPosition(self, inCaptureIndex, inPositionX, inPositionY, inPositionZ)
+     |      Sets the x,y,z position of an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inPositionX: float
+     |          The X Position
+     |      inPositionY: float
+     |          The Y Position
+     |      inPositionZ: float
+     |          The Z Position
+     |      
+     |      Returns
+     |      -------
+     |      none
+     |  
+     |  StartCapture(self, inScriptName='Default')
+     |      Starts a capture with an optional script name
+     |      Parameters
+     |      ----------
+     |      inScriptName: int
+     |          The script name to load before starting the capture. If blank, the Default script  is loaded
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          the capture id. If the capture failed to start, return -1
+     |  
+     |  StartStreaming(self)
+     |      Starts a streaming acquisition
+     |      Parameters
+     |      ----------
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          the capture id. If the streaming failed to start, return -1
+     |  
+     |  StopCapture(self)
+     |      Stops the current capture
+     |      Parameters
+     |      ----------
+     |      inScriptName: int
+     |          The script name to load before starting the capture. If blank, the Default script  is loaded
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          0
+     |  
+     |  StopStreaming(self)
+     |      Starts a streaming acquisition
+     |      Parameters
+     |      ----------
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          0
+     |  
+     |  WriteImagePlaneBuf(self, inCaptureIndex, inTimepointIndex, inZPlaneIndex, inChannelIndex, inNumpyArray)
+     |      Writes a z plane of an image from a numpy array
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inTimepointIndex: int
+     |          The time point
+     |      inZPlaneIndex: int
+     |          The z plane number
+     |      inChannelIndex: int
+     |          The channel number. If the channel number (they start at 0) is equal to the number of channels, then a new channel is added
+     |      inNumpyArray: numpy array of u2 (unsigned 16 bit integer)
+     |          The data buffer for the plane to be written
+     |      
+     |      Returns
+     |      -------
+     |      none
+     |  
+     |  WriteMaskPlaneBuf(self, inCaptureIndex, inMaskName, inTimepointIndex, inZPlaneIndex, inNumpyArray)
+     |      Writes a z plane of a mask from a numpy array
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inMaskName: str
+     |          The name of the mask
+     |      inTimepointIndex: int
+     |          The time point
+     |      inZPlaneIndex: int
+     |          The z plane number
+     |      inNumpyArray: numpy array of u2 (unsigned 16 bit integer)
+     |      
+     |      Returns
+     |      -------
+     |      none
+     |  
+     |  __init__(self, inSocket)
+     |      Initialize self.  See help(type(self)) for accurate signature.
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |  
+     |  __dict__
+     |      dictionary for instance variables (if defined)
+     |  
+     |  __weakref__
+     |      list of weak references to the object (if defined)
+
+FILE
+    c:\users\nicola papp\perforce\nicola_msi_552\dev\sb_7.0_bcg\sbreadfile\dist\python\format 7\sbaccess.py
+
+
