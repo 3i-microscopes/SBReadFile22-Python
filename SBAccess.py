@@ -2,16 +2,17 @@
 #python -c "import SBAccess ; help(SBAccess)"
 #check syntax with: pyflakes SBaccess.py
 
-import sys
 #Must set the right put to where CMetadataLib.py and Basedecode.py are
+#import sys
 #they are in the sandbox, or on github
 #sys.path.append('C:/Users/Nicola Papp/Perforce/Nicola_MSI_552/dev/SB_7.0_BCG/SBReadFile/dist/Python/Format 7')
 import io
-from CMetadataLib import *
-from BaseDecoder import BaseDecoder as bd
+from CMetadataLib import BaseDecoder
+from CMetadataLib import CLensDef70
+from CMetadataLib import CFluorDef70
+from CMetadataLib import COptovarDef70
 import yaml
 
-import socket
 import ByteUtil as bu
 import numpy as np
 
@@ -1624,6 +1625,24 @@ class SBAccess(object):
         self.SendVal(float(inZum),'f4')
         self.SendVal(float(inAuxZum),'f4')
         self.SendVal(int(inIsAuxZ),'i4')
+
+    def GetXYZPointList(self):
+        """ Gets a list of all XYZ points in the Focus Window XY Tab
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        list
+            a list of strings . If there is no point list defined in the XY Tab, it returns the kewyword 'Empty'
+        """
+        self.SendCommand('$GetXYZPointList()')
+
+        theStr = self.Recv()
+
+        theList = theStr.split('\n')
+        return theList
 
     def FocusWindowMainSelectBin(self,inStringParam):
         """ Selects a string in the Bin ComboBox of the Focus Window

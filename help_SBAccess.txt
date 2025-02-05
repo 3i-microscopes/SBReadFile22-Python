@@ -945,6 +945,17 @@ CLASSES
      |      float
      |          The X position in um
      |  
+     |  GetXYZPointList(self)
+     |      Gets a list of all XYZ points in the Focus Window XY Tab
+     |      
+     |      Parameters
+     |      ----------
+     |      
+     |      Returns
+     |      -------
+     |      list
+     |          a list of strings . If there is no point list defined in the XY Tab, it returns the kewyword 'Empty'
+     |  
      |  GetYPosition(self, inCaptureIndex, inPositionIndex)
      |      Gets the Y position in microns of the center of an image of an image group
      |      

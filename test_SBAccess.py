@@ -695,6 +695,15 @@ def test_get_objectives():
             print("")
 
 
+def test_get_xyz_point_list():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+        the_xyz_point_list = theSbAccess.GetXYZPointList()
+        print("the_xyz_point_list\n",the_xyz_point_list)
+
 
 def main():
     #test_new_slide()
@@ -712,7 +721,8 @@ def main():
     #test_create_new_slide()
     #test_set_target_slide()
     #test_create_and_setset_target_slide()
-    test_get_objectives()
+    #test_get_objectives()
+    test_get_xyz_point_list()
 
 if __name__ == "__main__":
     main()
