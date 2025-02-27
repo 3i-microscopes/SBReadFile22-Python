@@ -716,7 +716,57 @@ class SBAccess(object):
 
         theStr = self.Recv()
         return theStr
+        
+    def GetImageLowRenormalization(self,inCaptureIndex,inChannelIndex):
+        """ Gets the default low renormalization value for channel
 
+        Parameters
+        ----------
+        inCaptureIndex: int
+            The index of the image group. Must be in range(0,number of captures)
+        inChannelIndex: int
+            The channel number. Must be in range (0,number of channels)
+
+        Returns
+        -------
+        int
+            The low renormalization value (0-65535) 
+        """
+        self.SendCommand('$GetImageLowRenormalization(CaptureIndex=i4,ChannelIndex=i4)')
+        self.SendVal(int(inCaptureIndex),'i4')
+        self.SendVal(int(inChannelIndex),'i4')
+
+        theNum,theVals = self.Recv()
+        if( theNum != 1):
+            raise Exception("GetImageLowRenormalization: invalid value")
+
+        return theVals[0]
+
+    def GetImageHighRenormalization(self,inCaptureIndex,inChannelIndex):
+        """ Gets the default high renormalization value for channel
+
+        Parameters
+        ----------
+        inCaptureIndex: int
+            The index of the image group. Must be in range(0,number of captures)
+        inChannelIndex: int
+            The channel number. Must be in range (0,number of channels)
+
+        Returns
+        -------
+        int
+            The low renormalization value (0-65535) 
+        """
+        self.SendCommand('$GetImageHighRenormalization(CaptureIndex=i4,ChannelIndex=i4)')
+        self.SendVal(int(inCaptureIndex),'i4')
+        self.SendVal(int(inChannelIndex),'i4')
+
+        theNum,theVals = self.Recv()
+        if( theNum != 1):
+            raise Exception("GetImageHighRenormalization: invalid value")
+
+        return theVals[0]
+        
     def GetMaskName(self,inCaptureIndex,inMaskIndex):
         """ Gets the name of a mask
 
