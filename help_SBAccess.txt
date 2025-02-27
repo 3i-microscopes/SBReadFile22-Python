@@ -3,11 +3,6 @@ Help on module SBAccess:
 NAME
     SBAccess
 
-DESCRIPTION
-    #Help obtained with the command:
-    #python -c "import SBAccess ; help(SBAccess)"
-    #check syntax with: pyflakes SBaccess.py
-
 CLASSES
     builtins.object
         SBAccess
@@ -632,6 +627,36 @@ CLASSES
      |      -------
      |      str
      |          The comments of the image group
+     |  
+     |  GetImageHighRenormalization(self, inCaptureIndex, inChannelIndex)
+     |      Gets the default high renormalization value for channel
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inChannelIndex: int
+     |          The channel number. Must be in range (0,number of channels)
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          The low renormalization value (0-65535)
+     |  
+     |  GetImageLowRenormalization(self, inCaptureIndex, inChannelIndex)
+     |      Gets the default low renormalization value for channel
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inChannelIndex: int
+     |          The channel number. Must be in range (0,number of channels)
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          The low renormalization value (0-65535)
      |  
      |  GetImageName(self, inCaptureIndex)
      |      Gets the name of an image group
@@ -1345,6 +1370,10 @@ CLASSES
      |  
      |  __weakref__
      |      list of weak references to the object (if defined)
+
+DATA
+    __copyright__ = 'Copyright (c) 2022-2025, Intelligent Imaging Inn..., ...
+    __license__ = 'This source code is licensed under the BSD-style...E fi...
 
 FILE
     c:\users\nicola papp\perforce\nicola_msi_552\dev\sb_7.0_bcg\sbreadfile\dist\python\format 7\sbaccess.py
