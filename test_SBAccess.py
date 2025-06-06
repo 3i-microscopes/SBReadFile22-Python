@@ -312,6 +312,7 @@ def test_plot_mask():
         s.connect((HOST, PORT))
         theSbAccess = SBAccess(s)
         theSbAccess.Open("E:\Data\Slides_msi\QweekTour.sldy");
+        #theSbAccess.Open("E:\\Data\\Slides_msi\\3D Montage\\big3d.sldy");
 
         theNumCaptures = theSbAccess.GetNumCaptures()
         for theCapture in range(theNumCaptures):
@@ -323,7 +324,7 @@ def test_plot_mask():
                 print('The mask Name for index ',theMask,' is: ',theMaskName)
 
         theCapture = 0
-        theMask = 5
+        theMask = 1
         theNumRows = theSbAccess.GetNumYRows(theCapture)
         theNumColumns = theSbAccess.GetNumXColumns(theCapture)
         theNumPlanes = theSbAccess.GetNumZPlanes(theCapture)
@@ -342,6 +343,44 @@ def test_plot_mask():
             plt.pause(0.001)
 
         #the3DVolume = the3DVolume.reshape(theNumRows,theNumColumns,theNumPlanes
+        data = input("Please hit Enter to exit:\n")
+        print("Done")
+
+
+        return
+
+def test_send_mask():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+        #theSbAccess.Open("E:\Data\Slides_msi\QweekTour.sldy");
+        theSbAccess.Open("E:\\Data\\Slides_msi\\3D Montage\\big3d.sldy");
+
+        theNumCaptures = theSbAccess.GetNumCaptures()
+        for theCapture in range(theNumCaptures):
+            theImageName = theSbAccess.GetImageName(theCapture)
+            print('the image name for capture: ',theCapture,' is: ',theImageName)
+            theNumMasks = theSbAccess.GetNumMasks(theCapture)
+            for theMask in range(theNumMasks):
+                theMaskName = theSbAccess.GetMaskName(theCapture,theMask)
+                print('The mask Name for index ',theMask,' is: ',theMaskName)
+
+        theCapture = 0
+        theMask = 1
+        theNumRows = theSbAccess.GetNumYRows(theCapture)
+        theNumColumns = theSbAccess.GetNumXColumns(theCapture)
+        theNumPlanes = theSbAccess.GetNumZPlanes(theCapture)
+
+        theMaskArray = np.zeros(theNumRows*theNumColumns,dtype='uint16')
+        theMaskArray = theMaskArray.reshape(theNumRows,theNumColumns)
+
+        for theZPlane in range(1):
+            theSbAccess.WriteMaskPlaneBuf(theCapture,"Mask Made by Python",0,theZPlane,theMaskArray)
+
+
+
         data = input("Please hit Enter to exit:\n")
         print("Done")
 
@@ -699,8 +738,58 @@ def test_get_objectives():
             print("magnificationChanger name ",magnificationChanger.mName)
             print("")
 
+def test_get_hardware_metadata():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
 
-def test_get_xyz_point_list():
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+        for x in range (46):
+            isEnabled = theSbAccess.GetIsHardwareComponentEnabled(x)
+            theName = theSbAccess.GetHardwareComponentName(x)
+            print("Component", x + 1, "name  = ", theName + f"enabled =  {'yes' if isEnabled else 'no'}")
+
+def test_get_hardware_position(inComponentID, inPosition):
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+        isEnabled = theSbAccess.GetIsHardwareComponentEnabled(inComponentID)
+        if isEnabled:
+            theName = theSbAccess.GetHardwareComponentName(inComponentID)
+            theMinMax = theSbAccess.GetHardwareComponentMinMax(inComponentID)
+            theOrigPosition = theSbAccess.GetHardwareComponentPosition(inComponentID)
+            print("Component ", inComponentID, "name =", theName, "min =",  theMinMax[0], "max", theMinMax[1],  "original position ",  theOrigPosition)
+
+            isSuccess = theSbAccess.SetHardwareComponentPosition(inComponentID, inPosition)
+            print("Component ", inComponentID, "name =", theName, "new position =", inPosition, f"success =  {'yes' if isSuccess else 'no'}")
+
+            theReadPosition = theSbAccess.GetHardwareComponentPosition(inComponentID)
+            print("Component ", inComponentID, "name =", theName, "read position ", theReadPosition)
+
+def test_get_hardware_location_microns(inComponentID):
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect((HOST, PORT))
+            theSbAccess = SBAccess(s)
+            isEnabled = theSbAccess.GetIsHardwareComponentEnabled(inComponentID)
+            if isEnabled:
+                theName = theSbAccess.GetHardwareComponentName(inComponentID)
+
+                theX, theY, theZ = theSbAccess.GetHardwareComponentLocationMicrons(inComponentID)
+                print("Component ", inComponentID, "name =", theName, "GetHardwareComponentMicrons ", "z =",  theX, "y=", theY,  "z=",  theZ)
+
+                isSuccess = theSbAccess.SetHardwareComponentLocationMicrons(inComponentID, theX + 1, theY + 1, theZ + 1)
+                print("Component ", inComponentID, "name =", theName, "SetHardwareComponentMicrons ", "z =", theX + 1, "y=", theY + 1, "z=", theZ + 1)
+
+                theX, theY, theZ = theSbAccess.GetHardwareComponentLocationMicrons(inComponentID)
+                print("Component ", inComponentID, "name =", theName, "GetHardwareComponentMicrons ", "z =", theX, "y=", theY, "z=", theZ)
+    except:
+        print("test_get_hardware_location failed")
+
+def get_xyz_point_list():
     HOST = '127.0.0.1'  # The server's hostname or IP address
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -709,25 +798,58 @@ def test_get_xyz_point_list():
         the_xyz_point_list = theSbAccess.GetXYZPointList()
         print("the_xyz_point_list\n",the_xyz_point_list)
 
+def test_save_as_slide():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+        theOutSlideId = theSbAccess.CreateNewSlide()
+        theSbAccess.SaveAsSlide(theOutSlideId,"E:\\Data\\Slides_msi\\3D Montage\\test_save_as.sldy")
+
+def test_save_slide():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+        theOutSlideId = theSbAccess.GetCurrentSlideId()
+        theSbAccess.SaveSlide(theOutSlideId)
+
+
+
 
 def main():
-    #test_new_slide()
-    #test_plot_mask()
-    #test_plot_3dstack()
-    #test_plot_current_capture()
-    #test_start_capture()
-    #test_add_new_channel()
-    #test_copy_capture()
-    #set_xyz_point_in_focus_xy_tab()
-    #test_get_xyz_position()
-    #test_start_streaming()
-    #test_focus_window_parameters()
-    #test_focus_window_add_region()
-    #test_create_new_slide()
-    #test_set_target_slide()
-    #test_create_and_setset_target_slide()
-    #test_get_objectives()
-    test_get_xyz_point_list()
+    try:
+        #test_new_slide()
+        #test_plot_mask()
+        #test_send_mask()
+        #test_plot_3dstack()
+        #test_plot_current_capture()
+        #test_start_capture()
+        #test_add_new_channel()
+        #test_copy_capture()
+        #set_xyz_point_in_focus_xy_tab()
+        #test_get_xyz_position()
+        #test_start_streaming()
+        #test_focus_window_parameters()
+        #test_focus_window_add_region()
+        #test_create_new_slide()
+        #test_set_target_slide()
+        #test_create_and_setset_target_slide()
+        #test_get_objectives()
+        #test_get_hardware_metadata()
+        #test_get_hardware_location_microns(8)
+        #test_get_hardware_position(1, 10)
+        #test_get_xyz_point_list()
+        #test_save_slide()
+        test_save_as_slide()
+    except Exception as e:
+        print(f"Error: {e}")
+    except: 
+        print("Error")
+    finally:
+        print("Finished")
 
 if __name__ == "__main__":
     main()

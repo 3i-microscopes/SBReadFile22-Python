@@ -3,7 +3,7 @@ __license__  = "This source code is licensed under the BSD-style license found i
 
 #Help obtained with the command:
 #python -c "import SBReadFile ; help(SBReadFile)" > help.txt
-`
+
 from DataLoader import *
 from CImageGroup import *
 from enum import Enum

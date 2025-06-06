@@ -14,10 +14,34 @@ from CMetadataLib import BaseDecoder
 from CMetadataLib import CLensDef70
 from CMetadataLib import CFluorDef70
 from CMetadataLib import COptovarDef70
+from enum import Enum
 import yaml
 
 import ByteUtil as bu
 import numpy as np
+
+class MicroscopeStates(Enum):
+    """ Enum with microscope state codes
+    """
+    CurrentObjective = 1
+    CurrentFilter = 2
+    CurrentMagnification = 3
+    CurrentLaserPower = 4
+    CurrentNDPrimary = 5
+    CurrentNDAux = 6
+    CurrentLampVoltage = 7
+    CurrentFLshutter = 8
+    CurrentBFshutter = 9
+    CurrentAltSource = 10
+    CurrentXYstagePosition = 11
+    CurrentZstagePosition = 12
+    CurrentAltZstagePosition = 13
+    CurrentCondenserPrismPosition = 14
+    CurrentVideoOrCameraPosition = 15
+    CurrentCondenserAperture = 16
+    CurrentBin = 17
+    CurrentFilterSet = 18
+
 
 class SBAccess(object):
     
@@ -36,8 +60,20 @@ class SBAccess(object):
         theBytes = bu.type_to_bytes(inVal,inType)
         self.mSocket.send(theBytes)
 
+    def mysend(self, inBytes):
+        totalsent = 0
+        MSGLEN = len(inBytes)
+        while totalsent < MSGLEN:
+            sent = self.mSocket.send(inBytes[totalsent:])
+            #print("sent: ",sent)
+            if sent == 0:
+                raise Exception("Socket connection broken, unable to send")
+            totalsent = totalsent + sent
+        #print("totalsent: ",totalsent)
+
     def SendByteArray(self,inBytes):
-        self.mSocket.send(inBytes)
+        #self.mSocket.send(inBytes)
+        self.mysend(inBytes)
 
     def RecvBigData(self,n):
         # Helper function to recv n bytes or return None if EOF is hit
@@ -207,6 +243,56 @@ class SBAccess(object):
         if( theNum != 1):
             raise Exception("CreateNewSlide: error")
         return theVals[0]
+
+    def SaveSlide(self,inSlideId):
+        """Saves a slide
+        Parameters
+        ----------
+        inSlideId : int
+            The Slide Id
+
+        Returns
+        -------
+        int
+            1 on success
+        """
+        self.SendCommand('$SaveSlide(SlideId=i4)')
+        self.SendVal(int(inSlideId),'i4')
+        theNum,theVals = self.Recv()
+        if( theNum != 1):
+            raise Exception("SaveSlide: invalid value")
+        if( theVals[0] != 1):
+            raise Exception("SaveSlide: failed")
+
+        return
+
+    def SaveAsSlide(self,inSlideId,inPathname):
+        """Saves a slide
+        Parameters
+        ----------
+        inSlideId : int
+            The Slide Id
+
+        inPathname : str
+            The pathname to save the slide with
+            
+
+        Returns
+        -------
+        int
+            1 on success
+        """
+        l = len(inPathname)
+        self.SendCommand('$SaveAsSlide(SlideId=i4,Pathname='+str(l)+':s)')
+        self.SendVal(int(inSlideId),'i4')
+        self.SendVal(inPathname,'s')
+        theNum,theVals = self.Recv()
+        if( theNum != 1):
+            raise Exception("SaveAsSlide: invalid value")
+        if( theVals[0] != 1):
+            raise Exception("SaveAsSlide: failed")
+
+        return
 
 
     def GetNumCaptures(self):
@@ -1650,8 +1736,190 @@ class SBAccess(object):
         else:
             return False
 
+    def GetIsHardwareComponentEnabled(self, inComponentID):
+        """ Checks if the hardware component is enabled
+
+        Parameters
+        ----------
+        inComponentID: int
+            The component ID (0 <= inComponentID <= 46)
+
+        Returns
+        -------
+        bool
+            True if is enabled, false if it is not
+        """
+        self.SendCommand('$GetIsHardwareComponentEnabled(ComponentIndex=i4)')
+        self.SendVal(int(inComponentID), 'i4')
+        theNum, theVals = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetIsHardwareComponentEnabled: failed")
+        if (theVals[0] > 0):
+            return True
+        else:
+            return False
+
+    def GetHardwareComponentName(self, inComponentID):
+        """ Returns the device name of a hardware component
+
+        Parameters
+        ----------
+        inComponentID: int
+            The component ID (0 <= inComponentID <= 46)
+
+        Returns
+        -------
+        list
+            Returns the device name of inComponentID. If not enabled returns keyword 'Empty'
+        """
+        self.SendCommand('$GetHardwareComponentName(ComponentIndex=i4)')
+        self.SendVal(int(inComponentID),'i4')
+        theString = self.Recv()
+        return theString
+
+    def GetHardwareComponentMinMax(self, inComponentID):
+        """ Returns the device minimum and maximum hardware positions
+
+        Parameters
+        ----------
+        inComponentID: int
+            The component ID (0 <= inComponentID <= 46)
+
+        Returns
+        -------
+        list
+            Returns the minimum ([0]) and maximum ([1]) position of device inComponentID. If not enabled returns keyword 'Empty'
+        """
+        self.SendCommand('$GetHardwareComponentMinMax(ComponentIndex=i4)')
+        self.SendVal(int(inComponentID), 'i4')
+        theNum, theVals = self.Recv()
+        if (theNum != 2):
+            raise Exception("GetHardwareComponentMinMax: failed")
+
+        return theVals;
+
+    def SetHardwareComponentPosition(self, inComponentID, inPosition):
+        """ Set the current position of a hardware device
+
+        Parameters
+        ----------
+        inComponentID: int
+            The component ID (0 <= inComponentID <= 46)
+        inPosition: int
+            The new position
+
+        Returns
+        -------
+        bool
+            Returns success or failure
+        """
+        self.SendCommand('$SetHardwareComponentPosition(ComponentIndex=i4,Position=i4)')
+        self.SendVal(int(inComponentID), 'i4')
+        self.SendVal(int(inPosition), 'i4')
+        theNum, theVals = self.Recv()
+        if (theNum != 1):
+            raise Exception("SetHardwareComponentPosition: failed")
+
+        if (theVals[0] > 0):
+            return True
+        else:
+            return False
+
+    def GetHardwareComponentPosition(self, inComponentID):
+        """ Gets the current position of a hardware device
+
+        Parameters
+        ----------
+        inComponentID: int
+            The component ID (0 <= inComponentID <= 46)
+
+        Returns
+        -------
+        int
+            Returns the current position of device inComponentID
+        """
+        self.SendCommand('$GetHardwareComponentPosition(ComponentIndex=i4)')
+        self.SendVal(int(inComponentID), 'i4')
+        theNum, theVals = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetHardwareComponentPosition: failed")
+
+        return theVals[0];
+
+    def SetHardwareComponentLocationMicrons(self, inComponentID, inXMicrons, inYMicrons, inZMicrons):
+        """ Set the current XYZ position of a hardware device
+
+        Parameters
+        ----------
+        inComponentID: int
+            The component ID (0 <= inComponentID <= 46)
+        x: float
+            The new x micron position
+        y: float
+            The new x micron position
+        z: float
+            The new x micron position
+
+        Returns
+        -------
+        bool
+            Returns success or failure
+        """
+        try:
+            self.SendCommand('$SetHardwareComponentLocationMicrons(ComponentIndex=i4,x=f4,y=f4,z=f4)')
+            self.SendVal(int(inComponentID), 'i4')
+            self.SendVal(float(inXMicrons), 'f4')
+            self.SendVal(float(inYMicrons), 'f4')
+            self.SendVal(float(inZMicrons), 'f4')
+
+            theNum, theVals = self.Recv()
+            if (theNum != 1):
+                raise Exception("SetHardwareComponentLocationMicrons: failed")
+
+            if (theVals[0] > 0):
+                return True
+            else:
+                return False
+        except:
+                return False
+
+    def GetHardwareComponentLocationMicrons(self,inComponentID):
+        """ Gets the current XYZ location of hardware component inComponentIndex
+
+        Parameters
+        ----------
+        inComponentID: int
+            The component ID (0 <= inComponentID <= 46)
+
+        Returns
+        -------
+        float
+            The X location in um (0 if unsupported)
+        float
+            The Y location in um (0 if unsupported)
+        float
+            The Z location in um (0 if unsupported)
+
+        """
+        self.SendCommand('$GetHardwareComponentLocationMicrons(ComponentIndex=i4)')
+        self.SendVal(int(inComponentID),'i4')
+
+        theNum,theX = self.Recv()
+        if( theNum != 1):
+            raise Exception("GetHardwareComponentLocationMicrons: invalid x value")
+
+        theNum,theY = self.Recv()
+        if( theNum != 1):
+            raise Exception("GetHardwareComponentLocationMicrons: invalid y value")
+
+        theNum,theZ = self.Recv()
+        if( theNum != 1):
+            raise Exception("GetHardwareComponentLocationMicrons: invalid z value")
+
+        return theX[0],theY[0],theZ[0]
+
     def AddXYZPoint(self,inXum,inYum,inZum,inAuxZum=0,inIsAuxZ=False):
-        """ Adds a point the the Focus Window XY Tab
+        """ Adds a point to the Focus Window XY Tab
 
         Parameters
         ----------
@@ -1688,7 +1956,7 @@ class SBAccess(object):
         Returns
         -------
         list
-            a list of strings . If there is no point list defined in the XY Tab, it returns the kewyword 'Empty'
+            a list of strings . If there is no point list defined in the XY Tab, it returns the keyword 'Empty'
         """
         self.SendCommand('$GetXYZPointList()')
 
@@ -1696,6 +1964,103 @@ class SBAccess(object):
 
         theList = theStr.split('\n')
         return theList
+
+
+    def GetMicroscopeState(self, state: MicroscopeStates):
+        """ Gets a microscope state
+        Parameters
+        ----------
+        state: an enum from MicroscopeStates,
+           for example: GetMicroscopeState(MicroscopeStates.CurrentObjective)
+
+        Returns
+        -------
+            depends from what is retrieved
+            
+        """
+
+        self.SendCommand('$GetMicroscopeState(state=i4)')
+        self.SendVal(int(state.value),'i4')
+
+        if state == MicroscopeStates.CurrentObjective:
+            theStr = self.Recv()
+            return theStr
+        elif state == MicroscopeStates.CurrentFilter:
+            theStr = self.Recv()
+            return theStr
+        elif state == MicroscopeStates.CurrentMagnification:
+            theNum,theVals = self.Recv()
+            if( theNum != 1):
+                raise Exception("MicroscopeStates.CurrentMagnification: invalid value")
+            return theVals[0]
+        elif state == MicroscopeStates.CurrentLaserPower:
+            theNum,theVals = self.Recv()
+            if( theNum != 1):
+                raise Exception("MicroscopeStates.CurrentLaserPower: invalid value")
+            return theVals[0]
+        elif state == MicroscopeStates.CurrentNDPrimary:
+            theNum,theVals = self.Recv()
+            if( theNum != 1):
+                raise Exception("MicroscopeStates.CurrentNDPrimary: invalid value")
+            return theVals[0]
+            return theStr
+        elif state == MicroscopeStates.CurrentNDAux:
+            theNum,theVals = self.Recv()
+            if( theNum != 1):
+                raise Exception("MicroscopeStates.CurrentNDAux: invalid value")
+            return theVals[0]
+            return theStr
+        elif state == MicroscopeStates.CurrentLampVoltage:
+            theNum,theVals = self.Recv()
+            if( theNum != 1):
+                raise Exception("MicroscopeStates.CurrentLampVoltage: invalid value")
+            return theVals[0]
+        elif state == MicroscopeStates.CurrentFLshutter:
+            theNum,theVals = self.Recv()
+            if( theNum != 1):
+                raise Exception("MicroscopeStates.CurrentFLshutter: invalid value")
+            return theVals[0]
+        elif state == MicroscopeStates.CurrentBFshutter:
+            theNum,theVals = self.Recv()
+            if( theNum != 1):
+                raise Exception("MicroscopeStates.CurrentBFshutter: invalid value")
+            return theVals[0]
+        elif state == MicroscopeStates.CurrentAltSource:
+            theNum,theVals = self.Recv()
+            if( theNum != 1):
+                raise Exception("MicroscopeStates.CurrentAltSource: invalid value")
+            return theVals[0]
+        elif state == MicroscopeStates.CurrentXYstagePosition:
+            theNum,theVals = self.Recv()
+            if( theNum != 2):
+                raise Exception("MicroscopeStates.CurrentXYstagePosition: invalid value")
+            return theVals[0],theVals[1]
+        elif state == MicroscopeStates.CurrentZstagePosition:
+            theNum,theVals = self.Recv()
+            if( theNum != 1):
+                raise Exception("MicroscopeStates.CurrentZstagePosition: invalid value")
+            return theVals[0]
+        elif state == MicroscopeStates.CurrentAltZstagePosition:
+            theNum,theVals = self.Recv()
+            if( theNum != 1):
+                raise Exception("MicroscopeStates.CurrentAltZstagePosition: invalid value")
+            return theVals[0]
+        elif state == MicroscopeStates.CurrentCondenserPrismPosition:
+            return 0
+        elif state == MicroscopeStates.CurrentVideoOrCameraPosition:
+            #returns 0 (Camera) or 1 (Video)
+            theNum,theVals = self.Recv()
+            if( theNum != 1):
+                raise Exception("MicroscopeStates.CurrentVideoOrCameraPosition: invalid value")
+            return theVals[0]
+        elif state == MicroscopeStates.CurrentCondenserAperture:
+            return 0
+        elif state == MicroscopeStates.CurrentBin:
+            return 0
+        elif state == MicroscopeStates.CurrentFilterSet:
+            return 0
+
+
 
     def FocusWindowMainSelectBin(self,inStringParam):
         """ Selects a string in the Bin ComboBox of the Focus Window

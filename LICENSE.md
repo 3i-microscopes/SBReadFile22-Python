@@ -1,6 +1,6 @@
 BSD 3-Clause License
 
-Copyright (c) 2022, Intelligent Imaging Innovations, Inc.
+Copyright (c) 2022-2025, Intelligent Imaging Innovations, Inc.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

@@ -6,6 +6,74 @@ NAME
 CLASSES
     builtins.object
         SBAccess
+    enum.Enum(builtins.object)
+        MicroscopeStates
+    
+    class MicroscopeStates(enum.Enum)
+     |  MicroscopeStates(value, names=None, *, module=None, qualname=None, type=None, start=1)
+     |  
+     |  Enum with microscope state codes
+     |  
+     |  Method resolution order:
+     |      MicroscopeStates
+     |      enum.Enum
+     |      builtins.object
+     |  
+     |  Data and other attributes defined here:
+     |  
+     |  CurrentAltSource = <MicroscopeStates.CurrentAltSource: 10>
+     |  
+     |  CurrentAltZstagePosition = <MicroscopeStates.CurrentAltZstagePosition:...
+     |  
+     |  CurrentBFshutter = <MicroscopeStates.CurrentBFshutter: 9>
+     |  
+     |  CurrentBin = <MicroscopeStates.CurrentBin: 17>
+     |  
+     |  CurrentCondenserAperture = <MicroscopeStates.CurrentCondenserAperture:...
+     |  
+     |  CurrentCondenserPrismPosition = <MicroscopeStates.CurrentCondenserPris...
+     |  
+     |  CurrentFLshutter = <MicroscopeStates.CurrentFLshutter: 8>
+     |  
+     |  CurrentFilter = <MicroscopeStates.CurrentFilter: 2>
+     |  
+     |  CurrentFilterSet = <MicroscopeStates.CurrentFilterSet: 18>
+     |  
+     |  CurrentLampVoltage = <MicroscopeStates.CurrentLampVoltage: 7>
+     |  
+     |  CurrentLaserPower = <MicroscopeStates.CurrentLaserPower: 4>
+     |  
+     |  CurrentMagnification = <MicroscopeStates.CurrentMagnification: 3>
+     |  
+     |  CurrentNDAux = <MicroscopeStates.CurrentNDAux: 6>
+     |  
+     |  CurrentNDPrimary = <MicroscopeStates.CurrentNDPrimary: 5>
+     |  
+     |  CurrentObjective = <MicroscopeStates.CurrentObjective: 1>
+     |  
+     |  CurrentVideoOrCameraPosition = <MicroscopeStates.CurrentVideoOrCameraP...
+     |  
+     |  CurrentXYstagePosition = <MicroscopeStates.CurrentXYstagePosition: 11>
+     |  
+     |  CurrentZstagePosition = <MicroscopeStates.CurrentZstagePosition: 12>
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from enum.Enum:
+     |  
+     |  name
+     |      The name of the Enum member.
+     |  
+     |  value
+     |      The value of the Enum member.
+     |  
+     |  ----------------------------------------------------------------------
+     |  Readonly properties inherited from enum.EnumMeta:
+     |  
+     |  __members__
+     |      Returns a mapping of member name->value.
+     |      
+     |      This mapping lists all enum members, including aliases. Note that this
+     |      is a read-only view of the internal mapping.
     
     class SBAccess(builtins.object)
      |  SBAccess(inSocket)
@@ -15,7 +83,7 @@ CLASSES
      |  Methods defined here:
      |  
      |  AddXYZPoint(self, inXum, inYum, inZum, inAuxZum=0, inIsAuxZ=False)
-     |      Adds a point the the Focus Window XY Tab
+     |      Adds a point to the Focus Window XY Tab
      |      
      |      Parameters
      |      ----------
@@ -615,6 +683,62 @@ CLASSES
      |      list
      |          a list of CFluorDef70 objects
      |  
+     |  GetHardwareComponentLocationMicrons(self, inComponentID)
+     |      Gets the current XYZ location of hardware component inComponentIndex
+     |      
+     |      Parameters
+     |      ----------
+     |      inComponentID: int
+     |          The component ID (0 <= inComponentID <= 46)
+     |      
+     |      Returns
+     |      -------
+     |      float
+     |          The X location in um (0 if unsupported)
+     |      float
+     |          The Y location in um (0 if unsupported)
+     |      float
+     |          The Z location in um (0 if unsupported)
+     |  
+     |  GetHardwareComponentMinMax(self, inComponentID)
+     |      Returns the device minimum and maximum hardware positions
+     |      
+     |      Parameters
+     |      ----------
+     |      inComponentID: int
+     |          The component ID (0 <= inComponentID <= 46)
+     |      
+     |      Returns
+     |      -------
+     |      list
+     |          Returns the minimum ([0]) and maximum ([1]) position of device inComponentID. If not enabled returns keyword 'Empty'
+     |  
+     |  GetHardwareComponentName(self, inComponentID)
+     |      Returns the device name of a hardware component
+     |      
+     |      Parameters
+     |      ----------
+     |      inComponentID: int
+     |          The component ID (0 <= inComponentID <= 46)
+     |      
+     |      Returns
+     |      -------
+     |      list
+     |          Returns the device name of inComponentID. If not enabled returns keyword 'Empty'
+     |  
+     |  GetHardwareComponentPosition(self, inComponentID)
+     |      Gets the current position of a hardware device
+     |      
+     |      Parameters
+     |      ----------
+     |      inComponentID: int
+     |          The component ID (0 <= inComponentID <= 46)
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          Returns the current position of device inComponentID
+     |  
      |  GetImageComment(self, inCaptureIndex)
      |      Gets the comments of an image group
      |      
@@ -670,6 +794,19 @@ CLASSES
      |      -------
      |      str
      |          The name of the image group
+     |  
+     |  GetIsHardwareComponentEnabled(self, inComponentID)
+     |      Checks if the hardware component is enabled
+     |      
+     |      Parameters
+     |      ----------
+     |      inComponentID: int
+     |          The component ID (0 <= inComponentID <= 46)
+     |      
+     |      Returns
+     |      -------
+     |      bool
+     |          True if is enabled, false if it is not
      |  
      |  GetLastChannelCaptured(self, inCaptureIndex)
      |      Gets the index of the last Channel captured
@@ -788,6 +925,17 @@ CLASSES
      |      -------
      |      str
      |          The name of the mask
+     |  
+     |  GetMicroscopeState(self, state: SBAccess.MicroscopeStates)
+     |      Gets a microscope state
+     |      Parameters
+     |      ----------
+     |      state: an enum from MicroscopeStates,
+     |         for example: GetMicroscopeState(MicroscopeStates.CurrentObjective)
+     |      
+     |      Returns
+     |      -------
+     |          depends from what is retrieved
      |  
      |  GetMontageColumn(self, inCaptureIndex, inPositionIndex)
      |      Gets the number of columns of the montage at a given position in an image group
@@ -979,7 +1127,7 @@ CLASSES
      |      Returns
      |      -------
      |      list
-     |          a list of strings . If there is no point list defined in the XY Tab, it returns the kewyword 'Empty'
+     |          a list of strings . If there is no point list defined in the XY Tab, it returns the keyword 'Empty'
      |  
      |  GetYPosition(self, inCaptureIndex, inPositionIndex)
      |      Gets the Y position in microns of the center of an image of an image group
@@ -1155,6 +1303,34 @@ CLASSES
      |  
      |  RecvBigData(self, n)
      |  
+     |  SaveAsSlide(self, inSlideId, inPathname)
+     |      Saves a slide
+     |      Parameters
+     |      ----------
+     |      inSlideId : int
+     |          The Slide Id
+     |      
+     |      inPathname : str
+     |          The pathname to save the slide with
+     |          
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 on success
+     |  
+     |  SaveSlide(self, inSlideId)
+     |      Saves a slide
+     |      Parameters
+     |      ----------
+     |      inSlideId : int
+     |          The Slide Id
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 on success
+     |  
      |  SendByteArray(self, inBytes)
      |  
      |  SendCommand(self, inCommand)
@@ -1198,6 +1374,40 @@ CLASSES
      |      Returns
      |      -------
      |      none
+     |  
+     |  SetHardwareComponentLocationMicrons(self, inComponentID, inXMicrons, inYMicrons, inZMicrons)
+     |      Set the current XYZ position of a hardware device
+     |      
+     |      Parameters
+     |      ----------
+     |      inComponentID: int
+     |          The component ID (0 <= inComponentID <= 46)
+     |      x: float
+     |          The new x micron position
+     |      y: float
+     |          The new x micron position
+     |      z: float
+     |          The new x micron position
+     |      
+     |      Returns
+     |      -------
+     |      bool
+     |          Returns success or failure
+     |  
+     |  SetHardwareComponentPosition(self, inComponentID, inPosition)
+     |      Set the current position of a hardware device
+     |      
+     |      Parameters
+     |      ----------
+     |      inComponentID: int
+     |          The component ID (0 <= inComponentID <= 46)
+     |      inPosition: int
+     |          The new position
+     |      
+     |      Returns
+     |      -------
+     |      bool
+     |          Returns success or failure
      |  
      |  SetImageComment(self, inCaptureIndex, inComment)
      |      Sets the comment (info) of an image group
@@ -1361,6 +1571,8 @@ CLASSES
      |  
      |  __init__(self, inSocket)
      |      Initialize self.  See help(type(self)) for accurate signature.
+     |  
+     |  mysend(self, inBytes)
      |  
      |  ----------------------------------------------------------------------
      |  Data descriptors defined here:
