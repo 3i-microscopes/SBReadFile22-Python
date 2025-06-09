@@ -7,7 +7,126 @@ CLASSES
     builtins.object
         SBAccess
     enum.Enum(builtins.object)
+        MicroscopeHardwareComponent
         MicroscopeStates
+    
+    class MicroscopeHardwareComponent(enum.Enum)
+     |  MicroscopeHardwareComponent(value, names=None, *, module=None, qualname=None, type=None, start=1)
+     |  
+     |  Enum for direct microscope hardware access
+     |  
+     |  Method resolution order:
+     |      MicroscopeHardwareComponent
+     |      enum.Enum
+     |      builtins.object
+     |  
+     |  Data and other attributes defined here:
+     |  
+     |  AdaptiveOptics = <MicroscopeHardwareComponent.AdaptiveOptics: 26>
+     |  
+     |  AltSourceSelection = <MicroscopeHardwareComponent.AltSourceSelection: ...
+     |  
+     |  AuxFilterWheel = <MicroscopeHardwareComponent.AuxFilterWheel: 17>
+     |  
+     |  AuxFilterWheel10 = <MicroscopeHardwareComponent.AuxFilterWheel10: 43>
+     |  
+     |  AuxFilterWheel2 = <MicroscopeHardwareComponent.AuxFilterWheel2: 18>
+     |  
+     |  AuxFilterWheel3 = <MicroscopeHardwareComponent.AuxFilterWheel3: 19>
+     |  
+     |  AuxFilterWheel4 = <MicroscopeHardwareComponent.AuxFilterWheel4: 23>
+     |  
+     |  AuxFilterWheel5 = <MicroscopeHardwareComponent.AuxFilterWheel5: 28>
+     |  
+     |  AuxFilterWheel6 = <MicroscopeHardwareComponent.AuxFilterWheel6: 29>
+     |  
+     |  AuxFilterWheel7 = <MicroscopeHardwareComponent.AuxFilterWheel7: 34>
+     |  
+     |  AuxFilterWheel8 = <MicroscopeHardwareComponent.AuxFilterWheel8: 41>
+     |  
+     |  AuxFilterWheel9 = <MicroscopeHardwareComponent.AuxFilterWheel9: 42>
+     |  
+     |  AuxFluorescenceLamp = <MicroscopeHardwareComponent.AuxFluorescenceLamp...
+     |  
+     |  AuxZStage = <MicroscopeHardwareComponent.AuxZStage: 15>
+     |  
+     |  BeamExpander = <MicroscopeHardwareComponent.BeamExpander: 27>
+     |  
+     |  BrightfieldLamp = <MicroscopeHardwareComponent.BrightfieldLamp: 5>
+     |  
+     |  BrightfieldShutter = <MicroscopeHardwareComponent.BrightfieldShutter: ...
+     |  
+     |  CameraVideoPrism = <MicroscopeHardwareComponent.CameraVideoPrism: 12>
+     |  
+     |  EmissionFilterWheel = <MicroscopeHardwareComponent.EmissionFilterWheel...
+     |  
+     |  ExcitationFilterWheel = <MicroscopeHardwareComponent.ExcitationFilterW...
+     |  
+     |  FilterTurret = <MicroscopeHardwareComponent.FilterTurret: 1>
+     |  
+     |  FluorescenceLamp = <MicroscopeHardwareComponent.FluorescenceLamp: 14>
+     |  
+     |  FluorescenceShutter = <MicroscopeHardwareComponent.FluorescenceShutter...
+     |  
+     |  IncubatorControl = <MicroscopeHardwareComponent.IncubatorControl: 30>
+     |  
+     |  LCDFilter = <MicroscopeHardwareComponent.LCDFilter: 6>
+     |  
+     |  LaserAblationDevice = <MicroscopeHardwareComponent.LaserAblationDevice...
+     |  
+     |  LaserPowerControl = <MicroscopeHardwareComponent.LaserPowerControl: 25...
+     |  
+     |  LaserPowerMeter = <MicroscopeHardwareComponent.LaserPowerMeter: 32>
+     |  
+     |  LaserPowerMeter2 = <MicroscopeHardwareComponent.LaserPowerMeter2: 35>
+     |  
+     |  LaserPowerMeter3 = <MicroscopeHardwareComponent.LaserPowerMeter3: 36>
+     |  
+     |  LaserPowerMeter4 = <MicroscopeHardwareComponent.LaserPowerMeter4: 37>
+     |  
+     |  LaserTemperatureControl = <MicroscopeHardwareComponent.LaserTemperatur...
+     |  
+     |  Lightsheet = <MicroscopeHardwareComponent.Lightsheet: 33>
+     |  
+     |  ObjectiveTurret = <MicroscopeHardwareComponent.ObjectiveTurret: 9>
+     |  
+     |  OcularPhotoPrism = <MicroscopeHardwareComponent.OcularPhotoPrism: 11>
+     |  
+     |  OptovarTurret = <MicroscopeHardwareComponent.OptovarTurret: 10>
+     |  
+     |  PMTController1 = <MicroscopeHardwareComponent.PMTController1: 44>
+     |  
+     |  PMTController2 = <MicroscopeHardwareComponent.PMTController2: 45>
+     |  
+     |  PMTController3 = <MicroscopeHardwareComponent.PMTController3: 46>
+     |  
+     |  ReuseThisPosition = <MicroscopeHardwareComponent.ReuseThisPosition: 22...
+     |  
+     |  SACorrection = <MicroscopeHardwareComponent.SACorrection: 21>
+     |  
+     |  TIRFSlider = <MicroscopeHardwareComponent.TIRFSlider: 24>
+     |  
+     |  XYStage = <MicroscopeHardwareComponent.XYStage: 7>
+     |  
+     |  ZStage = <MicroscopeHardwareComponent.ZStage: 8>
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from enum.Enum:
+     |  
+     |  name
+     |      The name of the Enum member.
+     |  
+     |  value
+     |      The value of the Enum member.
+     |  
+     |  ----------------------------------------------------------------------
+     |  Readonly properties inherited from enum.EnumMeta:
+     |  
+     |  __members__
+     |      Returns a mapping of member name->value.
+     |      
+     |      This mapping lists all enum members, including aliases. Note that this
+     |      is a read-only view of the internal mapping.
     
     class MicroscopeStates(enum.Enum)
      |  MicroscopeStates(value, names=None, *, module=None, qualname=None, type=None, start=1)
@@ -143,6 +262,19 @@ CLASSES
      |      -------
      |      int
      |          The Slide Id
+     |  
+     |  FocusWindowGetTIRFParameters(self, Position)
+     |      Gets the current TIRF parameters for filter Position
+     |      
+     |      Parameters
+     |      ----------
+     |      Position: int
+     |          The filter position (0-20)
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
      |  
      |  FocusWindowMainMoveX(self, inFloatParam)
      |      Moves the XY stage in the X direction in the Focus Window
@@ -467,6 +599,35 @@ CLASSES
      |      int
      |          1 if is succesful, 0 otherwise
      |  
+     |  FocusWindowSetTIRFParameters(self, Position, Radius_mV, X_mV, Y_mV, Duration_ms, MotorPos, MotorEnable, SpinEnable, Save)
+     |      Set the current parameters for TIRF filter Position
+     |      
+     |      Parameters
+     |      ----------
+     |      Position: int
+     |          The filter position (0-20)
+     |      radius: int
+     |         spin radius (mV)
+     |      x: int
+     |          x center (mV)
+     |      y: int
+     |          y center (mV)
+     |      duration: int
+     |          spin duratuion (mV)
+     |      motor pos: int
+     |         stepper position
+     |      motor enable: int
+     |          enable stepper (0=false 1=true)
+     |      spin enable: int
+     |          enable spin (0=false 1=true)
+     |      inSave: int
+     |          save as default settings (0=false 1=true)
+     |      
+     |      Returns
+     |      -------
+     |      bool
+     |          Returns success or failure
+     |  
      |  FocusWindowStreamSetNumberFrames(self, inIntParam)
      |      Sets the Number of Frames to capture in the Stream tab of the Focus Window
      |      
@@ -683,12 +844,12 @@ CLASSES
      |      list
      |          a list of CFluorDef70 objects
      |  
-     |  GetHardwareComponentLocationMicrons(self, inComponentID)
+     |  GetHardwareComponentLocationMicrons(self, inComponentID: SBAccess.MicroscopeHardwareComponent)
      |      Gets the current XYZ location of hardware component inComponentIndex
      |      
      |      Parameters
      |      ----------
-     |      inComponentID: int
+     |      inComponentID: MicroscopeHardwareComponent
      |          The component ID (0 <= inComponentID <= 46)
      |      
      |      Returns
@@ -700,12 +861,12 @@ CLASSES
      |      float
      |          The Z location in um (0 if unsupported)
      |  
-     |  GetHardwareComponentMinMax(self, inComponentID)
+     |  GetHardwareComponentMinMax(self, inComponentID: SBAccess.MicroscopeHardwareComponent)
      |      Returns the device minimum and maximum hardware positions
      |      
      |      Parameters
      |      ----------
-     |      inComponentID: int
+     |      inComponentID: MicroscopeHardwareComponent
      |          The component ID (0 <= inComponentID <= 46)
      |      
      |      Returns
@@ -713,12 +874,12 @@ CLASSES
      |      list
      |          Returns the minimum ([0]) and maximum ([1]) position of device inComponentID. If not enabled returns keyword 'Empty'
      |  
-     |  GetHardwareComponentName(self, inComponentID)
+     |  GetHardwareComponentName(self, inComponentID: SBAccess.MicroscopeHardwareComponent)
      |      Returns the device name of a hardware component
      |      
      |      Parameters
      |      ----------
-     |      inComponentID: int
+     |      inComponentID: MicroscopeHardwareComponent
      |          The component ID (0 <= inComponentID <= 46)
      |      
      |      Returns
@@ -726,12 +887,12 @@ CLASSES
      |      list
      |          Returns the device name of inComponentID. If not enabled returns keyword 'Empty'
      |  
-     |  GetHardwareComponentPosition(self, inComponentID)
+     |  GetHardwareComponentPosition(self, inComponentID: SBAccess.MicroscopeHardwareComponent)
      |      Gets the current position of a hardware device
      |      
      |      Parameters
      |      ----------
-     |      inComponentID: int
+     |      inComponentID: MicroscopeHardwareComponent
      |          The component ID (0 <= inComponentID <= 46)
      |      
      |      Returns
@@ -795,7 +956,7 @@ CLASSES
      |      str
      |          The name of the image group
      |  
-     |  GetIsHardwareComponentEnabled(self, inComponentID)
+     |  GetIsHardwareComponentEnabled(self, inComponentID: SBAccess.MicroscopeHardwareComponent)
      |      Checks if the hardware component is enabled
      |      
      |      Parameters
@@ -1159,6 +1320,25 @@ CLASSES
      |      float
      |          The Z position in um
      |  
+     |  IncrementHardwareComponentLocationMicrons(self, inComponentID: SBAccess.MicroscopeHardwareComponent, inXMicrons, inYMicrons, inZMicrons)
+     |      Increment the current XYZ position of a hardware device
+     |      
+     |      Parameters
+     |      ----------
+     |      inComponentID: MicroscopeHardwareComponent
+     |          The component ID (0 <= inComponentID <= 46)
+     |      x: float
+     |          The increment x micron position
+     |      y: float
+     |          The increment x micron position
+     |      z: float
+     |          The increment x micron position
+     |      
+     |      Returns
+     |      -------
+     |      bool
+     |          Returns success or failure
+     |  
      |  IsCapturing(self)
      |      Checks if there is an active capture
      |      
@@ -1242,7 +1422,7 @@ CLASSES
      |          The rectangle Y top corner in pixels
      |      inWidth: int
      |          The rectangle width in pixels
-     |      inHeight:int 
+     |      inHeight:int
      |          The rectangle height in pixels
      |      inIsStimulation: bool
      |          True if is a stimulation region, False otherwise
@@ -1375,12 +1555,12 @@ CLASSES
      |      -------
      |      none
      |  
-     |  SetHardwareComponentLocationMicrons(self, inComponentID, inXMicrons, inYMicrons, inZMicrons)
+     |  SetHardwareComponentLocationMicrons(self, inComponentID: SBAccess.MicroscopeHardwareComponent, inXMicrons, inYMicrons, inZMicrons)
      |      Set the current XYZ position of a hardware device
      |      
      |      Parameters
      |      ----------
-     |      inComponentID: int
+     |      inComponentID: MicroscopeHardwareComponent
      |          The component ID (0 <= inComponentID <= 46)
      |      x: float
      |          The new x micron position
@@ -1394,12 +1574,12 @@ CLASSES
      |      bool
      |          Returns success or failure
      |  
-     |  SetHardwareComponentPosition(self, inComponentID, inPosition)
+     |  SetHardwareComponentPosition(self, inComponentID: SBAccess.MicroscopeHardwareComponent, inPosition)
      |      Set the current position of a hardware device
      |      
      |      Parameters
      |      ----------
-     |      inComponentID: int
+     |      inComponentID: MicroscopeHardwareComponent
      |          The component ID (0 <= inComponentID <= 46)
      |      inPosition: int
      |          The new position

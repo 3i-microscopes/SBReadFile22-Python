@@ -42,6 +42,53 @@ class MicroscopeStates(Enum):
     CurrentBin = 17
     CurrentFilterSet = 18
 
+class MicroscopeHardwareComponent(Enum):
+    """ Enum for direct microscope hardware access
+    """
+    ExcitationFilterWheel =		0
+    FilterTurret =				1
+    EmissionFilterWheel =		2
+    FluorescenceShutter =		3
+    BrightfieldShutter =		4
+    BrightfieldLamp =			5
+    LCDFilter =					6
+    XYStage =					7
+    ZStage =					8
+    ObjectiveTurret =			9
+    OptovarTurret =				10
+    OcularPhotoPrism =			11
+    CameraVideoPrism =			12
+    AltSourceSelection =		13
+    FluorescenceLamp =			14
+    AuxZStage =					15
+    AuxFluorescenceLamp =		16
+    AuxFilterWheel =			17
+    AuxFilterWheel2 =			18
+    AuxFilterWheel3 =			19
+    LaserAblationDevice =		20
+    SACorrection =				21
+    ReuseThisPosition =			22
+    AuxFilterWheel4 =			23
+    TIRFSlider =				24
+    LaserPowerControl =			25
+    AdaptiveOptics =			26
+    BeamExpander =				27
+    AuxFilterWheel5 =			28
+    AuxFilterWheel6 =			29
+    IncubatorControl =			30
+    LaserTemperatureControl =	31
+    LaserPowerMeter =			32
+    Lightsheet =				33
+    AuxFilterWheel7 =			34
+    LaserPowerMeter2 =			35
+    LaserPowerMeter3 =			36
+    LaserPowerMeter4 =			37
+    AuxFilterWheel8 =			41
+    AuxFilterWheel9 =			42
+    AuxFilterWheel10 =			43
+    PMTController1 =			44
+    PMTController2 =			45
+    PMTController3 =			46
 
 class SBAccess(object):
     
@@ -1736,7 +1783,7 @@ class SBAccess(object):
         else:
             return False
 
-    def GetIsHardwareComponentEnabled(self, inComponentID):
+    def GetIsHardwareComponentEnabled(self, inComponentID : MicroscopeHardwareComponent):
         """ Checks if the hardware component is enabled
 
         Parameters
@@ -1750,7 +1797,7 @@ class SBAccess(object):
             True if is enabled, false if it is not
         """
         self.SendCommand('$GetIsHardwareComponentEnabled(ComponentIndex=i4)')
-        self.SendVal(int(inComponentID), 'i4')
+        self.SendVal(int(inComponentID.value), 'i4')
         theNum, theVals = self.Recv()
         if (theNum != 1):
             raise Exception("GetIsHardwareComponentEnabled: failed")
@@ -1759,12 +1806,12 @@ class SBAccess(object):
         else:
             return False
 
-    def GetHardwareComponentName(self, inComponentID):
+    def GetHardwareComponentName(self, inComponentID : MicroscopeHardwareComponent):
         """ Returns the device name of a hardware component
 
         Parameters
         ----------
-        inComponentID: int
+        inComponentID: MicroscopeHardwareComponent
             The component ID (0 <= inComponentID <= 46)
 
         Returns
@@ -1773,16 +1820,16 @@ class SBAccess(object):
             Returns the device name of inComponentID. If not enabled returns keyword 'Empty'
         """
         self.SendCommand('$GetHardwareComponentName(ComponentIndex=i4)')
-        self.SendVal(int(inComponentID),'i4')
+        self.SendVal(int(inComponentID.value),'i4')
         theString = self.Recv()
         return theString
 
-    def GetHardwareComponentMinMax(self, inComponentID):
+    def GetHardwareComponentMinMax(self, inComponentID : MicroscopeHardwareComponent):
         """ Returns the device minimum and maximum hardware positions
 
         Parameters
         ----------
-        inComponentID: int
+        inComponentID: MicroscopeHardwareComponent
             The component ID (0 <= inComponentID <= 46)
 
         Returns
@@ -1791,19 +1838,19 @@ class SBAccess(object):
             Returns the minimum ([0]) and maximum ([1]) position of device inComponentID. If not enabled returns keyword 'Empty'
         """
         self.SendCommand('$GetHardwareComponentMinMax(ComponentIndex=i4)')
-        self.SendVal(int(inComponentID), 'i4')
+        self.SendVal(int(inComponentID.value), 'i4')
         theNum, theVals = self.Recv()
         if (theNum != 2):
             raise Exception("GetHardwareComponentMinMax: failed")
 
         return theVals;
 
-    def SetHardwareComponentPosition(self, inComponentID, inPosition):
+    def SetHardwareComponentPosition(self, inComponentID : MicroscopeHardwareComponent, inPosition):
         """ Set the current position of a hardware device
 
         Parameters
         ----------
-        inComponentID: int
+        inComponentID: MicroscopeHardwareComponent
             The component ID (0 <= inComponentID <= 46)
         inPosition: int
             The new position
@@ -1814,7 +1861,7 @@ class SBAccess(object):
             Returns success or failure
         """
         self.SendCommand('$SetHardwareComponentPosition(ComponentIndex=i4,Position=i4)')
-        self.SendVal(int(inComponentID), 'i4')
+        self.SendVal(int(inComponentID.value), 'i4')
         self.SendVal(int(inPosition), 'i4')
         theNum, theVals = self.Recv()
         if (theNum != 1):
@@ -1825,12 +1872,12 @@ class SBAccess(object):
         else:
             return False
 
-    def GetHardwareComponentPosition(self, inComponentID):
+    def GetHardwareComponentPosition(self, inComponentID : MicroscopeHardwareComponent):
         """ Gets the current position of a hardware device
 
         Parameters
         ----------
-        inComponentID: int
+        inComponentID: MicroscopeHardwareComponent
             The component ID (0 <= inComponentID <= 46)
 
         Returns
@@ -1839,19 +1886,19 @@ class SBAccess(object):
             Returns the current position of device inComponentID
         """
         self.SendCommand('$GetHardwareComponentPosition(ComponentIndex=i4)')
-        self.SendVal(int(inComponentID), 'i4')
+        self.SendVal(int(inComponentID.value), 'i4')
         theNum, theVals = self.Recv()
         if (theNum != 1):
             raise Exception("GetHardwareComponentPosition: failed")
 
         return theVals[0];
 
-    def SetHardwareComponentLocationMicrons(self, inComponentID, inXMicrons, inYMicrons, inZMicrons):
+    def SetHardwareComponentLocationMicrons(self, inComponentID : MicroscopeHardwareComponent, inXMicrons, inYMicrons, inZMicrons):
         """ Set the current XYZ position of a hardware device
 
         Parameters
         ----------
-        inComponentID: int
+        inComponentID: MicroscopeHardwareComponent
             The component ID (0 <= inComponentID <= 46)
         x: float
             The new x micron position
@@ -1867,7 +1914,7 @@ class SBAccess(object):
         """
         try:
             self.SendCommand('$SetHardwareComponentLocationMicrons(ComponentIndex=i4,x=f4,y=f4,z=f4)')
-            self.SendVal(int(inComponentID), 'i4')
+            self.SendVal(int(inComponentID.value), 'i4')
             self.SendVal(float(inXMicrons), 'f4')
             self.SendVal(float(inYMicrons), 'f4')
             self.SendVal(float(inZMicrons), 'f4')
@@ -1883,12 +1930,50 @@ class SBAccess(object):
         except:
                 return False
 
-    def GetHardwareComponentLocationMicrons(self,inComponentID):
+    def IncrementHardwareComponentLocationMicrons(self, inComponentID : MicroscopeHardwareComponent, inXMicrons, inYMicrons, inZMicrons):
+        """ Increment the current XYZ position of a hardware device
+
+        Parameters
+        ----------
+        inComponentID: MicroscopeHardwareComponent
+            The component ID (0 <= inComponentID <= 46)
+        x: float
+            The increment x micron position
+        y: float
+            The increment x micron position
+        z: float
+            The increment x micron position
+
+        Returns
+        -------
+        bool
+            Returns success or failure
+        """
+        try:
+            self.SendCommand('$IncrementHardwareComponentLocationMicrons(ComponentIndex=i4,x=f4,y=f4,z=f4)')
+            self.SendVal(int(inComponentID.value), 'i4')
+            self.SendVal(float(inXMicrons), 'f4')
+            self.SendVal(float(inYMicrons), 'f4')
+            self.SendVal(float(inZMicrons), 'f4')
+
+            theNum, theVals = self.Recv()
+            if (theNum != 1):
+                raise Exception("IncrementHardwareComponentLocationMicrons: failed")
+
+            if (theVals[0] > 0):
+                return True
+            else:
+                return False
+        except:
+                return False
+
+
+    def GetHardwareComponentLocationMicrons(self,inComponentID : MicroscopeHardwareComponent):
         """ Gets the current XYZ location of hardware component inComponentIndex
 
         Parameters
         ----------
-        inComponentID: int
+        inComponentID: MicroscopeHardwareComponent
             The component ID (0 <= inComponentID <= 46)
 
         Returns
@@ -1902,7 +1987,7 @@ class SBAccess(object):
 
         """
         self.SendCommand('$GetHardwareComponentLocationMicrons(ComponentIndex=i4)')
-        self.SendVal(int(inComponentID),'i4')
+        self.SendVal(int(inComponentID.value),'i4')
 
         theNum,theX = self.Recv()
         if( theNum != 1):
@@ -2534,6 +2619,109 @@ class SBAccess(object):
 
         return self.SendStringParam('FocusWindowStreamSetNumberFramesToAverage',inStringParam)
 
+    def FocusWindowSetTIRFParameters(self, Position, Radius_mV, X_mV, Y_mV, Duration_ms, MotorPos, MotorEnable,
+                                     SpinEnable, Save):
+        """ Set the current parameters for TIRF filter Position
+
+        Parameters
+        ----------
+        Position: int
+            The filter position (0-20)
+        radius: int
+           spin radius (mV)
+        x: int
+            x center (mV)
+        y: int
+            y center (mV)
+        duration: int
+            spin duratuion (mV)
+        motor pos: int
+           stepper position
+        motor enable: int
+            enable stepper (0=false 1=true)
+        spin enable: int
+            enable spin (0=false 1=true)
+        inSave: int
+            save as default settings (0=false 1=true)
+
+        Returns
+        -------
+        bool
+            Returns success or failure
+        """
+        try:
+            self.SendCommand(
+                '$FocusWindowSetTIRFParameters(Position=i4,Radius_mV=i4,X_mV=i4,Y_mV=i4,Duration_ms=i4,MotorPos=i4,MotorEnable=i4,SpinEnable=i4,Save=i4)')
+            self.SendVal(int(Position), 'i4')
+            self.SendVal(int(Radius_mV), 'i4')
+            self.SendVal(int(X_mV), 'i4')
+            self.SendVal(int(Y_mV), 'i4')
+            self.SendVal(int(Duration_ms), 'i4')
+            self.SendVal(int(MotorPos), 'i4')
+            self.SendVal(int(MotorEnable), 'i4')
+            self.SendVal(int(SpinEnable), 'i4')
+            self.SendVal(int(Save), 'i4')
+
+            theNum, theVals = self.Recv()
+            if (theNum != 1):
+                raise Exception("FocusWindowSetTIRFParameters: failed")
+
+            if (theVals[0] > 0):
+                return True
+            else:
+                return False
+
+        except:
+            return False
+
+
+    def FocusWindowGetTIRFParameters(self, Position):
+        """ Gets the current TIRF parameters for filter Position
+
+        Parameters
+        ----------
+        Position: int
+            The filter position (0-20)
+
+        Returns
+        -------
+        int
+            1 if is succesful, 0 otherwise
+        """
+
+        self.SendCommand('$FocusWindowGetTIRFParameters(Position=i4)')
+        self.SendVal(int(Position), 'i4')
+
+        theNum, Radius_mV = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetHardwareComponentLocationMicrons: invalid radius value")
+
+        theNum, X_mV = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetHardwareComponentLocationMicrons: invalid x value")
+
+        theNum, Y_mV = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetHardwareComponentLocationMicrons: invalid y value")
+
+        theNum, Duration_ms = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetHardwareComponentLocationMicrons: invalid duration value")
+
+        theNum, MotorPos = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetHardwareComponentLocationMicrons: invalid motor pos value")
+
+        theNum, MotorEnable = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetHardwareComponentLocationMicrons: invalid motor enable value")
+
+        theNum, SpinEnable = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetHardwareComponentLocationMicrons: invalid spin enable value")
+
+        return Radius_mV[0], X_mV[0], Y_mV[0], Duration_ms[0], MotorPos[0], MotorEnable[0], SpinEnable[0]
+
     def LiveWindowAddRectangleRegion(self,inWindowIndex,inX,inY,inWidth,inHeight,inIsStimulation=False):
         """ Adds a rectangular region the a given Live Window
 
@@ -2547,7 +2735,7 @@ class SBAccess(object):
             The rectangle Y top corner in pixels
         inWidth: int
             The rectangle width in pixels
-        inHeight:int 
+        inHeight:int
             The rectangle height in pixels
         inIsStimulation: bool
             True if is a stimulation region, False otherwise

@@ -737,6 +737,14 @@ def test_get_objectives():
         for magnificationChanger in theMagnificationChangerList:
             print("magnificationChanger name ",magnificationChanger.mName)
             print("")
+def test_tirf_hardware():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+        Radius_mV, X_mV, Y_mV, Duration_ms, MotorPos, MotorEnable, SpinEnable = theSbAccess.FocusWindowGetTIRFParameters(0 )
+        print("Radius=", Radius_mV, "X =", X_mV, "Y =", Y_mV, "Motor =", MotorPos, f"Motor enabled=  {'yes' if MotorEnable == 1 else 'no'}" )
 
 def test_get_hardware_metadata():
     HOST = '127.0.0.1'  # The server's hostname or IP address
@@ -768,7 +776,7 @@ def test_get_hardware_position(inComponentID, inPosition):
             theReadPosition = theSbAccess.GetHardwareComponentPosition(inComponentID)
             print("Component ", inComponentID, "name =", theName, "read position ", theReadPosition)
 
-def test_get_hardware_location_microns(inComponentID):
+def test_get_hardware_location_microns(inComponentID : MicroscopeHardwareComponent):
     HOST = '127.0.0.1'  # The server's hostname or IP address
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -786,6 +794,13 @@ def test_get_hardware_location_microns(inComponentID):
 
                 theX, theY, theZ = theSbAccess.GetHardwareComponentLocationMicrons(inComponentID)
                 print("Component ", inComponentID, "name =", theName, "GetHardwareComponentMicrons ", "z =", theX, "y=", theY, "z=", theZ)
+
+                isSuccess = theSbAccess.IncrementHardwareComponentLocationMicrons(inComponentID, 1, 1, 1)
+                print("Component ", inComponentID, "name =", theName, "IncrementHardwareComponentLocationMicrons ", "z =", 1, "y=", 1, "z=", 1)
+
+                theX, theY, theZ = theSbAccess.GetHardwareComponentLocationMicrons(inComponentID)
+                print("Component ", inComponentID, "name =", theName, "GetHardwareComponentMicrons ", "z =", theX, "y=", theY, "z=",  theZ)
+
     except:
         print("test_get_hardware_location failed")
 
@@ -839,11 +854,12 @@ def main():
         #test_create_and_setset_target_slide()
         #test_get_objectives()
         #test_get_hardware_metadata()
-        #test_get_hardware_location_microns(8)
-        #test_get_hardware_position(1, 10)
+        test_get_hardware_location_microns(MicroscopeHardwareComponent.ZStage)
+        #test_get_hardware_position(MicroscopeHardwareComponent.ExcitationFilterWheel, 10)
         #test_get_xyz_point_list()
         #test_save_slide()
-        test_save_as_slide()
+        #test_save_as_slide()
+    	# test_tirf_hardware()
     except Exception as e:
         print(f"Error: {e}")
     except: 
