@@ -1,3 +1,4 @@
+from __future__ import annotations
 __copyright__  = "Copyright (c) 2022-2025, Intelligent Imaging Innovations, Inc. All rights reserved.  All rights reserved."
 __license__  = "This source code is licensed under the BSD-style license found in the LICENSE file in the root directory of this source tree."
 
@@ -17,81 +18,259 @@ from CMetadataLib import COptovarDef70
 from enum import Enum
 import yaml
 
+
 import ByteUtil as bu
 import numpy as np
 
 class MicroscopeStates(Enum):
-    """ Enum with microscope state codes
     """
+    Enumeration of microscope state codes used to represent various 
+    hardware settings or readouts from a microscope control system.
+    """
+
     CurrentObjective = 1
+    """Current objective lens in use."""
+
     CurrentFilter = 2
+    """Current filter in use."""
+
     CurrentMagnification = 3
+    """Current total magnification."""
+
     CurrentLaserPower = 4
+    """Current laser power setting."""
+
     CurrentNDPrimary = 5
+    """Current position of the primary neutral density (ND) filter."""
+
     CurrentNDAux = 6
+    """Current position of the auxiliary ND filter."""
+
     CurrentLampVoltage = 7
+    """Current lamp voltage level."""
+
     CurrentFLshutter = 8
+    """Current state of the fluorescence shutter (open/closed)."""
+
     CurrentBFshutter = 9
+    """Current state of the brightfield shutter (open/closed)."""
+
     CurrentAltSource = 10
+    """Current alternative illumination source."""
+
     CurrentXYstagePosition = 11
+    """Current XY stage coordinates."""
+
     CurrentZstagePosition = 12
+    """Current Z stage position."""
+
     CurrentAltZstagePosition = 13
+    """Current position of an alternate Z stage (if present)."""
+
     CurrentCondenserPrismPosition = 14
+    """Current position of the condenser prism."""
+
     CurrentVideoOrCameraPosition = 15
+    """Current position of the video/camera selector."""
+
     CurrentCondenserAperture = 16
+    """Current condenser aperture setting."""
+
     CurrentBin = 17
+    """Current camera binning setting."""
+
     CurrentFilterSet = 18
+    """Current active filter set."""
+
+
 
 class MicroscopeHardwareComponent(Enum):
-    """ Enum for direct microscope hardware access
     """
-    ExcitationFilterWheel =		0
-    FilterTurret =				1
-    EmissionFilterWheel =		2
-    FluorescenceShutter =		3
-    BrightfieldShutter =		4
-    BrightfieldLamp =			5
-    LCDFilter =					6
-    XYStage =					7
-    ZStage =					8
-    ObjectiveTurret =			9
-    OptovarTurret =				10
-    OcularPhotoPrism =			11
-    CameraVideoPrism =			12
-    AltSourceSelection =		13
-    FluorescenceLamp =			14
-    AuxZStage =					15
-    AuxFluorescenceLamp =		16
-    AuxFilterWheel =			17
-    AuxFilterWheel2 =			18
-    AuxFilterWheel3 =			19
-    LaserAblationDevice =		20
-    SACorrection =				21
-    ReuseThisPosition =			22
-    AuxFilterWheel4 =			23
-    TIRFSlider =				24
-    LaserPowerControl =			25
-    AdaptiveOptics =			26
-    BeamExpander =				27
-    AuxFilterWheel5 =			28
-    AuxFilterWheel6 =			29
-    IncubatorControl =			30
-    LaserTemperatureControl =	31
-    LaserPowerMeter =			32
-    Lightsheet =				33
-    AuxFilterWheel7 =			34
-    LaserPowerMeter2 =			35
-    LaserPowerMeter3 =			36
-    LaserPowerMeter4 =			37
-    AuxFilterWheel8 =			41
-    AuxFilterWheel9 =			42
-    AuxFilterWheel10 =			43
-    PMTController1 =			44
-    PMTController2 =			45
-    PMTController3 =			46
+    Enumeration of direct microscope hardware components for low-level access
+    and control within microscope systems.
+    """
+
+    ExcitationFilterWheel = 0 #:The excitation filter wheel component.
+
+    FilterTurret = 1 #:The filter turret (e.g., for dichroics or filter sets).
+
+    EmissionFilterWheel = 2
+    """The emission filter wheel component."""
+
+    FluorescenceShutter = 3
+    """Shutter controlling the fluorescence light path."""
+
+    BrightfieldShutter = 4
+    """Shutter controlling the brightfield light path."""
+
+    BrightfieldLamp = 5
+    """The brightfield illumination source."""
+
+    LCDFilter = 6
+    """LCD-based filter or attenuator component."""
+
+    XYStage = 7
+    """Motorized XY stage."""
+
+    ZStage = 8
+    """Primary motorized Z-axis stage."""
+
+    ObjectiveTurret = 9
+    """Turret for switching microscope objectives."""
+
+    OptovarTurret = 10
+    """Optovar turret for magnification adjustment."""
+
+    OcularPhotoPrism = 11
+    """Selector between ocular and photo/camera paths."""
+
+    CameraVideoPrism = 12
+    """Prism directing light to camera or video system."""
+
+    AltSourceSelection = 13
+    """Selector for alternate illumination sources."""
+
+    FluorescenceLamp = 14
+    """Main fluorescence lamp (e.g., mercury or LED)."""
+
+    AuxZStage = 15
+    """Auxiliary Z-axis stage."""
+
+    AuxFluorescenceLamp = 16
+    """Secondary fluorescence lamp."""
+
+    AuxFilterWheel = 17
+    """First auxiliary filter wheel."""
+
+    AuxFilterWheel2 = 18
+    """Second auxiliary filter wheel."""
+
+    AuxFilterWheel3 = 19
+    """Third auxiliary filter wheel."""
+
+    LaserAblationDevice = 20
+    """Laser ablation or photoactivation system."""
+
+    SACorrection = 21
+    """Spherical aberration correction mechanism."""
+
+    ReuseThisPosition = 22
+    """Special placeholder for reusing previous hardware positions."""
+
+    AuxFilterWheel4 = 23
+    """Fourth auxiliary filter wheel."""
+
+    TIRFSlider = 24
+    """Total internal reflection fluorescence (TIRF) slider."""
+
+    LaserPowerControl = 25
+    """Laser power control module."""
+
+    AdaptiveOptics = 26
+    """Adaptive optics component for wavefront correction."""
+
+    BeamExpander = 27
+    """Optical beam expander system."""
+
+    AuxFilterWheel5 = 28
+    """Fifth auxiliary filter wheel."""
+
+    AuxFilterWheel6 = 29
+    """Sixth auxiliary filter wheel."""
+
+    IncubatorControl = 30
+    """Environmental control system (e.g., incubator)."""
+
+    LaserTemperatureControl = 31
+    """Laser temperature stabilization or monitoring module."""
+
+    LaserPowerMeter = 32
+    """First laser power meter."""
+
+    Lightsheet = 33
+    """Lightsheet illumination system."""
+
+    AuxFilterWheel7 = 34
+    """Seventh auxiliary filter wheel."""
+
+    LaserPowerMeter2 = 35
+    """Second laser power meter."""
+
+    LaserPowerMeter3 = 36
+    """Third laser power meter."""
+
+    LaserPowerMeter4 = 37
+    """Fourth laser power meter."""
+
+    AuxFilterWheel8 = 41
+    """Eighth auxiliary filter wheel."""
+
+    AuxFilterWheel9 = 42
+    """Ninth auxiliary filter wheel."""
+
+    AuxFilterWheel10 = 43
+    """Tenth auxiliary filter wheel."""
+
+    PMTController1 = 44
+    """First photomultiplier tube (PMT) controller."""
+
+    PMTController2 = 45
+    """Second PMT controller."""
+
+    PMTController3 = 46
+    """Third PMT controller."""
+    
+#: Descriptions for each MicroscopeHardwareComponent enum member.
+
+descriptions = {
+    MicroscopeHardwareComponent.ExcitationFilterWheel: "The excitation filter wheel component.",
+    MicroscopeHardwareComponent.FilterTurret: "The filter turret (e.g., for dichroics or filter sets).",
+    MicroscopeHardwareComponent.EmissionFilterWheel: "The emission filter wheel component.",
+    MicroscopeHardwareComponent.FluorescenceShutter: "Shutter controlling the fluorescence light path.",
+    MicroscopeHardwareComponent.BrightfieldShutter: "Shutter controlling the brightfield light path.",
+    MicroscopeHardwareComponent.BrightfieldLamp: "The brightfield illumination source.",
+    MicroscopeHardwareComponent.LCDFilter: "LCD-based filter or attenuator component.",
+    MicroscopeHardwareComponent.XYStage: "Motorized XY stage.",
+    MicroscopeHardwareComponent.ZStage: "Primary motorized Z-axis stage.",
+    MicroscopeHardwareComponent.ObjectiveTurret: "Turret for switching microscope objectives.",
+    MicroscopeHardwareComponent.OptovarTurret: "Optovar turret for magnification adjustment.",
+    MicroscopeHardwareComponent.OcularPhotoPrism: "Selector between ocular and photo/camera paths.",
+    MicroscopeHardwareComponent.CameraVideoPrism: "Prism directing light to camera or video system.",
+    MicroscopeHardwareComponent.AltSourceSelection: "Selector for alternate illumination sources.",
+    MicroscopeHardwareComponent.FluorescenceLamp: "Main fluorescence lamp (e.g., mercury or LED).",
+    MicroscopeHardwareComponent.AuxZStage: "Auxiliary Z-axis stage.",
+    MicroscopeHardwareComponent.AuxFluorescenceLamp: "Secondary fluorescence lamp.",
+    MicroscopeHardwareComponent.AuxFilterWheel: "First auxiliary filter wheel.",
+    MicroscopeHardwareComponent.AuxFilterWheel2: "Second auxiliary filter wheel.",
+    MicroscopeHardwareComponent.AuxFilterWheel3: "Third auxiliary filter wheel.",
+    MicroscopeHardwareComponent.LaserAblationDevice: "Laser ablation or photoactivation system.",
+    MicroscopeHardwareComponent.SACorrection: "Spherical aberration correction mechanism.",
+    MicroscopeHardwareComponent.ReuseThisPosition: "Special placeholder for reusing previous hardware positions.",
+    MicroscopeHardwareComponent.AuxFilterWheel4: "Fourth auxiliary filter wheel.",
+    MicroscopeHardwareComponent.TIRFSlider: "Total internal reflection fluorescence (TIRF) slider.",
+    MicroscopeHardwareComponent.LaserPowerControl: "Laser power control module.",
+    MicroscopeHardwareComponent.AdaptiveOptics: "Adaptive optics component for wavefront correction.",
+    MicroscopeHardwareComponent.BeamExpander: "Optical beam expander system.",
+    MicroscopeHardwareComponent.AuxFilterWheel5: "Fifth auxiliary filter wheel.",
+    MicroscopeHardwareComponent.AuxFilterWheel6: "Sixth auxiliary filter wheel.",
+    MicroscopeHardwareComponent.IncubatorControl: "Environmental control system (e.g., incubator).",
+    MicroscopeHardwareComponent.LaserTemperatureControl: "Laser temperature stabilization or monitoring module.",
+    MicroscopeHardwareComponent.LaserPowerMeter: "First laser power meter.",
+    MicroscopeHardwareComponent.Lightsheet: "Lightsheet illumination system.",
+    MicroscopeHardwareComponent.AuxFilterWheel7: "Seventh auxiliary filter wheel.",
+    MicroscopeHardwareComponent.LaserPowerMeter2: "Second laser power meter.",
+    MicroscopeHardwareComponent.LaserPowerMeter3: "Third laser power meter.",
+    MicroscopeHardwareComponent.LaserPowerMeter4: "Fourth laser power meter.",
+    MicroscopeHardwareComponent.AuxFilterWheel8: "Eighth auxiliary filter wheel.",
+    MicroscopeHardwareComponent.AuxFilterWheel9: "Ninth auxiliary filter wheel.",
+    MicroscopeHardwareComponent.AuxFilterWheel10: "Tenth auxiliary filter wheel.",
+    MicroscopeHardwareComponent.PMTController1: "First photomultiplier tube (PMT) controller.",
+    MicroscopeHardwareComponent.PMTController2: "Second PMT controller.",
+    MicroscopeHardwareComponent.PMTController3: "Third PMT controller.",
+}
 
 class SBAccess(object):
-    
+
     """ A Class to Read Slide Book Format 7 Files """
 
     # All access functions as in SBReadFile.h
@@ -1070,7 +1249,45 @@ class SBAccess(object):
         theStr = self.Recv()
         return theStr
 
+    def CaptureImage(self,CameraIndex,ExposureTimeMS):
+        """ Return an image from the specified camera
 
+                Parameters
+                ----------
+                CameraIndex: int
+                    The index of the image group. Must be in range(0, maximum number of cameras (6)) and the camera must be valid
+                ExposureTimeMS: int
+                    The desired camera exposure time in milliseconds
+
+                Returns
+                -------
+                width
+                    The width in pixels
+                height
+                    The height in pixels
+                numpy uint16 array 
+                    The image is returned as 1D numpy uint16 array
+                bool
+                    True (1) if success false (0) if failure
+                """
+        self.SendCommand('$CaptureImage(CameraIndex=i4,ExposureTime=i4)')
+        self.SendVal(int(CameraIndex), 'i4')
+        self.SendVal(int(ExposureTimeMS), 'i4')
+
+        theNum, theWidth = self.Recv()
+        if (theNum != 1):
+            raise Exception("CaptureCameraImage: failed")
+        theNum, theHeight = self.Recv()
+        if (theNum != 1):
+            raise Exception("CaptureCameraImage: failed")
+
+        theNum, theVals = self.Recv()
+
+        theNum, theResult = self.Recv()
+        if (theNum != 1):
+            raise Exception("CaptureCameraImage: failed")
+
+        return theWidth[0], theHeight[0], theVals, theResult
 
 
     def ReadImagePlaneBuf(self,inCaptureIndex,inPositionIndex,inTimepointIndex,inZPlaneIndex,inChannelIndex):
@@ -1835,7 +2052,9 @@ class SBAccess(object):
         Returns
         -------
         list
-            Returns the minimum ([0]) and maximum ([1]) position of device inComponentID. If not enabled returns keyword 'Empty'
+            Returns the minimum ([0]) and maximum ([1]) position of device inComponentID
+        result
+            Returns success (1) or failure (0)
         """
         self.SendCommand('$GetHardwareComponentMinMax(ComponentIndex=i4)')
         self.SendVal(int(inComponentID.value), 'i4')
@@ -1843,7 +2062,69 @@ class SBAccess(object):
         if (theNum != 2):
             raise Exception("GetHardwareComponentMinMax: failed")
 
-        return theVals;
+        theNum, theResult = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetHardwareComponentMinMax: failed")
+
+        return theVals, theResult
+
+    def SetHardwareComponentOpen(self, inComponentID : MicroscopeHardwareComponent, inOpen):
+        """ Set the open or close position of a hardware device
+
+        Parameters
+        ----------
+        inComponentID: MicroscopeHardwareComponent
+            The component ID (0 <= inComponentID <= 46)
+        inOpen: int
+            The new position (0 = closed 1 = open)
+
+        Returns
+        -------
+        bool
+            Returns success or failure
+        """
+        self.SendCommand('$SetHardwareComponentOpen(ComponentIndex=i4,Open=i4)')
+        self.SendVal(int(inComponentID.value), 'i4')
+        self.SendVal(int(inOpen), 'i4')
+        theNum, theVals = self.Recv()
+        if (theNum != 1):
+            raise Exception("SetHardwareComponentOpen: failed")
+
+        if (theVals[0] > 0):
+            return True
+        else:
+            return False
+
+    def GetHardwareComponentOpen(self, inComponentID : MicroscopeHardwareComponent):
+        """ Gets the current position of a hardware device
+
+        Parameters
+        ----------
+        inComponentID: MicroscopeHardwareComponent
+            The component ID (0 <= inComponentID <= 46)
+
+        Returns
+        -------
+        int
+            Returns the current open/close state of device inComponentID (0 = closed 1 = open)
+        bool
+            Returns success or failure
+        """
+        self.SendCommand('$GetHardwareComponentOpen(ComponentIndex=i4)')
+        self.SendVal(int(inComponentID.value), 'i4')
+
+        theNum,theState = self.Recv()
+        if(theNum != 1):
+            raise Exception("GetHardwareComponentOpen: invalid state value")
+
+        theNum, theVals = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetHardwareComponentOpen: failed")
+
+        if (theVals[0] > 0):
+            return theState[0], True
+        else:
+            return theState[0], False
 
     def SetHardwareComponentPosition(self, inComponentID : MicroscopeHardwareComponent, inPosition):
         """ Set the current position of a hardware device
@@ -1884,6 +2165,8 @@ class SBAccess(object):
         -------
         int
             Returns the current position of device inComponentID
+        int
+            Returns success (1) or failure (0)
         """
         self.SendCommand('$GetHardwareComponentPosition(ComponentIndex=i4)')
         self.SendVal(int(inComponentID.value), 'i4')
@@ -1891,7 +2174,11 @@ class SBAccess(object):
         if (theNum != 1):
             raise Exception("GetHardwareComponentPosition: failed")
 
-        return theVals[0];
+        theNum, theResult = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetHardwareComponentPosition: failed")
+
+        return theVals[0], theResult
 
     def SetHardwareComponentLocationMicrons(self, inComponentID : MicroscopeHardwareComponent, inXMicrons, inYMicrons, inZMicrons):
         """ Set the current XYZ position of a hardware device
@@ -2002,6 +2289,143 @@ class SBAccess(object):
             raise Exception("GetHardwareComponentLocationMicrons: invalid z value")
 
         return theX[0],theY[0],theZ[0]
+
+    def SetVector3ScannerPosition(self, inX_mV, inY_mV, inDisableSpin):
+        """ Set the current Vector3 scanner position
+
+        Parameters
+        ----------
+        inX_mV: int
+            The new X position
+        inY_mV: int
+            The new Y position
+        inDisableSpin:
+            If true spin TIRF will be disabled
+
+        Returns
+        -------
+        bool
+            Returns success or failure (command will fail if spin TIRF enabled and inDisableSpin is false)
+        """
+        try:
+            self.SendCommand('$SetVector3ScannerPosition(X_mV=i4,Y_mV=i4,DisableSpin=i4)')
+            self.SendVal(int(inX_mV), 'i4')
+            self.SendVal(int(inY_mV), 'i4')
+            self.SendVal(int(inDisableSpin), 'i4')
+            theNum, theVals = self.Recv()
+            if (theNum != 1):
+                raise Exception("SetVector3ScannerPosition: failed")
+
+            if (theVals[0] > 0):
+                return True
+            else:
+                return False
+        except:
+            return False
+
+    def GetVector3ScannerPosition(self):
+        """ Gets the current position of a hardware device
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        int
+            the current X position of stepper motor
+        int
+            the current Y position of stepper motor
+        int
+            current spin state (1=spin, 0=not)
+        """
+        self.SendCommand('$GetVector3ScannerPosition()')
+        theNum, theX = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetVector3ScannerPosition: failed")
+
+        theNum, theY = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetVector3ScannerPosition: failed")
+
+        theNum, theSpin = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetVector3ScannerPosition: failed")
+
+        theNum, theResult = self.Recv()
+        if (theNum != 1):
+             raise Exception("GetVector3ScannerPosition: failed")
+
+        return theX[0], theY[0], theSpin[0]
+
+    def SetVector3StepperPosition(self, inPosition):
+        """ Set the current Vector3 stepper motor position
+
+        Parameters
+        ----------
+        inPosition: int
+            The new position
+
+        Returns
+        -------
+        bool
+            Returns success or failure
+        """
+        try:
+            self.SendCommand('$SetVector3StepperPosition(Position=i4)')
+            self.SendVal(int(inPosition), 'i4')
+            theNum, theVals = self.Recv()
+            if (theNum != 1):
+                raise Exception("SetVector3StepperPosition: failed")
+
+            if (theVals[0] > 0):
+                return True
+            else:
+                return False
+        except:
+            return False
+
+    def GetVector3StepperPosition(self):
+        """ Gets the current position of a hardware device
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        int
+            Returns the current position of stepper motor
+        """
+        self.SendCommand('$GetVector3StepperPosition()')
+        theNum, theVals = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetVector3StepperPosition: failed")
+
+        theNum, theResult = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetVector3StepperPosition: failed")
+
+        return theVals[0]
+
+    def ConfirmFocusWindow(self):
+        """ Confirms focus window is open and operational
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        bool
+            Returns True if successful and False if not successful
+        """
+        self.SendCommand('$ConfirmFocusWindow()')
+        theNum, theVals = self.Recv()
+        if (theNum != 1):
+            raise Exception("ConfirmFocusWindow: failed")
+
+        if (theVals[0] > 0):
+            return True
+        else:
+            return False
 
     def AddXYZPoint(self,inXum,inYum,inZum,inAuxZum=0,inIsAuxZ=False):
         """ Adds a point to the Focus Window XY Tab
@@ -2143,9 +2567,10 @@ class SBAccess(object):
         elif state == MicroscopeStates.CurrentBin:
             return 0
         elif state == MicroscopeStates.CurrentFilterSet:
-            return 0
-
-
+            theNum,theVals = self.Recv()
+            if( theNum != 1):
+                raise Exception("MicroscopeStates.CurrentFilterSet: invalid value")
+            return theVals[0]
 
     def FocusWindowMainSelectBin(self,inStringParam):
         """ Selects a string in the Bin ComboBox of the Focus Window
@@ -2633,8 +3058,8 @@ class SBAccess(object):
             x center (mV)
         y: int
             y center (mV)
-        duration: int
-            spin duratuion (mV)
+        duration: float
+            spin duration (ms)
         motor pos: int
            stepper position
         motor enable: int
@@ -2650,13 +3075,12 @@ class SBAccess(object):
             Returns success or failure
         """
         try:
-            self.SendCommand(
-                '$FocusWindowSetTIRFParameters(Position=i4,Radius_mV=i4,X_mV=i4,Y_mV=i4,Duration_ms=i4,MotorPos=i4,MotorEnable=i4,SpinEnable=i4,Save=i4)')
+            self.SendCommand('$FocusWindowSetTIRFParameters(Position=i4,Radius_mV=i4,X_mV=i4,Y_mV=i4,Duration_ms=f4,MotorPos=i4,MotorEnable=i4,SpinEnable=i4,Save=i4)')
             self.SendVal(int(Position), 'i4')
             self.SendVal(int(Radius_mV), 'i4')
             self.SendVal(int(X_mV), 'i4')
             self.SendVal(int(Y_mV), 'i4')
-            self.SendVal(int(Duration_ms), 'i4')
+            self.SendVal(float(Duration_ms), 'f4')
             self.SendVal(int(MotorPos), 'i4')
             self.SendVal(int(MotorEnable), 'i4')
             self.SendVal(int(SpinEnable), 'i4')
@@ -2685,6 +3109,22 @@ class SBAccess(object):
 
         Returns
         -------
+        Position: int
+            The filter position (0-20)
+        radius: int
+           spin radius (mV)
+        x: int
+            x center (mV)
+        y: int
+            y center (mV)
+        duration: float
+            spin duration (ms)
+        motor pos: int
+           stepper position
+        motor enable: int
+            enable stepper (0=false 1=true)
+        spin enable: int
+            enable spin (0=false 1=true)
         int
             1 if is succesful, 0 otherwise
         """

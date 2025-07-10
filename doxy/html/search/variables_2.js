@@ -1,7 +1,26 @@
 var searchData=
 [
-  ['canvas_0',['canvas',['../class_format_017_1_1test__colin_1_1_microscope_u_i_afae736b00abbc536f4d3e0aae50e9a6c.html#afae736b00abbc536f4d3e0aae50e9a6c',1,'Format 7::test_colin::MicroscopeUI']]],
-  ['capture_5fbutton_1',['capture_button',['../class_format_017_1_1test__colin_1_1_microscope_u_i_a6d9a91099f5c20448ec2d2ceaa38c19a.html#a6d9a91099f5c20448ec2d2ceaa38c19a',1,'Format 7::test_colin::MicroscopeUI']]],
-  ['capture_5frunning_2',['capture_running',['../class_format_017_1_1test__colin_1_1_microscope_u_i_a983dfa71a830fbd161ce845d08cb9ead.html#a983dfa71a830fbd161ce845d08cb9ead',1,'Format 7::test_colin::MicroscopeUI']]],
-  ['classname_3',['ClassName',['../class_format_017_1_1_base_decoder_1_1_base_decoder_a4c7ac3ad4bc72f01fefffe0e2116b47c.html#a4c7ac3ad4bc72f01fefffe0e2116b47c',1,'Format 7::BaseDecoder::BaseDecoder']]]
+  ['cameravideoprism_0',['CameraVideoPrism',['../class_format_017_1_1_s_b_access_1_1_microscope_hardware_component_a234998f68833b0d55386caa7cf50e141.html#a234998f68833b0d55386caa7cf50e141',1,'Format 7::SBAccess::MicroscopeHardwareComponent']]],
+  ['canvas_1',['canvas',['../class_format_017_1_1test__colin_1_1_microscope_u_i_afae736b00abbc536f4d3e0aae50e9a6c.html#afae736b00abbc536f4d3e0aae50e9a6c',1,'Format 7::test_colin::MicroscopeUI']]],
+  ['capture_5fbutton_2',['capture_button',['../class_format_017_1_1test__colin_1_1_microscope_u_i_a6d9a91099f5c20448ec2d2ceaa38c19a.html#a6d9a91099f5c20448ec2d2ceaa38c19a',1,'Format 7::test_colin::MicroscopeUI']]],
+  ['capture_5frunning_3',['capture_running',['../class_format_017_1_1test__colin_1_1_microscope_u_i_a983dfa71a830fbd161ce845d08cb9ead.html#a983dfa71a830fbd161ce845d08cb9ead',1,'Format 7::test_colin::MicroscopeUI']]],
+  ['classname_4',['ClassName',['../class_format_017_1_1_base_decoder_1_1_base_decoder_a4c7ac3ad4bc72f01fefffe0e2116b47c.html#a4c7ac3ad4bc72f01fefffe0e2116b47c',1,'Format 7::BaseDecoder::BaseDecoder']]],
+  ['currentaltsource_5',['CurrentAltSource',['../class_format_017_1_1_s_b_access_1_1_microscope_states_a3c8ebb055977302a3d5c3d59906cefb6.html#a3c8ebb055977302a3d5c3d59906cefb6',1,'Format 7::SBAccess::MicroscopeStates']]],
+  ['currentaltzstageposition_6',['CurrentAltZstagePosition',['../class_format_017_1_1_s_b_access_1_1_microscope_states_a1e18f7fa11b199170e2c14c6fd6a0e97.html#a1e18f7fa11b199170e2c14c6fd6a0e97',1,'Format 7::SBAccess::MicroscopeStates']]],
+  ['currentbfshutter_7',['CurrentBFshutter',['../class_format_017_1_1_s_b_access_1_1_microscope_states_a07415c9be1c6cf32833f58f805bdfae1.html#a07415c9be1c6cf32833f58f805bdfae1',1,'Format 7::SBAccess::MicroscopeStates']]],
+  ['currentbin_8',['CurrentBin',['../class_format_017_1_1_s_b_access_1_1_microscope_states_aae9a259e297f636d1d44af2cd34c5d25.html#aae9a259e297f636d1d44af2cd34c5d25',1,'Format 7::SBAccess::MicroscopeStates']]],
+  ['currentcondenseraperture_9',['CurrentCondenserAperture',['../class_format_017_1_1_s_b_access_1_1_microscope_states_affcf1e40328dd2085a647cccdff9d38b.html#affcf1e40328dd2085a647cccdff9d38b',1,'Format 7::SBAccess::MicroscopeStates']]],
+  ['currentcondenserprismposition_10',['CurrentCondenserPrismPosition',['../class_format_017_1_1_s_b_access_1_1_microscope_states_a6b0a60788e5d3b0096a496dd94821fe7.html#a6b0a60788e5d3b0096a496dd94821fe7',1,'Format 7::SBAccess::MicroscopeStates']]],
+  ['currentfilter_11',['CurrentFilter',['../class_format_017_1_1_s_b_access_1_1_microscope_states_a7d0fa7808933c126472dabd1be64b2bc.html#a7d0fa7808933c126472dabd1be64b2bc',1,'Format 7::SBAccess::MicroscopeStates']]],
+  ['currentfilterset_12',['CurrentFilterSet',['../class_format_017_1_1_s_b_access_1_1_microscope_states_a7f885cd49018152d3ec4ebf603d0d89a.html#a7f885cd49018152d3ec4ebf603d0d89a',1,'Format 7::SBAccess::MicroscopeStates']]],
+  ['currentflshutter_13',['CurrentFLshutter',['../class_format_017_1_1_s_b_access_1_1_microscope_states_a3b24a8a18019778ae05e63dd5d6c708a.html#a3b24a8a18019778ae05e63dd5d6c708a',1,'Format 7::SBAccess::MicroscopeStates']]],
+  ['currentlampvoltage_14',['CurrentLampVoltage',['../class_format_017_1_1_s_b_access_1_1_microscope_states_a310875e27aa470510dc8b90212566206.html#a310875e27aa470510dc8b90212566206',1,'Format 7::SBAccess::MicroscopeStates']]],
+  ['currentlaserpower_15',['CurrentLaserPower',['../class_format_017_1_1_s_b_access_1_1_microscope_states_adb379a1200a4383009ca039c58630db8.html#adb379a1200a4383009ca039c58630db8',1,'Format 7::SBAccess::MicroscopeStates']]],
+  ['currentmagnification_16',['CurrentMagnification',['../class_format_017_1_1_s_b_access_1_1_microscope_states_a13ec1b8056c6d2f827803f04fd98fd44.html#a13ec1b8056c6d2f827803f04fd98fd44',1,'Format 7::SBAccess::MicroscopeStates']]],
+  ['currentndaux_17',['CurrentNDAux',['../class_format_017_1_1_s_b_access_1_1_microscope_states_a391c6fd59af63457e4f843750e0f454e.html#a391c6fd59af63457e4f843750e0f454e',1,'Format 7::SBAccess::MicroscopeStates']]],
+  ['currentndprimary_18',['CurrentNDPrimary',['../class_format_017_1_1_s_b_access_1_1_microscope_states_a7dd77d1ae304a249b0f3a65d1ae88f93.html#a7dd77d1ae304a249b0f3a65d1ae88f93',1,'Format 7::SBAccess::MicroscopeStates']]],
+  ['currentobjective_19',['CurrentObjective',['../class_format_017_1_1_s_b_access_1_1_microscope_states_a077261a5c551f619419e1a92f31dc679.html#a077261a5c551f619419e1a92f31dc679',1,'Format 7::SBAccess::MicroscopeStates']]],
+  ['currentvideoorcameraposition_20',['CurrentVideoOrCameraPosition',['../class_format_017_1_1_s_b_access_1_1_microscope_states_a6baf073bb7751fa86dc8cc8f68c69204.html#a6baf073bb7751fa86dc8cc8f68c69204',1,'Format 7::SBAccess::MicroscopeStates']]],
+  ['currentxystageposition_21',['CurrentXYstagePosition',['../class_format_017_1_1_s_b_access_1_1_microscope_states_a2221d3495a99e61cebc602e0858f0607.html#a2221d3495a99e61cebc602e0858f0607',1,'Format 7::SBAccess::MicroscopeStates']]],
+  ['currentzstageposition_22',['CurrentZstagePosition',['../class_format_017_1_1_s_b_access_1_1_microscope_states_a5b8c6a0f59c027d81af317b16c22d00b.html#a5b8c6a0f59c027d81af317b16c22d00b',1,'Format 7::SBAccess::MicroscopeStates']]]
 ];

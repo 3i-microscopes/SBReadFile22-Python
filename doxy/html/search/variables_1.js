@@ -1,7 +1,10 @@
 var searchData=
 [
-  ['bf_5fclose_5fbutton_0',['bf_close_button',['../class_format_017_1_1test__colin_1_1_microscope_u_i_a5c24fc3085f40b26ac1d968dd6b5d0eb.html#a5c24fc3085f40b26ac1d968dd6b5d0eb',1,'Format 7::test_colin::MicroscopeUI']]],
-  ['bf_5flabel_1',['bf_label',['../class_format_017_1_1test__colin_1_1_microscope_u_i_ac88beb38ca157991440d6767222a4c3f.html#ac88beb38ca157991440d6767222a4c3f',1,'Format 7::test_colin::MicroscopeUI']]],
-  ['bf_5fopen_5fbutton_2',['bf_open_button',['../class_format_017_1_1test__colin_1_1_microscope_u_i_a8b6a06bdec9d477000e9c01ab2af4196.html#a8b6a06bdec9d477000e9c01ab2af4196',1,'Format 7::test_colin::MicroscopeUI']]],
-  ['button_5fframe_3',['button_frame',['../class_format_017_1_1test__colin_1_1_microscope_u_i_a77fb9bb18e9f5a650003764530c02d97.html#a77fb9bb18e9f5a650003764530c02d97',1,'Format 7::test_colin::MicroscopeUI']]]
+  ['beamexpander_0',['BeamExpander',['../class_format_017_1_1_s_b_access_1_1_microscope_hardware_component_ae0e3d430d0cdf313f18c443fee5816ed.html#ae0e3d430d0cdf313f18c443fee5816ed',1,'Format 7::SBAccess::MicroscopeHardwareComponent']]],
+  ['bf_5fclose_5fbutton_1',['bf_close_button',['../class_format_017_1_1test__colin_1_1_microscope_u_i_a5c24fc3085f40b26ac1d968dd6b5d0eb.html#a5c24fc3085f40b26ac1d968dd6b5d0eb',1,'Format 7::test_colin::MicroscopeUI']]],
+  ['bf_5flabel_2',['bf_label',['../class_format_017_1_1test__colin_1_1_microscope_u_i_ac88beb38ca157991440d6767222a4c3f.html#ac88beb38ca157991440d6767222a4c3f',1,'Format 7::test_colin::MicroscopeUI']]],
+  ['bf_5fopen_5fbutton_3',['bf_open_button',['../class_format_017_1_1test__colin_1_1_microscope_u_i_a8b6a06bdec9d477000e9c01ab2af4196.html#a8b6a06bdec9d477000e9c01ab2af4196',1,'Format 7::test_colin::MicroscopeUI']]],
+  ['brightfieldlamp_4',['BrightfieldLamp',['../class_format_017_1_1_s_b_access_1_1_microscope_hardware_component_ac428bd79ae0f92536bff12e5b785f76e.html#ac428bd79ae0f92536bff12e5b785f76e',1,'Format 7::SBAccess::MicroscopeHardwareComponent']]],
+  ['brightfieldshutter_5',['BrightfieldShutter',['../class_format_017_1_1_s_b_access_1_1_microscope_hardware_component_aa023243d9fa3474d10b1438146afbfff.html#aa023243d9fa3474d10b1438146afbfff',1,'Format 7::SBAccess::MicroscopeHardwareComponent']]],
+  ['button_5fframe_6',['button_frame',['../class_format_017_1_1test__colin_1_1_microscope_u_i_a77fb9bb18e9f5a650003764530c02d97.html#a77fb9bb18e9f5a650003764530c02d97',1,'Format 7::test_colin::MicroscopeUI']]]
 ];

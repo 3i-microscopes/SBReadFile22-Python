@@ -1,9 +1,23 @@
 var searchData=
 [
-  ['addxyzpoint_0',['AddXYZPoint',['../class_format_017_1_1_s_b_access_1_1_s_b_access_a758b32d74eaa47e506820911d399dc38.html#a758b32d74eaa47e506820911d399dc38',1,'Format 7::SBAccess::SBAccess']]],
-  ['alt_5fclose_5fbutton_1',['alt_close_button',['../class_format_017_1_1test__colin_1_1_microscope_u_i_a5f12d9982f2ae9ad93ab4bdda3b8af80.html#a5f12d9982f2ae9ad93ab4bdda3b8af80',1,'Format 7::test_colin::MicroscopeUI']]],
-  ['alt_5flabel_2',['alt_label',['../class_format_017_1_1test__colin_1_1_microscope_u_i_a99930feb6364f4a00375426343de28d4.html#a99930feb6364f4a00375426343de28d4',1,'Format 7::test_colin::MicroscopeUI']]],
-  ['alt_5fopen_5fbutton_3',['alt_open_button',['../class_format_017_1_1test__colin_1_1_microscope_u_i_a8dc72380325ab0ae564928ae9f49ca9f.html#a8dc72380325ab0ae564928ae9f49ca9f',1,'Format 7::test_colin::MicroscopeUI']]],
-  ['app_4',['app',['../namespace_format_017_1_1test__colin_a85b69024f8b09266908af21de5f8962e.html#a85b69024f8b09266908af21de5f8962e',1,'Format 7::test_colin']]],
-  ['ax_5',['ax',['../class_format_017_1_1test__colin_1_1_microscope_u_i_ad27274db857debece0bd3c139326a457.html#ad27274db857debece0bd3c139326a457',1,'Format 7::test_colin::MicroscopeUI']]]
+  ['adaptiveoptics_0',['AdaptiveOptics',['../class_format_017_1_1_s_b_access_1_1_microscope_hardware_component_ada7085c047e700e471d87d2ff0c216e2.html#ada7085c047e700e471d87d2ff0c216e2',1,'Format 7::SBAccess::MicroscopeHardwareComponent']]],
+  ['addxyzpoint_1',['AddXYZPoint',['../class_format_017_1_1_s_b_access_1_1_s_b_access_a758b32d74eaa47e506820911d399dc38.html#a758b32d74eaa47e506820911d399dc38',1,'Format 7::SBAccess::SBAccess']]],
+  ['alt_5fclose_5fbutton_2',['alt_close_button',['../class_format_017_1_1test__colin_1_1_microscope_u_i_a5f12d9982f2ae9ad93ab4bdda3b8af80.html#a5f12d9982f2ae9ad93ab4bdda3b8af80',1,'Format 7::test_colin::MicroscopeUI']]],
+  ['alt_5flabel_3',['alt_label',['../class_format_017_1_1test__colin_1_1_microscope_u_i_a99930feb6364f4a00375426343de28d4.html#a99930feb6364f4a00375426343de28d4',1,'Format 7::test_colin::MicroscopeUI']]],
+  ['alt_5fopen_5fbutton_4',['alt_open_button',['../class_format_017_1_1test__colin_1_1_microscope_u_i_a8dc72380325ab0ae564928ae9f49ca9f.html#a8dc72380325ab0ae564928ae9f49ca9f',1,'Format 7::test_colin::MicroscopeUI']]],
+  ['altsourceselection_5',['AltSourceSelection',['../class_format_017_1_1_s_b_access_1_1_microscope_hardware_component_ab6b24f1b3cabd2428c082e1ee151e8c9.html#ab6b24f1b3cabd2428c082e1ee151e8c9',1,'Format 7::SBAccess::MicroscopeHardwareComponent']]],
+  ['app_6',['app',['../namespace_format_017_1_1test__colin_a85b69024f8b09266908af21de5f8962e.html#a85b69024f8b09266908af21de5f8962e',1,'Format 7::test_colin']]],
+  ['auxfilterwheel_7',['AuxFilterWheel',['../class_format_017_1_1_s_b_access_1_1_microscope_hardware_component_a5dfd463046c01bdf4ac3f4b1fbb5529e.html#a5dfd463046c01bdf4ac3f4b1fbb5529e',1,'Format 7::SBAccess::MicroscopeHardwareComponent']]],
+  ['auxfilterwheel10_8',['AuxFilterWheel10',['../class_format_017_1_1_s_b_access_1_1_microscope_hardware_component_ae58e4e5bdd0bc85312b9c24fbc203c7c.html#ae58e4e5bdd0bc85312b9c24fbc203c7c',1,'Format 7::SBAccess::MicroscopeHardwareComponent']]],
+  ['auxfilterwheel2_9',['AuxFilterWheel2',['../class_format_017_1_1_s_b_access_1_1_microscope_hardware_component_adc54dd23df6c6845f58287c0834aa983.html#adc54dd23df6c6845f58287c0834aa983',1,'Format 7::SBAccess::MicroscopeHardwareComponent']]],
+  ['auxfilterwheel3_10',['AuxFilterWheel3',['../class_format_017_1_1_s_b_access_1_1_microscope_hardware_component_a84c8d6a1783663f3d459d254d56e4f37.html#a84c8d6a1783663f3d459d254d56e4f37',1,'Format 7::SBAccess::MicroscopeHardwareComponent']]],
+  ['auxfilterwheel4_11',['AuxFilterWheel4',['../class_format_017_1_1_s_b_access_1_1_microscope_hardware_component_aa84f6e40e877e33f4d737338657af4db.html#aa84f6e40e877e33f4d737338657af4db',1,'Format 7::SBAccess::MicroscopeHardwareComponent']]],
+  ['auxfilterwheel5_12',['AuxFilterWheel5',['../class_format_017_1_1_s_b_access_1_1_microscope_hardware_component_a6610a60cdfba0b00bd56ace5beea815b.html#a6610a60cdfba0b00bd56ace5beea815b',1,'Format 7::SBAccess::MicroscopeHardwareComponent']]],
+  ['auxfilterwheel6_13',['AuxFilterWheel6',['../class_format_017_1_1_s_b_access_1_1_microscope_hardware_component_a3a30c3b495d7d7dba3e4e884ac94f538.html#a3a30c3b495d7d7dba3e4e884ac94f538',1,'Format 7::SBAccess::MicroscopeHardwareComponent']]],
+  ['auxfilterwheel7_14',['AuxFilterWheel7',['../class_format_017_1_1_s_b_access_1_1_microscope_hardware_component_aba4225629e757562999a497705467670.html#aba4225629e757562999a497705467670',1,'Format 7::SBAccess::MicroscopeHardwareComponent']]],
+  ['auxfilterwheel8_15',['AuxFilterWheel8',['../class_format_017_1_1_s_b_access_1_1_microscope_hardware_component_af56894fda25af70eda27eb8d8a247407.html#af56894fda25af70eda27eb8d8a247407',1,'Format 7::SBAccess::MicroscopeHardwareComponent']]],
+  ['auxfilterwheel9_16',['AuxFilterWheel9',['../class_format_017_1_1_s_b_access_1_1_microscope_hardware_component_ab5a7d4806cff7f115935175e79625c41.html#ab5a7d4806cff7f115935175e79625c41',1,'Format 7::SBAccess::MicroscopeHardwareComponent']]],
+  ['auxfluorescencelamp_17',['AuxFluorescenceLamp',['../class_format_017_1_1_s_b_access_1_1_microscope_hardware_component_a5692fad84e43b14a5fd8bbe7f0bbc2ff.html#a5692fad84e43b14a5fd8bbe7f0bbc2ff',1,'Format 7::SBAccess::MicroscopeHardwareComponent']]],
+  ['auxzstage_18',['AuxZStage',['../class_format_017_1_1_s_b_access_1_1_microscope_hardware_component_a4ca2ac276d2a05056f65b83101510030.html#a4ca2ac276d2a05056f65b83101510030',1,'Format 7::SBAccess::MicroscopeHardwareComponent']]],
+  ['ax_19',['ax',['../class_format_017_1_1test__colin_1_1_microscope_u_i_ad27274db857debece0bd3c139326a457.html#ad27274db857debece0bd3c139326a457',1,'Format 7::test_colin::MicroscopeUI']]]
 ];

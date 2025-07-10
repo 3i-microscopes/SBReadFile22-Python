@@ -737,14 +737,62 @@ def test_get_objectives():
         for magnificationChanger in theMagnificationChangerList:
             print("magnificationChanger name ",magnificationChanger.mName)
             print("")
+
+def test_image_capture():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+        result = theSbAccess.ConfirmFocusWindow()
+        print(f"Focus window confirmed =  {'yes' if result == 1 else 'no'}")
+
+        width, height, image, Result = theSbAccess.CaptureImage(0, 50)
+        print("Width =", width, "height =", height, "First pixel =", image[0], f"success =  {'yes' if Result == 1 else 'no'}")
+
+        if (len(image) > 0):
+            average = sum(image) / len(image)
+            print("Average pixel intensity =", average)
+
 def test_tirf_hardware():
     HOST = '127.0.0.1'  # The server's hostname or IP address
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))
         theSbAccess = SBAccess(s)
+        result = theSbAccess.ConfirmFocusWindow()
+        print(f"Focus window confirmed =  {'yes' if result == 1 else 'no'}" )
+
         Radius_mV, X_mV, Y_mV, Duration_ms, MotorPos, MotorEnable, SpinEnable = theSbAccess.FocusWindowGetTIRFParameters(0 )
-        print("Radius=", Radius_mV, "X =", X_mV, "Y =", Y_mV, "Motor =", MotorPos, f"Motor enabled=  {'yes' if MotorEnable == 1 else 'no'}" )
+        print("Radius=", Radius_mV, "X =", X_mV, "Y =", Y_mV, "Motor =", MotorPos, f"Motor enabled=  {'yes' if MotorEnable == 1 else 'no'}",  f"Spin enabled=  {'yes' if SpinEnable == 1 else 'no'}" )
+
+        theSbAccess.FocusWindowSetTIRFParameters(0, 500, 500, 500, 20, MotorPos, 1, 1, 0)
+        result = theSbAccess.SetHardwareComponentPosition(MicroscopeHardwareComponent.TIRFSlider, 0)
+
+        theSbAccess.FocusWindowSetTIRFParameters(0, 1000, -500, -500, 20, MotorPos, 1, 1, 0)
+        result = theSbAccess.SetHardwareComponentPosition(MicroscopeHardwareComponent.TIRFSlider, 0)
+
+        theSbAccess.FocusWindowSetTIRFParameters(0, 500, 500, 500, 20, MotorPos, 1, 1, 0)
+        result = theSbAccess.SetHardwareComponentPosition(MicroscopeHardwareComponent.TIRFSlider, 0)
+
+        StepperPos = theSbAccess.GetVector3StepperPosition()
+        print("Stepper pos =", StepperPos)
+        result = theSbAccess.SetVector3StepperPosition(StepperPos + 1)
+        print("Selecting new stepper pos =", StepperPos + 1, f"success =  {'yes' if result == 1 else 'no'}")
+        StepperPos = theSbAccess.GetVector3StepperPosition()
+        print("Confirming stepper pos =", StepperPos)
+
+        theX_mV, theY_mV, isSpin = theSbAccess.GetVector3ScannerPosition()
+        print("X =", theX_mV, "Y =", theY_mV, f"Spin =  {'yes' if isSpin == 1 else 'no'}")
+
+        Result = theSbAccess.SetVector3ScannerPosition(theX_mV + 10, theY_mV + 50, 1)
+        print("Set new X =", theX_mV + 10, "Y =", theY_mV + 50, f"Result =  {'success' if Result == 1 else 'fail'}")
+
+        theX_mV, theY_mV, isSpin = theSbAccess.GetVector3ScannerPosition()
+        print("X =", theX_mV, "Y =", theY_mV, f"Spin =  {'yes' if isSpin == 1 else 'no'}")
+
+        width, height, image, Result = theSbAccess.CaptureImage(0, 50)
+        print("Width =", width, "height =", height, "First pixel =", image[0], f"success =  {'yes' if Result == 1 else 'no'}")
 
 def test_get_hardware_metadata():
     HOST = '127.0.0.1'  # The server's hostname or IP address
@@ -753,11 +801,14 @@ def test_get_hardware_metadata():
         s.connect((HOST, PORT))
         theSbAccess = SBAccess(s)
         for x in range (46):
-            isEnabled = theSbAccess.GetIsHardwareComponentEnabled(x)
-            theName = theSbAccess.GetHardwareComponentName(x)
-            print("Component", x + 1, "name  = ", theName + f"enabled =  {'yes' if isEnabled else 'no'}")
+            try:
+                isEnabled = theSbAccess.GetIsHardwareComponentEnabled(x)
+                theName = theSbAccess.GetHardwareComponentName(x)
+                print("Component", x + 1, "name  = ", theName + f"enabled =  {'yes' if isEnabled else 'no'}")
+            except:
+                print("Comonent", x + 1, "is not supported")
 
-def test_get_hardware_position(inComponentID, inPosition):
+def test_get_set_shutter(inComponentID):
     HOST = '127.0.0.1'  # The server's hostname or IP address
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -766,15 +817,63 @@ def test_get_hardware_position(inComponentID, inPosition):
         isEnabled = theSbAccess.GetIsHardwareComponentEnabled(inComponentID)
         if isEnabled:
             theName = theSbAccess.GetHardwareComponentName(inComponentID)
-            theMinMax = theSbAccess.GetHardwareComponentMinMax(inComponentID)
-            theOrigPosition = theSbAccess.GetHardwareComponentPosition(inComponentID)
-            print("Component ", inComponentID, "name =", theName, "min =",  theMinMax[0], "max", theMinMax[1],  "original position ",  theOrigPosition)
+            # read current state
+            theOrigState, success = theSbAccess.GetHardwareComponentOpen(inComponentID)
+            print("Component", inComponentID, "name =", theName, f"startup state = {'open' if theOrigState == 1 else 'closed'}", f"success = {'yes' if success else 'no'}")
 
-            isSuccess = theSbAccess.SetHardwareComponentPosition(inComponentID, inPosition)
-            print("Component ", inComponentID, "name =", theName, "new position =", inPosition, f"success =  {'yes' if isSuccess else 'no'}")
+            # toggle current state
+            theNewState = 1
+            if (theOrigState == 1):
+                theNewState = 0
 
-            theReadPosition = theSbAccess.GetHardwareComponentPosition(inComponentID)
-            print("Component ", inComponentID, "name =", theName, "read position ", theReadPosition)
+            success = theSbAccess.SetHardwareComponentOpen(inComponentID, theNewState)
+            print("Component", inComponentID, "name =", theName, f"setting new state = {'open' if theNewState == 1 else 'closed'}", f"success = {'yes' if success else 'no'}")
+
+            # confirm new state
+            theReadPosition, success = theSbAccess.GetHardwareComponentOpen(inComponentID)
+            print("Component", inComponentID, "name =", theName, f"reading back state = {'open' if theReadPosition == 1 else 'closed'}", f"success = {'yes' if success else 'no'}")
+
+            #set back to original state
+            success = theSbAccess.SetHardwareComponentOpen(inComponentID, theOrigState)
+            print("Component", inComponentID, "name =", theName, f"restoring original state = {'open' if theOrigState == 1 else 'closed'}", f"success = {'yes' if success else 'no'}")
+        return
+
+def test_get_microscope_state():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+        try:
+            theMag = theSbAccess.GetMicroscopeState(MicroscopeStates.CurrentMagnification)
+            theFilter = theSbAccess.GetMicroscopeState(MicroscopeStates.CurrentFilter)
+            theFilterSet = theSbAccess.GetMicroscopeState(MicroscopeStates.CurrentFilterSet)
+        except:
+            print ("failed")
+
+        return
+
+def test_get_hardware_position(inComponentID, inPosition):
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect((HOST, PORT))
+            theSbAccess = SBAccess(s)
+            isEnabled = theSbAccess.GetIsHardwareComponentEnabled(inComponentID)
+            if isEnabled:
+                theName = theSbAccess.GetHardwareComponentName(inComponentID)
+                theMinMax, result = theSbAccess.GetHardwareComponentMinMax(inComponentID)
+                theOrigPosition = theSbAccess.GetHardwareComponentPosition(inComponentID)
+                print("Component", inComponentID, "name =", theName, "min =",  theMinMax[0], "max", theMinMax[1],  "original position ",  theOrigPosition, f"result = {'success' if result == 1 else 'failure'}")
+
+                isSuccess = theSbAccess.SetHardwareComponentPosition(inComponentID, inPosition)
+                print("Component", inComponentID, "name =", theName, "new position =", inPosition, f"success =  {'yes' if isSuccess else 'no'}")
+
+                theReadPosition, result = theSbAccess.GetHardwareComponentPosition(inComponentID)
+                print("Component", inComponentID, "name =", theName, "read position ", theReadPosition, f"result = {'success' if result == 1 else 'failure'}")
+    except:
+        print("test_get_hardware_position failed")
+    return
 
 def test_get_hardware_location_microns(inComponentID : MicroscopeHardwareComponent):
     HOST = '127.0.0.1'  # The server's hostname or IP address
@@ -787,19 +886,19 @@ def test_get_hardware_location_microns(inComponentID : MicroscopeHardwareCompone
                 theName = theSbAccess.GetHardwareComponentName(inComponentID)
 
                 theX, theY, theZ = theSbAccess.GetHardwareComponentLocationMicrons(inComponentID)
-                print("Component ", inComponentID, "name =", theName, "GetHardwareComponentMicrons ", "z =",  theX, "y=", theY,  "z=",  theZ)
+                print("Component", inComponentID, "name =", theName, "GetHardwareComponentMicrons ", "z =",  theX, "y=", theY,  "z=",  theZ)
 
                 isSuccess = theSbAccess.SetHardwareComponentLocationMicrons(inComponentID, theX + 1, theY + 1, theZ + 1)
-                print("Component ", inComponentID, "name =", theName, "SetHardwareComponentMicrons ", "z =", theX + 1, "y=", theY + 1, "z=", theZ + 1)
+                print("Component", inComponentID, "name =", theName, "SetHardwareComponentMicrons ", "z =", theX + 1, "y=", theY + 1, "z=", theZ + 1)
 
                 theX, theY, theZ = theSbAccess.GetHardwareComponentLocationMicrons(inComponentID)
-                print("Component ", inComponentID, "name =", theName, "GetHardwareComponentMicrons ", "z =", theX, "y=", theY, "z=", theZ)
+                print("Component", inComponentID, "name =", theName, "GetHardwareComponentMicrons ", "z =", theX, "y=", theY, "z=", theZ)
 
                 isSuccess = theSbAccess.IncrementHardwareComponentLocationMicrons(inComponentID, 1, 1, 1)
-                print("Component ", inComponentID, "name =", theName, "IncrementHardwareComponentLocationMicrons ", "z =", 1, "y=", 1, "z=", 1)
+                print("Component", inComponentID, "name =", theName, "IncrementHardwareComponentLocationMicrons ", "z =", 1, "y=", 1, "z=", 1)
 
                 theX, theY, theZ = theSbAccess.GetHardwareComponentLocationMicrons(inComponentID)
-                print("Component ", inComponentID, "name =", theName, "GetHardwareComponentMicrons ", "z =", theX, "y=", theY, "z=",  theZ)
+                print("Component", inComponentID, "name =", theName, "GetHardwareComponentMicrons ", "z =", theX, "y=", theY, "z=",  theZ)
 
     except:
         print("test_get_hardware_location failed")
@@ -854,12 +953,16 @@ def main():
         #test_create_and_setset_target_slide()
         #test_get_objectives()
         #test_get_hardware_metadata()
-        test_get_hardware_location_microns(MicroscopeHardwareComponent.ZStage)
+        #test_get_hardware_location_microns(MicroscopeHardwareComponent.ZStage)
         #test_get_hardware_position(MicroscopeHardwareComponent.ExcitationFilterWheel, 10)
+        #test_get_hardware_position(MicroscopeHardwareComponent.FluorescenceShutter, 10)
+        #test_get_set_shutter(MicroscopeHardwareComponent.BrightfieldShutter)
+        test_get_microscope_state()
         #test_get_xyz_point_list()
         #test_save_slide()
         #test_save_as_slide()
-    	# test_tirf_hardware()
+    	#test_tirf_hardware()
+        #test_image_capture()
     except Exception as e:
         print(f"Error: {e}")
     except: 
