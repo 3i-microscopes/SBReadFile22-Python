@@ -1170,6 +1170,93 @@ class SBAccess(object):
 
         return theObjectiveList
 
+    def GetAOOptimizerStatus(self):
+        """ Returns the current AO optimizer status and settings
+
+        Parameters
+        ----------
+        none
+
+        Returns
+        -------
+        Number of Zernike mode
+            Returns the number of Zernike modes
+        Zernike Modes
+            Returns an array of Zernike modes
+        Minimum Amplitude
+            The minimum amplitude
+        Maximum Amplitude
+            The maximum amplitude
+        Exposure Time MS
+            Exposure time (ms)
+        Iterations
+            Number of iterations
+        Merit Function
+            Name of merit function, or unknown
+        Result
+            1 = success 0 = failure
+
+        """
+        self.SendCommand('$GetAOOptimizerStatus')
+
+        theNum, theNumZernikes = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetAOOptimizerStatus: failed")
+
+        theNum, theZernikes = self.Recv()
+        if (theNum != theNumZernikes):
+            raise Exception("GetAOOptimizerStatus: failed")
+
+        theNum, theMinAmp = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetAOOptimizerStatus: failed")
+
+        theNum, theMaxAmp = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetAOOptimizerStatus: failed")
+
+        theNum, theExposureTime = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetAOOptimizerStatus: failed")
+
+        theMeritFunction = self.Recv()
+
+        theNum, theResult = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetAOOptimizerStatus: failed")
+
+        return theNumZernikes, theZernikes, theMinAmp, theMaxAmp, theExposureTime, theMeritFunction, theResult
+
+    def SetAOOptimizerExposureTime(self, inExposureTimeMS):
+        """ Set the open or close position of a hardware device
+
+        Parameters
+        ----------
+        inExposureTimeMS
+            New exposure time in ms
+
+        Returns
+        -------
+        string
+            Returns information about the status of the command
+        bool
+            Returns success or failure
+
+        """
+        self.SendCommand('$SetAOOptimizerExposureTime(ExposureTimeMS=i4)')
+        self.SendVal(int(inExposureTimeMS), 'i4')
+        theResultString = self.Recv()
+
+        theNum, theResult = self.Recv()
+        if (theNum != 1):
+            raise Exception("SetAOOptimizerExposureTime: failed")
+
+        if (theResult[0] > 0):
+            theResult = True
+        else:
+            theResult = False
+
+        return theResultString, theResult
 
     def GetFilters(self):
         """ Gets the filters
@@ -1868,6 +1955,27 @@ class SBAccess(object):
 
         return theVals[0]
 
+    def GetCurrentTimepointCaptured(self):
+        """ Gets the current timepoint being captured
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        int
+            the index (timepoint) of the current image captured
+        """
+
+        self.SendCommand('$GetCurrentTimepointCaptured()')
+
+        theNum,theVals = self.Recv()
+        if( theNum != 1):
+            raise Exception("GetCurrentTimepointCaptured: invalid value")
+
+        return theVals[0]
+
+
     def GetLastImageCaptured(self,inCaptureIndex):
         """ Gets the index of the last image captured
 
@@ -1914,6 +2022,26 @@ class SBAccess(object):
 
         return theVals[0]
 
+    def GetCurrentPlaneCaptured(self):
+        """ Gets the index of the last plane captured
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        int
+            the index of the plane being captured
+        """
+
+        self.SendCommand('$GetCurrentPlaneCaptured()')
+
+        theNum,theVals = self.Recv()
+        if( theNum != 1):
+            raise Exception("GetCurrentPlaneCaptured: invalid value")
+
+        return theVals[0]
+
     def GetLastPlaneCaptured(self,inCaptureIndex):
         """ Gets the index of the last plane captured
 
@@ -1934,6 +2062,29 @@ class SBAccess(object):
         theNum,theVals = self.Recv()
         if( theNum != 1):
             raise Exception("GetLastPlaneCaptured: invalid value")
+
+        return theVals[0]
+
+
+    def GetCurrentChannelCaptured(self):
+        """ Gets the index of the current Channel captured
+
+        Parameters
+        ----------
+        inCaptureIndex: int
+            The index of the capture
+
+        Returns
+        -------
+        int
+            thei channel number being captured
+        """
+
+        self.SendCommand('$GetCurrentChannelCaptured()')
+
+        theNum,theVals = self.Recv()
+        if( theNum != 1):
+            raise Exception("GetCurrentChannelCaptured: invalid value")
 
         return theVals[0]
 
@@ -1959,6 +2110,69 @@ class SBAccess(object):
             raise Exception("GetLastChannelCaptured: invalid value")
 
         return theVals[0]
+
+    def GetCurrentPositionIndexCaptured(self):
+        """ Gets the index of the last plane captured
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        int
+            the position index of the current captured image
+        """
+
+        self.SendCommand('$GetCurrentPositionIndexCaptured()')
+
+        theNum,theVals = self.Recv()
+        if( theNum != 1):
+            raise Exception("GetCurrentPositionIndexCaptured: invalid value")
+
+        return theVals[0]
+
+
+    def GetCurrentNumPositionsCaptured(self):
+        """ Gets the index of the last plane captured
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        int
+            the number of positions in the current experiment bein g captured
+        """
+
+        self.SendCommand('$GetCurrentNumPositionsCaptured()')
+
+        theNum,theVals = self.Recv()
+        if( theNum != 1):
+            raise Exception("GetCurrentNumPositionsCaptured: invalid value")
+
+        return theVals[0]
+
+
+    def GetCurrentExperimentCaptured(self):
+        """ Gets the index of the last plane captured
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        int
+            the experiment index being captured
+        """
+
+        self.SendCommand('$GetCurrentExperimentCaptured()')
+
+        theNum,theVals = self.Recv()
+        if( theNum != 1):
+            raise Exception("GetCurrentExperimentCaptured: invalid value")
+
+        return theVals[0]
+
 
     def IsCapturing(self):
         """ Checks if there is an active capture

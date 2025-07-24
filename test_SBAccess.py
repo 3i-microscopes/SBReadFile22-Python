@@ -409,6 +409,7 @@ def test_start_capture():
 
         theImageName = theSbAccess.GetImageName(theCapture)
         print('the image name for capture: ',theCapture,' is: ',theImageName)
+        theNumChannels = theSbAccess.GetNumChannels(theCapture)
         theNumRows = theSbAccess.GetNumYRows(theCapture)
         theNumColumns = theSbAccess.GetNumXColumns(theCapture)
         theNumPlanes = theSbAccess.GetNumZPlanes(theCapture)
@@ -428,25 +429,32 @@ def test_start_capture():
             if(theLastCapture == thePreviousCapture):
                 continue
 
+            print("theLastCapture {0}, thePreviousCapture {1}".format(theLastCapture,thePreviousCapture))
             for theTP in range(thePreviousCapture+1,theLastCapture+1):  # include theLastCapture
 
-                theZPlane = 0;
-                image = theSbAccess.ReadImagePlaneBuf(theCapture,0,theTP,theZPlane,0) #captureid,position,timepoint,zplane,channel
-                # np.insert(the3DVolume,theNumRows*theNumColumns,image)
-                print ("*** read theTP: ",theTP)
-                if(theTP > 200 and testStop):
-                    theSbAccess.StopCapture()
-                    break
-                if( theCnt % 100 == 0):
-                    image = image.reshape(theNumRows,theNumColumns)
+                for theChannel in range(theNumChannels):
+                    for theZPlane  in range(theNumPlanes):
+                        image = theSbAccess.ReadImagePlaneBuf(theCapture,0,theTP,theZPlane,theChannel) #captureid,position,timepoint,zplane,channel
+                        # np.insert(the3DVolume,theNumRows*theNumColumns,image)
+                        print ("*** read theTP: ",theTP)
+                        if(theTP > 200 and testStop):
+                            theSbAccess.StopCapture()
+                            break
+                        if (len(image) > 0):
+                            average = sum(image.astype(float)) / len(image) #avoid overflow
+                            print(" TP = {0}, Ch = {1}, Z = {2} Average pixel intensity = {3}".format(theTP,theChannel,theZPlane, average))
+                        """
+                        if( theCnt % 100 == 0):
+                            image = image.reshape(theNumRows,theNumColumns)
 
-                    #plot the slice
+                            #plot the slice
 
-                    plt.imshow(image)
-                    plt.title(title.format(tp=theTP),loc='left')
-                    plt.pause(0.001)
+                            plt.imshow(image)
+                            plt.title(title.format(tp=theTP),loc='left')
+                            plt.pause(0.001)
+                        """
 
-                theCnt = theCnt + 1
+                        theCnt = theCnt + 1
             thePreviousCapture = theLastCapture
             if(theLastCapture == theNumTimepoints-1):
                 break
@@ -480,6 +488,7 @@ def test_plot_current_capture():
 
         theImageName = theSbAccess.GetImageName(theCapture)
         print('the image name for capture: ',theCapture,' is: ',theImageName)
+        theNumChannels = theSbAccess.GetNumChannels(theCapture)
         theNumRows = theSbAccess.GetNumYRows(theCapture)
         theNumColumns = theSbAccess.GetNumXColumns(theCapture)
         theNumPlanes = theSbAccess.GetNumZPlanes(theCapture)
@@ -501,20 +510,29 @@ def test_plot_current_capture():
 
             for theTP in range(thePreviousCapture+1,theLastCapture+1):  # include theLastCapture
 
-                theZPlane = 0;
-                image = theSbAccess.ReadImagePlaneBuf(theCapture,0,theTP,theZPlane,0) #captureid,position,timepoint,zplane,channel
-                # np.insert(the3DVolume,theNumRows*theNumColumns,image)
-                print ("*** read theTP: ",theTP)
-                if( theCnt % 100 == 0):
-                    image = image.reshape(theNumRows,theNumColumns)
+                for theChannel in range(theNumChannels):
+                    for theZPlane  in range(theNumPlanes):
+                        image = theSbAccess.ReadImagePlaneBuf(theCapture,0,theTP,theZPlane,theChannel) #captureid,position,timepoint,zplane,channel
+                        # np.insert(the3DVolume,theNumRows*theNumColumns,image)
+                        print ("*** read theTP: ",theTP)
+                        if(theTP > 200 and testStop):
+                            theSbAccess.StopCapture()
+                            break
+                        if (len(image) > 0):
+                            average = sum(image.astype(float)) / len(image) #avoid overflow
+                            print(" TP = {0}, Ch = {1}, Z = {2} Average pixel intensity = {3}".format(theTP,theChannel,theZPlane, average))
+                        """
+                        if( theCnt % 100 == 0):
+                            image = image.reshape(theNumRows,theNumColumns)
 
-                    #plot the slice
+                            #plot the slice
 
-                    plt.imshow(image)
-                    plt.title(title.format(tp=theTP),loc='left')
-                    plt.pause(0.001)
+                            plt.imshow(image)
+                            plt.title(title.format(tp=theTP),loc='left')
+                            plt.pause(0.001)
+                        """
 
-                theCnt = theCnt + 1
+                        theCnt = theCnt + 1
             thePreviousCapture = theLastCapture
             if(theLastCapture == theNumTimepoints-1):
                 break
@@ -526,6 +544,76 @@ def test_plot_current_capture():
         data = input("Please hit Enter to exit:\n")
         print("Done")
 
+
+        return
+
+def test_show_capture_status():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+    #title = "Timepoint: {tp:6d}, Mean: {mn:.1f}"
+    title = "Timepoint: {tp:6d}"
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+        theCapture = theSbAccess.GetCurrentCaptureId(0)
+        while True:
+            res = theSbAccess.IsCapturing()
+            theLastTimepointCaptured = theSbAccess.GetCurrentTimepointCaptured()
+            theLastPlaneCaptured = theSbAccess.GetCurrentPlaneCaptured()
+            theLastChannelCaptured = theSbAccess.GetCurrentChannelCaptured()
+            time.sleep(0.02)
+            if(theLastTimepointCaptured == 0 and theLastPlaneCaptured == 0 and theLastChannelCaptured == 0):
+                continue
+            if(res and theLastPlaneCaptured >= 0):
+                break
+
+
+        theImageName = theSbAccess.GetImageName(theCapture)
+        print('the image name for capture: ',theCapture,' is: ',theImageName)
+        theNumChannels = theSbAccess.GetNumChannels(theCapture)
+        theNumRows = theSbAccess.GetNumYRows(theCapture)
+        theNumColumns = theSbAccess.GetNumXColumns(theCapture)
+        theNumPlanes = theSbAccess.GetNumZPlanes(theCapture)
+        theNumTimepoints = theSbAccess.GetNumTimepoints(theCapture) # the max number of timepoints to record
+
+        thePreviousTimepointCaptured = -1
+        thePreviousChannelCaptured = -1
+        thePreviousPlaneCaptured = -1
+
+        while True:
+            time.sleep(0.02)
+            res = theSbAccess.IsCapturing()
+            if(not res):
+                break
+
+            theLastTimepointCaptured = theSbAccess.GetCurrentTimepointCaptured()
+            theLastChannelCaptured = theSbAccess.GetCurrentChannelCaptured()
+            theLastPlaneCaptured = theSbAccess.GetCurrentPlaneCaptured()
+            theNumPositions = theSbAccess.GetCurrentNumPositionsCaptured()
+            thePositionIndex = theSbAccess.GetCurrentPositionIndexCaptured()
+            #print("Last Captured: TP = {0}, Ch = {1}, Z = {2}".format(theLastTimepointCaptured,theLastChannelCaptured,theLastPlaneCaptured))
+
+
+            if(theLastTimepointCaptured == thePreviousTimepointCaptured and theLastChannelCaptured == thePreviousChannelCaptured and theLastPlaneCaptured == thePreviousPlaneCaptured ):
+                continue
+
+            theTP = theLastTimepointCaptured
+            theChannel = theLastChannelCaptured
+            theZPlane = theLastPlaneCaptured
+            if(theNumPositions > 1):
+                print(" TP = {0}, Ch = {1}, Z = {2}, Pos = {3} / {4}".format(theTP+1,theChannel+1,theZPlane+1,thePositionIndex+1,theNumPositions))
+            else:
+                print(" TP = {0}, Ch = {1}, Z = {2}".format(theTP+1,theChannel+1,theZPlane+1))
+
+
+            thePreviousTimepointCaptured = theLastTimepointCaptured
+            thePreviousChannelCaptured = theLastChannelCaptured
+            thePreviousPlaneCaptured = theLastPlaneCaptured
+            if(theLastTimepointCaptured == theNumTimepoints-1):
+                break
+            res = theSbAccess.IsCapturing()
+            if(not res):
+                break
 
         return
 
@@ -738,6 +826,8 @@ def test_get_objectives():
             print("magnificationChanger name ",magnificationChanger.mName)
             print("")
 
+    return
+
 def test_image_capture():
     HOST = '127.0.0.1'  # The server's hostname or IP address
 
@@ -751,8 +841,33 @@ def test_image_capture():
         print("Width =", width, "height =", height, "First pixel =", image[0], f"success =  {'yes' if Result == 1 else 'no'}")
 
         if (len(image) > 0):
-            average = sum(image) / len(image)
+            average = sum(image.astype(float)) / len(image) #avoid overflow
             print("Average pixel intensity =", average)
+        image = image.reshape(height,width)
+
+        #plot the slice
+        plt.imshow(image)
+        #plt.title(title.format(tp=theTP),loc='left')
+        plt.pause(0.001)
+        data = input("Please hit Enter to exit:\n")
+        print("Done")
+
+
+    return
+
+def test_ao():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+
+        isEnabled = theSbAccess.GetIsHardwareComponentEnabled(MicroscopeHardwareComponent.AdaptiveOptics)
+
+        theResultString, theResult = theSbAccess.SetAOOptimizerExposureTime(10)
+
+    return
+
 
 def test_tirf_hardware():
     HOST = '127.0.0.1'  # The server's hostname or IP address
@@ -845,9 +960,28 @@ def test_get_microscope_state():
         s.connect((HOST, PORT))
         theSbAccess = SBAccess(s)
         try:
-            theMag = theSbAccess.GetMicroscopeState(MicroscopeStates.CurrentMagnification)
+            theObj = theSbAccess.GetMicroscopeState(MicroscopeStates.CurrentObjective)
             theFilter = theSbAccess.GetMicroscopeState(MicroscopeStates.CurrentFilter)
+            theMag = theSbAccess.GetMicroscopeState(MicroscopeStates.CurrentMagnification)
+
+            thePower = theSbAccess.GetMicroscopeState(MicroscopeStates.CurrentLaserPower)
+            theND = theSbAccess.GetMicroscopeState(MicroscopeStates.CurrentNDPrimary)
+            theAuxND = theSbAccess.GetMicroscopeState(MicroscopeStates.CurrentNDAux)
+            theLamp = theSbAccess.GetMicroscopeState(MicroscopeStates.CurrentLampVoltage)
+            theFL = theSbAccess.GetMicroscopeState(MicroscopeStates.CurrentFLshutter)
+
+            theBF = theSbAccess.GetMicroscopeState(MicroscopeStates.CurrentBFshutter)
+            theAlt = theSbAccess.GetMicroscopeState(MicroscopeStates.CurrentAltSource)
+            theXY = theSbAccess.GetMicroscopeState(MicroscopeStates.CurrentXYstagePosition)
+            theZ = theSbAccess.GetMicroscopeState(MicroscopeStates.CurrentZstagePosition)
+            theAuxZ = theSbAccess.GetMicroscopeState(MicroscopeStates.CurrentAltZstagePosition)
+
+            theCondenser = theSbAccess.GetMicroscopeState(MicroscopeStates.CurrentCondenserPrismPosition)
+            theCameraPos = theSbAccess.GetMicroscopeState(MicroscopeStates.CurrentVideoOrCameraPosition)
+            theCondenserAperture = theSbAccess.GetMicroscopeState(MicroscopeStates.CurrentCondenserAperture)
+            theBin = theSbAccess.GetMicroscopeState(MicroscopeStates.CurrentBin)
             theFilterSet = theSbAccess.GetMicroscopeState(MicroscopeStates.CurrentFilterSet)
+
         except:
             print ("failed")
 
@@ -957,12 +1091,14 @@ def main():
         #test_get_hardware_position(MicroscopeHardwareComponent.ExcitationFilterWheel, 10)
         #test_get_hardware_position(MicroscopeHardwareComponent.FluorescenceShutter, 10)
         #test_get_set_shutter(MicroscopeHardwareComponent.BrightfieldShutter)
-        test_get_microscope_state()
+        #test_get_microscope_state()
         #test_get_xyz_point_list()
         #test_save_slide()
         #test_save_as_slide()
     	#test_tirf_hardware()
         #test_image_capture()
+        #test_ao()
+        test_show_capture_status()
     except Exception as e:
         print(f"Error: {e}")
     except: 
