@@ -624,8 +624,19 @@ def set_xyz_point_in_focus_xy_tab():
         s.connect((HOST, PORT))
         theSbAccess = SBAccess(s)
 
+        theNumXY, res = theSbAccess.GetXYZPointCount()
+        print("The num points", theNumXY)
+
         theSbAccess.AddXYZPoint(1.0,2.0,3.0)
         theSbAccess.AddXYZPoint(-1.0,-2.0,-3.0)
+
+        theNumXY, res = theSbAccess.GetXYZPointCount()
+        print("The num points", theNumXY)
+
+        theSbAccess.ClearXYZPoints()
+
+        theNumXY, res = theSbAccess.GetXYZPointCount()
+        print("The num points", theNumXY)
 
 def test_get_xyz_position():
     HOST = '127.0.0.1'  # The server's hostname or IP address
@@ -852,6 +863,9 @@ def test_image_capture():
         data = input("Please hit Enter to exit:\n")
         print("Done")
 
+        #test error handling
+        width, height, image, Result = theSbAccess.CaptureImage(7, 50)
+        print("Width =", width, "height =", height, "First pixel =", image[0], f"success =  {'yes' if Result == 1 else 'no'}")
 
     return
 
@@ -1077,7 +1091,7 @@ def main():
         #test_start_capture()
         #test_add_new_channel()
         #test_copy_capture()
-        #set_xyz_point_in_focus_xy_tab()
+        set_xyz_point_in_focus_xy_tab()
         #test_get_xyz_position()
         #test_start_streaming()
         #test_focus_window_parameters()
@@ -1098,7 +1112,7 @@ def main():
     	#test_tirf_hardware()
         #test_image_capture()
         #test_ao()
-        test_show_capture_status()
+        #test_show_capture_status()
     except Exception as e:
         print(f"Error: {e}")
     except: 

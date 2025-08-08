@@ -2641,6 +2641,56 @@ class SBAccess(object):
         else:
             return False
 
+    def ClearXYZPoints(self):
+        """ Clear all points in XYZ point list
+
+        Parameters
+        ----------
+       Returns
+        -------
+        bool
+            Returns True if successful and False if not successful
+       """
+
+        self.SendCommand('$ClearXYZPoints()')
+
+        theNum, theVals = self.Recv()
+        if (theNum != 1):
+            raise Exception("ClearXYZPoints: failed")
+
+        if (theVals[0] > 0):
+            return True
+        else:
+            return False
+
+    def GetXYZPointCount(self):
+        """ Returns the number of XY points in the XY point list
+
+        Parameters
+        ----------
+       Returns
+        -------
+        NumPoints
+            Returns the number of XY points in the XY point list
+        bool
+            Returns True if successful and False if not successful
+       """
+
+        self.SendCommand('$GetXYZPointCount()')
+
+        theNum, theNumPoints = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetXYZPointCount: failed")
+
+        theNum, theVals = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetXYZPointCount: failed")
+
+        if (theVals[0] > 0):
+            return theNumPoints[0], True
+        else:
+            return theNumPoints[0], False
+
     def AddXYZPoint(self,inXum,inYum,inZum,inAuxZum=0,inIsAuxZ=False):
         """ Adds a point to the Focus Window XY Tab
 
