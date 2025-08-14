@@ -206,22 +206,27 @@ CLASSES
      |  AddXYZPoint(self, inXum, inYum, inZum, inAuxZum=0, inIsAuxZ=False)
      |      Adds a point to the Focus Window XY Tab
      |      
-     |      Parameters
-     |      ----------
-     |      inXum: float
-     |          The point X coordinate in microns
+     |       Parameters
+     |       ----------
+     |       inXum: float
+     |           The point X coordinate in microns
      |      
-     |      inYum: float
-     |          The point Y coordinate in microns
+     |       inYum: float
+     |           The point Y coordinate in microns
      |      
-     |      inZum: float
-     |          The point Z coordinate in microns
+     |       inZum: float
+     |           The point Z coordinate in microns
      |      
-     |      inAuxZum: float
-     |          The auxiliary Z stage coordinate in microns
+     |       inAuxZum: float
+     |           The auxiliary Z stage coordinate in microns
      |      
-     |      inIsAuxZ: bool
-     |          True if the Auxiliary Z Stage is enabled, False otherwise
+     |       inIsAuxZ: bool
+     |           True if the Auxiliary Z Stage is enabled, False otherwise
+     |      
+     |      Returns
+     |       -------
+     |           bool
+     |               Returns True if successful and False if not successful
      |  
      |  CaptureImage(self, CameraIndex, ExposureTimeMS)
      |      Return an image from the specified camera
@@ -243,6 +248,16 @@ CLASSES
      |          The image is returned as 1D numpy uint16 array
      |      bool
      |          True (1) if success false (0) if failure
+     |  
+     |  ClearXYZPoints(self)
+     |      Clear all points in XYZ point list
+     |      
+     |       Parameters
+     |       ----------
+     |      Returns
+     |       -------
+     |       bool
+     |           Returns True if successful and False if not successful
      |  
      |  ConfirmFocusWindow(self)
      |      Confirms focus window is open and operational
@@ -296,6 +311,97 @@ CLASSES
      |      -------
      |      int
      |          The Slide Id
+     |  
+     |  FocusSurface_AddCalibrationPoint(self, inXum, inYum, inZum, inAuxZum=0, inIsAuxZ=False)
+     |      Adds a calibration point to the Focus Surface
+     |      
+     |      Parameters
+     |      ----------
+     |      inXum: float
+     |          The point X coordinate in microns
+     |      
+     |      inYum: float
+     |          The point Y coordinate in microns
+     |      
+     |      inZum: float
+     |          The point Z coordinate in microns
+     |      
+     |      inAuxZum: float
+     |          The auxiliary Z stage coordinate in microns
+     |      
+     |      inIsAuxZ: bool
+     |          True if the Auxiliary Z Stage is enabled, False otherwise
+     |      
+     |      Returns
+     |      -------
+     |          bool
+     |              Returns True if successful and False if not successful
+     |  
+     |  FocusSurface_ClearCalibrationPoints(self)
+     |      Clear all calibration point of the Focus Surface
+     |      
+     |      Parameters
+     |      ----------
+     |      
+     |      Returns
+     |      -------
+     |          bool
+     |              Returns True if successful and False if not successful
+     |  
+     |  FocusSurface_FitPoint(self, inXum, inYum)
+     |      Fits a point with the Focus Surface
+     |      
+     |      Parameters
+     |      ----------
+     |      inXum: float
+     |          The point X coordinate in microns
+     |      
+     |      inYum: float
+     |          The point Y coordinate in microns
+     |      
+     |      Returns
+     |      -------
+     |          bool
+     |              Returns True if successful and False if not successful
+     |          float
+     |              The Z1 fitted coordinate
+     |          float
+     |              The Z2 fitted coordinate
+     |  
+     |  FocusSurface_FitSurface(self)
+     |      Fits a surface in the Focus Surface window
+     |      
+     |      Parameters
+     |      ----------
+     |      
+     |      Returns
+     |      -------
+     |          bool
+     |              Returns True if successful and False if not successful
+     |  
+     |  FocusSurface_IsSurfaceFit(self)
+     |      Fits a surface in the Focus Surface window
+     |      
+     |      Parameters
+     |      ----------
+     |      
+     |      Returns
+     |      -------
+     |          bool
+     |              Returns True if successful and False if not successful
+     |  
+     |  FocusSurface_Open(self, inIntParam=0)
+     |      Open the Focus Surface window
+     |      
+     |      Parameters
+     |      ----------
+     |      inIntParam: int
+     |          Flag: 0 to open for XY tab, 1 to open for MultiWell Tab
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise
      |  
      |  FocusWindowGetTIRFParameters(self, Position)
      |      Gets the current TIRF parameters for filter Position
@@ -1467,6 +1573,18 @@ CLASSES
      |      -------
      |      float
      |          The X position in um
+     |  
+     |  GetXYZPointCount(self)
+     |      Returns the number of XY points in the XY point list
+     |      
+     |       Parameters
+     |       ----------
+     |      Returns
+     |       -------
+     |       NumPoints
+     |           Returns the number of XY points in the XY point list
+     |       bool
+     |           Returns True if successful and False if not successful
      |  
      |  GetXYZPointList(self)
      |      Gets a list of all XYZ points in the Focus Window XY Tab

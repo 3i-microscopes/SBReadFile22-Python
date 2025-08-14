@@ -1078,6 +1078,23 @@ def test_save_slide():
         theOutSlideId = theSbAccess.GetCurrentSlideId()
         theSbAccess.SaveSlide(theOutSlideId)
 
+def test_focus_surface():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+
+        theSbAccess.FocusSurface_Open()
+        theSbAccess.FocusSurface_ClearCalibrationPoints()
+        theSbAccess.FocusSurface_AddCalibrationPoint(10000,10000,-100)
+        theSbAccess.FocusSurface_AddCalibrationPoint(20000,10000,200)
+        theSbAccess.FocusSurface_AddCalibrationPoint(20000,40000,350)
+        theSbAccess.FocusSurface_AddCalibrationPoint(30000,40000,550)
+        theSbAccess.FocusSurface_FitSurface()
+        if(theSbAccess.FocusSurface_IsSurfaceFit()):
+            theZ = theSbAccess.FocusSurface_FitPoint(15000,10000);
+            print("the Z of the fitted  point is: ",theZ)
 
 
 
@@ -1091,7 +1108,7 @@ def main():
         #test_start_capture()
         #test_add_new_channel()
         #test_copy_capture()
-        set_xyz_point_in_focus_xy_tab()
+        #set_xyz_point_in_focus_xy_tab()
         #test_get_xyz_position()
         #test_start_streaming()
         #test_focus_window_parameters()
@@ -1113,6 +1130,7 @@ def main():
         #test_image_capture()
         #test_ao()
         #test_show_capture_status()
+        test_focus_surface()
     except Exception as e:
         print(f"Error: {e}")
     except: 

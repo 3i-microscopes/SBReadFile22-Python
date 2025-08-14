@@ -2710,6 +2710,12 @@ class SBAccess(object):
 
         inIsAuxZ: bool
             True if the Auxiliary Z Stage is enabled, False otherwise
+
+       Returns
+        -------
+            bool
+                Returns True if successful and False if not successful
+
         """
 
         self.SendCommand('$AddXYZPoint(Xum=f4,Yum=f4,Zum=f4,AuxZum=f4,IsAuxZ=i4)')
@@ -2719,6 +2725,15 @@ class SBAccess(object):
         self.SendVal(float(inZum),'f4')
         self.SendVal(float(inAuxZum),'f4')
         self.SendVal(int(inIsAuxZ),'i4')
+
+        theNum,theVals = self.Recv()
+        if( theNum != 1):
+            raise Exception("AddXYZPoint: failed")
+        if(theVals[0] > 0):
+            return True
+        else:
+            return False
+
 
     def GetXYZPointList(self):
         """ Gets a list of all XYZ points in the Focus Window XY Tab
@@ -3566,5 +3581,175 @@ class SBAccess(object):
             return True
         else:
             return False
+
+    # FOCUS SURFACE section
+    def FocusSurface_Open(self,inIntParam=0):
+        """ Open the Focus Surface window
+
+        Parameters
+        ----------
+        inIntParam: int
+            Flag: 0 to open for XY tab, 1 to open for MultiWell Tab
+
+        Returns
+        -------
+        int
+            1 if is succesful, 0 otherwise
+        
+        """
+
+        return self.SendIntParam('FocusSurface_Open',inIntParam)
+
+
+    def FocusSurface_AddCalibrationPoint(self,inXum,inYum,inZum,inAuxZum=0,inIsAuxZ=False):
+        """ Adds a calibration point to the Focus Surface
+
+        Parameters
+        ----------
+        inXum: float
+            The point X coordinate in microns
+
+        inYum: float
+            The point Y coordinate in microns
+
+        inZum: float
+            The point Z coordinate in microns
+
+        inAuxZum: float
+            The auxiliary Z stage coordinate in microns
+
+        inIsAuxZ: bool
+            True if the Auxiliary Z Stage is enabled, False otherwise
+
+        Returns
+        -------
+            bool
+                Returns True if successful and False if not successful
+
+        """
+
+        #first move stage, then call the AddCalibrationPoint
+        res = self.SetHardwareComponentLocationMicrons(MicroscopeHardwareComponent.XYStage,inXum,inYum,0)
+        if(res == 0):
+            return False
+        if(not inIsAuxZ):
+            res = self.SetHardwareComponentLocationMicrons(MicroscopeHardwareComponent.ZStage,0,0,inZum)
+            if(res == 0):
+                return False
+        else:
+            res = res = self.SetHardwareComponentLocationMicrons(MicroscopeHardwareComponent.AuxZStage,0,0,inAuxZum);
+            if(res == 0):
+                return False
+
+        self.SendCommand('$FocusSurface_AddCalibrationPoint()')
+
+        theNum,theVals = self.Recv()
+
+        if( theNum != 1):
+            raise Exception("FocusSurface_AddCalibrationPoint: failed")
+        if(theVals[0] > 0):
+            return True
+        else:
+            return False
+
+    def FocusSurface_ClearCalibrationPoints(self):
+        """ Clear all calibration point of the Focus Surface
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+            bool
+                Returns True if successful and False if not successful
+
+        """
+
+        self.SendCommand('$FocusSurface_ClearCalibrationPoints()')
+
+        theNum,theVals = self.Recv()
+        if( theNum != 1):
+            raise Exception("FocusSurface_ClearCalibrationPoints: failed")
+        if(theVals[0] > 0):
+            return True
+        else:
+            return False
+
+    def FocusSurface_FitSurface(self):
+        """ Fits a surface in the Focus Surface window
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+            bool
+                Returns True if successful and False if not successful
+
+        """
+
+        self.SendCommand('$FocusSurface_FitSurface()')
+
+        theNum,theVals = self.Recv()
+        if( theNum != 1):
+            raise Exception("FocusSurface_FitSurface: failed")
+        if(theVals[0] > 0):
+            return True
+        else:
+            return False
+
+
+    def FocusSurface_IsSurfaceFit(self):
+        """ Fits a surface in the Focus Surface window
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+            bool
+                Returns True if successful and False if not successful
+
+        """
+
+        self.SendCommand('$FocusSurface_IsSurfaceFit()')
+
+        theNum,theVals = self.Recv()
+        if( theNum != 1):
+            raise Exception("FocusSurface_IsSurfaceFit: failed")
+        if(theVals[0] > 0):
+            return True
+        else:
+            return False
+
+    def FocusSurface_FitPoint(self,inXum,inYum):
+        """ Fits a point with the Focus Surface
+
+        Parameters
+        ----------
+        inXum: float
+            The point X coordinate in microns
+
+        inYum: float
+            The point Y coordinate in microns
+
+        Returns
+        -------
+            bool
+                Returns True if successful and False if not successful
+            float
+                The Z1 fitted coordinate
+            float
+                The Z2 fitted coordinate
+
+        """
+        self.SendCommand('$FocusSurface_FitPoint(XCoord=f4,YCoord=f4)')
+        self.SendVal(float(inXum), 'f4')
+        self.SendVal(float(inYum), 'f4')
+        theNum,theVals = self.Recv()
+        if( theNum != 1):
+            raise Exception("FocusSurface_IsSurfaceFit: failed")
+        return theVals[0];
+
 
 
