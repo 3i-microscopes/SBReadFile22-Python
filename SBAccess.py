@@ -1863,7 +1863,7 @@ class SBAccess(object):
         """ Starts a capture with an optional script name
         Parameters
         ----------
-        inScriptName: int
+        inScriptName: string
             The script name to load before starting the capture. If blank, the Default script  is loaded
 
         Returns
@@ -3323,6 +3323,107 @@ class SBAccess(object):
 
         return self.SendStringParam('FocusWindowStreamSetNumberFramesToAverage',inStringParam)
 
+    def FocusWindowSupportsARCSliceTIRF(self):
+        """ Check if Arc/Slice TIRF is supported
+        Parameters
+        ----------
+        Returns
+        -------
+        bool
+            Returns supported
+        """
+
+        try:
+            self.SendCommand('$FocusWindowSupportsARCSliceTIRF()')
+            theNum, theVals = self.Recv()
+            if (theNum != 1):
+                raise Exception("FocusWindowSupportsARCSliceTIRF: failed")
+
+            if (theVals[0] > 0):
+                return True
+            else:
+                return False
+
+        except:
+            return False
+
+    def FocusWindowSetARCSliceTIRFParameters(self, Position, Arcs, Slices, Save):
+        """ Set the current arc / time slice parameters for TIRF filter Position
+
+        Parameters
+        ----------
+        Position: int
+            The filter position (0-20)
+        Arcs: str
+           Comma-separated angles denoting start and stop angle (degrees) pairs. 0-360 is a full circle.
+           45,90,80,360 defines two arc segments: 45-90 and then 180 to 360.
+           Minimum arc length is one degree.
+        Slices: str
+            Comma-separated list of filters to be concatenated together to create a virtual time-sliced TIRF channel.
+            Can include any number of specified TIRF channels (including the current position) and will use the duration
+            of Position (the specified filter) to create time-slice TIRF illumination.
+        Save: int
+            save as default settings (0=false 1=true)
+
+        Returns
+        -------
+        bool
+            Returns success or failure
+        """
+        try:
+            l = len(Arcs)
+            m = len(Slices)
+
+
+            self.SendCommand('$FocusWindowSetARCSliceTIRFParameters(Position=i4,ArcInfo='+str(l)+':s,SliceInfo='+str(m)+':s,Save=i4)')
+            self.SendVal(int(Position), 'i4')
+            self.SendVal(Arcs, 's')
+            self.SendVal(Slices, 's')
+            self.SendVal(int(Save), 'i4')
+
+            theNum, theVals = self.Recv()
+            if (theNum != 1):
+                raise Exception("FocusWindowSetTIRFParameters: failed")
+
+            if (theVals[0] > 0):
+                return True
+            else:
+                return False
+
+        except:
+            return False
+
+    def FocusWindowGetARCSliceTIRFParameters(self, Position):
+        """ Gets the current arc / time-slice TIRF parameters for filter Position
+
+        Parameters
+        ----------
+        Position: int
+            The filter position (0-20)
+
+        Returns
+        -------
+        Arcs: int
+           arcs
+        Slices: int
+            slices
+        int
+            Returns success or failure
+        """
+
+        self.SendCommand('$FocusWindowGetARCSliceTIRFParameters(Position=i4)')
+        self.SendVal(int(Position), 'i4')
+
+        arcs = self.Recv()
+
+        slices = self.Recv()
+
+        theNum, result = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetHardwareComponentLocationMicrons: invalid y value")
+
+        return arcs, slices, result[0]
+
     def FocusWindowSetTIRFParameters(self, Position, Radius_mV, X_mV, Y_mV, Duration_ms, MotorPos, MotorEnable,
                                      SpinEnable, Save):
         """ Set the current parameters for TIRF filter Position
@@ -3388,8 +3489,6 @@ class SBAccess(object):
 
         Returns
         -------
-        Position: int
-            The filter position (0-20)
         radius: int
            spin radius (mV)
         x: int
@@ -3751,5 +3850,50 @@ class SBAccess(object):
             raise Exception("FocusSurface_IsSurfaceFit: failed")
         return theVals[0];
 
+    def RunSavedScript(self,inStringParam):
+        """ Runs a script file
+        Parameters
+        ----------
+        inStringParam: string
+            The pathname of the script file
+
+        Returns
+        -------
+            bool
+                Returns True if successful and False if not successful
+        """
+
+        return self.SendStringParam('RunSavedScript',inStringParam)
+        theNum,theVals = self.Recv()
+        if( theNum != 1):
+            raise Exception("RunSavedScript: failed")
+
+        if(theVals[0] > 0):
+            return True
+        else:
+            return False
+
+    def RunUserScript(self,inStringParam):
+        """ Runs a script file
+        Parameters
+        ----------
+        inStringParam: string
+            The multiline script to be run. Lines are sparated by a \n  or a \n\r
+
+        Returns
+        -------
+            bool
+                Returns True if successful and False if not successful
+        """
+
+        return self.SendStringParam('RunUserScript',inStringParam)
+        theNum,theVals = self.Recv()
+        if( theNum != 1):
+            raise Exception("RunSavedScript: failed")
+
+        if(theVals[0] > 0):
+            return True
+        else:
+            return False
 
 

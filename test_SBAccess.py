@@ -6,6 +6,7 @@ __license__  = "This source code is licensed under the BSD-style license found i
 import socket
 import numpy as np
 import time
+import random
 from matplotlib import pyplot as plt
 from SBAccess import *
 #from io import StringIO
@@ -859,13 +860,16 @@ def test_image_capture():
         #plot the slice
         plt.imshow(image)
         #plt.title(title.format(tp=theTP),loc='left')
-        plt.pause(0.001)
-        data = input("Please hit Enter to exit:\n")
-        print("Done")
+        #plt.pause(0.001)
+        #data = input("Please hit Enter to exit:\n")
+        #print("Done")
 
         #test error handling
         width, height, image, Result = theSbAccess.CaptureImage(7, 50)
-        print("Width =", width, "height =", height, "First pixel =", image[0], f"success =  {'yes' if Result == 1 else 'no'}")
+        if (width > 0 and height > 0):
+            print("Width =", width, "height =", height, "First pixel =", image[0], f"success =  {'yes' if Result == 1 else 'no'}")
+        else:
+            print("Width =", width, "height =", height, f"success =  {'yes' if Result == 1 else 'no'}")
 
     return
 
@@ -923,6 +927,41 @@ def test_tirf_hardware():
         width, height, image, Result = theSbAccess.CaptureImage(0, 50)
         print("Width =", width, "height =", height, "First pixel =", image[0], f"success =  {'yes' if Result == 1 else 'no'}")
 
+def test_arc_slice_tirf():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+        result = theSbAccess.ConfirmFocusWindow()
+        print(f"Focus window confirmed =  {'yes' if result == 1 else 'no'}" )
+
+        isSupported = theSbAccess.FocusWindowSupportsARCSliceTIRF()
+        print(f"ARC/Slice enabled=  {'yes' if isSupported == 1 else 'no'}" )
+
+        if (isSupported):
+            arcs, slices, result = theSbAccess.FocusWindowGetARCSliceTIRFParameters(1)
+            print("Position 1 arcs=", arcs,"slices=", slices, f"success =  {'yes' if result == 1 else 'no'}")
+            rand_arc = random.randint(91,180)
+            arcs = f"45,90,{rand_arc},360"
+            rand_slice = random.randint(2,20)
+            slices = f"1,{rand_slice}"
+            print("Setting arc =", arcs, "slices =", slices)
+            result = theSbAccess.FocusWindowSetARCSliceTIRFParameters(1, arcs, slices, 0)
+            arcs, slices, result = theSbAccess.FocusWindowGetARCSliceTIRFParameters(1)
+            print("Position 1 arcs=", arcs,"slices=", slices, f"success =  {'yes' if result == 1 else 'no'}")
+
+            arcs = f"45,90,{rand_arc},360"
+            rand_slice = random.randint(2,20)
+            slices = ""
+            print("Setting arc =", arcs, "slices =", slices)
+            result = theSbAccess.FocusWindowSetARCSliceTIRFParameters(1, arcs, slices, 0)
+            arcs, slices, result = theSbAccess.FocusWindowGetARCSliceTIRFParameters(1)
+            print("Position 1 arcs=", arcs,"slices=", slices, f"success =  {'yes' if result == 1 else 'no'}")
+        else:
+            print("Not supported")
+
+
 def test_get_hardware_metadata():
     HOST = '127.0.0.1'  # The server's hostname or IP address
 
@@ -935,7 +974,7 @@ def test_get_hardware_metadata():
                 theName = theSbAccess.GetHardwareComponentName(x)
                 print("Component", x + 1, "name  = ", theName + f"enabled =  {'yes' if isEnabled else 'no'}")
             except:
-                print("Comonent", x + 1, "is not supported")
+                print("Component", x + 1, "is not supported")
 
 def test_get_set_shutter(inComponentID):
     HOST = '127.0.0.1'  # The server's hostname or IP address
@@ -1096,7 +1135,38 @@ def test_focus_surface():
             theZ = theSbAccess.FocusSurface_FitPoint(15000,10000);
             print("the Z of the fitted  point is: ",theZ)
 
+def test_run_saved_script():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
 
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+
+        theSbAccess.RunSavedScript('C:\\ProgramData\\Intelligent Imaging Innovations\\SlideBook 2025\\Users\\Default User\\Scripts\\exp2.sbs')
+        data = input("Please hit Enter to exit:\n")
+        print("Done")
+
+def test_run_user_script():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+
+        #substitute your file on the Python_Export
+        #must not use thread to do a plot
+        theString = """
+OpenSlide(Filename = "E:\Data\Slides_msi\QweekTour.sldy")
+Python_SetEnvironment(Environment ="DeepCGH",UseThread=false)
+Python_Export("Metaphase B-Cell","FITC", First =0, Last =49, Matrix = "PyImg")
+Python_RunCommand(Command="from matplotlib import pyplot as plt;")
+Python_RunCommand(Command="plt.figure(1);")
+Python_RunCommand(Command="plt.imshow(PyImg[1,:,:]);")
+Python_RunCommand(Command="plt.pause(1);")
+"""
+        theSbAccess.RunUserScript(theString)
+        data = input("Please hit Enter to exit:\n")
+        print("Done")
 
 def main():
     try:
@@ -1127,10 +1197,13 @@ def main():
         #test_save_slide()
         #test_save_as_slide()
     	#test_tirf_hardware()
+        #test_arc_slice_tirf()
         #test_image_capture()
         #test_ao()
         #test_show_capture_status()
-        test_focus_surface()
+        #test_focus_surface()
+        #test_run_saved_script()
+        test_run_user_script()
     except Exception as e:
         print(f"Error: {e}")
     except: 
