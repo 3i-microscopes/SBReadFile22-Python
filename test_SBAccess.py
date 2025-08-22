@@ -1168,6 +1168,35 @@ Python_RunCommand(Command="plt.pause(1);")
         data = input("Please hit Enter to exit:\n")
         print("Done")
 
+def test_xyz_saved_experiment_name():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+
+        theExperimentName, theRes = theSbAccess.GetXYZSavedExperimentName(2)
+        print('GetXYZSavedExperimentName: theExperimentName: ',theExperimentName)
+        print('GetXYZSavedExperimentName: theRes: ',theRes)
+
+        #now set a NON eexisting name
+        theRes = theSbAccess.SetXYZSavedExperimentName(2,'pincopallino')
+        print('SetXYZSavedExperimentName: theRes: ',theRes)
+        #check if worked
+        theExperimentName, theRes = theSbAccess.GetXYZSavedExperimentName(2)
+        print('GetXYZSavedExperimentName: theExperimentName: ',theExperimentName)
+        print('GetXYZSavedExperimentName: theRes: ',theRes)
+
+        #now set an existing name
+        theRes = theSbAccess.SetXYZSavedExperimentName(2,'003d')
+
+        #check if worked
+        print('SetXYZSavedExperimentName: theRes: ',theRes)
+        theExperimentName, theRes = theSbAccess.GetXYZSavedExperimentName(2)
+        print('GetXYZSavedExperimentName: theExperimentName: ',theExperimentName)
+        print('GetXYZSavedExperimentName: theRes: ',theRes)
+
+
 def main():
     try:
         #test_new_slide()
@@ -1203,7 +1232,8 @@ def main():
         #test_show_capture_status()
         #test_focus_surface()
         #test_run_saved_script()
-        test_run_user_script()
+        #test_run_user_script()
+        test_xyz_saved_experiment_name()
     except Exception as e:
         print(f"Error: {e}")
     except: 

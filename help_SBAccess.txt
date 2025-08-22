@@ -1644,6 +1644,18 @@ CLASSES
      |      list
      |          a list of strings . If there is no point list defined in the XY Tab, it returns the keyword 'Empty'
      |  
+     |  GetXYZSavedExperimentName(self, inIndex)
+     |      Gets the name of a saved experiment
+     |      Parameters
+     |      ----------
+     |      inIndex: int
+     |          the experiment index
+     |      Returns
+     |      ----------
+     |          string, bool
+     |              Returns the experiment name as a string and true/false for success (bounds checking)
+     |              If the experiment is not set, the returned string is 'Default'
+     |  
      |  GetYPosition(self, inCaptureIndex, inPositionIndex)
      |      Gets the Y position in microns of the center of an image of an image group
      |      
@@ -2105,6 +2117,19 @@ CLASSES
      |      Returns
      |      -------
      |      none
+     |  
+     |  SetXYZSavedExperimentName(self, inIndex, inExperimentName)
+     |      Sets the name of an experiment at given index in the 6D tab, experiment list
+     |      Parameters
+     |      ----------
+     |      inIndex: int
+     |          the experiment index
+     |      string
+     |          the experiment name
+     |      Returns
+     |      ----------
+     |      bool
+     |          Return True/False based on bounds checking AND confirmation that the ExperimentName exists
      |  
      |  StartCapture(self, inScriptName='Default')
      |      Starts a capture with an optional script name

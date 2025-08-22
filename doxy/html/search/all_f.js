@@ -14,5 +14,7 @@ var searchData=
   ['renamepathtotimepoint0_11',['RenamePathToTimepoint0',['../class_format_017_1_1_c_s_b_file70_1_1_c_s_b_file70_ab7767c1152bd23cb2ace5bba359fc368.html#ab7767c1152bd23cb2ace5bba359fc368',1,'Format 7::CSBFile70::CSBFile70']]],
   ['restorespecialcharacters_12',['RestoreSpecialCharacters',['../class_format_017_1_1_base_decoder_1_1_base_decoder_a2790a200413173a26a8ae3b51bc21e35.html#a2790a200413173a26a8ae3b51bc21e35',1,'Format 7::BaseDecoder::BaseDecoder']]],
   ['reusethisposition_13',['ReuseThisPosition',['../class_format_017_1_1_s_b_access_1_1_microscope_hardware_component_a24cab49d30f37d8f827c43d5aa1514d8.html#a24cab49d30f37d8f827c43d5aa1514d8',1,'Format 7::SBAccess::MicroscopeHardwareComponent']]],
-  ['running_14',['running',['../class_format_017_1_1test__colin_1_1_microscope_u_i_ad3e4d6b7b993e0763a19ede96799379d.html#ad3e4d6b7b993e0763a19ede96799379d',1,'Format 7::test_colin::MicroscopeUI']]]
+  ['running_14',['running',['../class_format_017_1_1test__colin_1_1_microscope_u_i_ad3e4d6b7b993e0763a19ede96799379d.html#ad3e4d6b7b993e0763a19ede96799379d',1,'Format 7::test_colin::MicroscopeUI']]],
+  ['runsavedscript_15',['RunSavedScript',['../class_format_017_1_1_s_b_access_1_1_s_b_access_a673aecaf2e7f36eeb6913bc81b40839f.html#a673aecaf2e7f36eeb6913bc81b40839f',1,'Format 7::SBAccess::SBAccess']]],
+  ['runuserscript_16',['RunUserScript',['../class_format_017_1_1_s_b_access_1_1_s_b_access_a03d884cadf43265b871057f0d87dbd48.html#a03d884cadf43265b871057f0d87dbd48',1,'Format 7::SBAccess::SBAccess']]]
 ];

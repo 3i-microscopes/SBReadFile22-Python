@@ -3863,12 +3863,9 @@ class SBAccess(object):
                 Returns True if successful and False if not successful
         """
 
-        return self.SendStringParam('RunSavedScript',inStringParam)
-        theNum,theVals = self.Recv()
-        if( theNum != 1):
-            raise Exception("RunSavedScript: failed")
+        theRes = self.SendStringParam('RunSavedScript',inStringParam)
 
-        if(theVals[0] > 0):
+        if(theRes > 0):
             return True
         else:
             return False
@@ -3886,14 +3883,64 @@ class SBAccess(object):
                 Returns True if successful and False if not successful
         """
 
-        return self.SendStringParam('RunUserScript',inStringParam)
-        theNum,theVals = self.Recv()
-        if( theNum != 1):
-            raise Exception("RunSavedScript: failed")
+        theRes = self.SendStringParam('RunUserScript',inStringParam)
 
-        if(theVals[0] > 0):
+        if(theRes > 0):
             return True
         else:
             return False
 
 
+    def GetXYZSavedExperimentName(self,inIndex):
+        """ Gets the name of a saved experiment
+        Parameters
+        ----------
+        inIndex: int
+            the experiment index
+        Returns
+        ----------
+            string, bool
+                Returns the experiment name as a string and true/false for success (bounds checking)
+                If the experiment is not set, the returned string is 'Default'
+        """
+
+        self.SendCommand('$GetXYZSavedExperimentName(Index=i4)')
+        self.SendVal(int(inIndex),'i4')
+        theStr = self.Recv()
+        theNum,theVals = self.Recv()
+        if( theNum != 1):
+            raise Exception("GetXYZSavedExperimentName: failed")
+        if(theVals[0] > 0):
+            return theStr,True
+        else:
+            return 'Default',False
+
+        
+    def SetXYZSavedExperimentName(self,inIndex,inExperimentName):
+        """ Sets the name of an experiment at given index in the 6D tab, experiment list
+        Parameters
+        ----------
+        inIndex: int
+            the experiment index
+        string
+            the experiment name
+        Returns
+        ----------
+        bool
+            Return True/False based on bounds checking AND confirmation that the ExperimentName exists
+        """
+
+        l = len(inExperimentName)
+        self.SendCommand('$SetXYZSavedExperimentName(Index=i4,ExperimentName='+str(l)+':s)')
+        self.SendVal(int(inIndex),'i4')
+        self.SendVal(inExperimentName,'s')
+
+        theNum,theVals = self.Recv()
+        if( theNum != 1):
+            raise Exception("SetXYZSavedExperimentName: failed")
+        if(theVals[0] > 0):
+            return True
+        else:
+            return False
+
+        
