@@ -942,17 +942,17 @@ def test_arc_slice_tirf():
         if (isSupported):
             arcs, slices, result = theSbAccess.FocusWindowGetARCSliceTIRFParameters(1)
             print("Position 1 arcs=", arcs,"slices=", slices, f"success =  {'yes' if result == 1 else 'no'}")
-            rand_arc = random.randint(91,180)
-            arcs = f"45,90,{rand_arc},360"
-            rand_slice = random.randint(2,20)
-            slices = f"1,{rand_slice}"
+            rand_arc = random.randint(910,1800)
+            arcs = f"450,900,{rand_arc},3600"
+            rand_slice = random.randint(200,2000)
+            slices = f"10,{rand_slice}"
             print("Setting arc =", arcs, "slices =", slices)
             result = theSbAccess.FocusWindowSetARCSliceTIRFParameters(1, arcs, slices, 0)
             arcs, slices, result = theSbAccess.FocusWindowGetARCSliceTIRFParameters(1)
             print("Position 1 arcs=", arcs,"slices=", slices, f"success =  {'yes' if result == 1 else 'no'}")
 
-            arcs = f"45,90,{rand_arc},360"
-            rand_slice = random.randint(2,20)
+            arcs = f"450,900,{rand_arc},3600"
+            rand_slice = random.randint(1000,2000)
             slices = ""
             print("Setting arc =", arcs, "slices =", slices)
             result = theSbAccess.FocusWindowSetARCSliceTIRFParameters(1, arcs, slices, 0)
@@ -1108,6 +1108,30 @@ def test_save_as_slide():
         theOutSlideId = theSbAccess.CreateNewSlide()
         theSbAccess.SaveAsSlide(theOutSlideId,"E:\\Data\\Slides_msi\\3D Montage\\test_save_as.sldy")
 
+def test_close_slide():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+        theOutSlideId = theSbAccess.CreateNewSlide()
+        isModified, theResult = theSbAccess.GetIsSlideModified(theOutSlideId)
+        print("SlideID", theOutSlideId, f"result = {'success' if theResult == 1 else 'failure'}", f"is modified = {'yes' if isModified == 1 else 'no'}")
+        theResult = theSbAccess.CloseSlide(theOutSlideId,0)
+
+def test_close_modified_slide():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+        theOutSlideId = theSbAccess.GetCurrentSlideId()
+        isModified, theResult = theSbAccess.GetIsSlideModified(theOutSlideId)
+        print("SlideID", theOutSlideId, f"result = {'success' if theResult == 1 else 'failure'}", f"is modified = {'yes' if isModified == 1 else 'no'}")
+        theResult = theSbAccess.CloseSlide(theOutSlideId,1)
+        print("CloseSlide, res: ",theResult)
+
+
 def test_save_slide():
     HOST = '127.0.0.1'  # The server's hostname or IP address
 
@@ -1225,6 +1249,8 @@ def main():
         #test_get_xyz_point_list()
         #test_save_slide()
         #test_save_as_slide()
+        #test_close_slide()
+        test_close_modified_slide()
     	#test_tirf_hardware()
         #test_arc_slice_tirf()
         #test_image_capture()
@@ -1233,7 +1259,7 @@ def main():
         #test_focus_surface()
         #test_run_saved_script()
         #test_run_user_script()
-        test_xyz_saved_experiment_name()
+        #test_xyz_saved_experiment_name()
     except Exception as e:
         print(f"Error: {e}")
     except: 

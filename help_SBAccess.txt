@@ -259,6 +259,20 @@ CLASSES
      |       bool
      |           Returns True if successful and False if not successful
      |  
+     |  CloseSlide(self, inSlideId, inSaveChanges)
+     |      Close a slide
+     |      Parameters
+     |      ----------
+     |      inSlideId : int
+     |          The Slide Id
+     |      inSaveChanges
+     |          If the slide has been modified, save changes?
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          True if successful and false if failure (failure to save is most commonly caused by a new file without a pathname)
+     |  
      |  ConfirmFocusWindow(self)
      |      Confirms focus window is open and operational
      |      
@@ -414,9 +428,9 @@ CLASSES
      |      Returns
      |      -------
      |      Arcs: int
-     |         arcs
+     |         arcs (see FocusWindowSetARCSliceTIRFParameters for parameter format)
      |      Slices: int
-     |          slices
+     |          slices (see FocusWindowSetARCSliceTIRFParameters for parameter format)
      |      int
      |          Returns success or failure
      |  
@@ -778,9 +792,9 @@ CLASSES
      |      Position: int
      |          The filter position (0-20)
      |      Arcs: str
-     |         Comma-separated angles denoting start and stop angle (degrees) pairs. 0-360 is a full circle.
-     |         45,90,80,360 defines two arc segments: 45-90 and then 180 to 360.
-     |         Minimum arc length is one degree.
+     |         Comma-separated angles denoting start and stop angle (0.1 degrees) pairs. 0-3600 is a full circle.
+     |         450,900,1800,3600 defines two arc segments: 45-90 and then 180 to 360.
+     |         Minimum arc length is one-tenth degree.
      |      Slices: str
      |          Comma-separated list of filters to be concatenated together to create a virtual time-sliced TIRF channel.
      |          Can include any number of specified TIRF channels (including the current position) and will use the duration
@@ -1284,6 +1298,20 @@ CLASSES
      |      -------
      |      bool
      |          True if is enabled, false if it is not
+     |  
+     |  GetIsSlideModified(self, inSlideId)
+     |      Get modified status of slide
+     |      Parameters
+     |      ----------
+     |      inSlideId : int
+     |          The Slide Id
+     |      
+     |      Returns
+     |      -------
+     |      bool
+     |          True if file has been modified since last save, false if the file has not been modified
+     |      int
+     |          True if successful and false if failure
      |  
      |  GetLastChannelCaptured(self, inCaptureIndex)
      |      Gets the index of the last Channel captured
