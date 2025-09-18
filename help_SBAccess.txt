@@ -1095,7 +1095,12 @@ CLASSES
      |          the position index of the current captured image
      |  
      |  GetCurrentSlideId(self)
-     |      returns the Slide Id of the active slide
+     |      Gets the Slide Id of the active slide
+     |      
+     |      Parameters
+     |      ----------
+     |          none
+     |      
      |      Returns
      |      -------
      |      int
@@ -1590,6 +1595,18 @@ CLASSES
      |      -------
      |      list
      |          a list of CLensDef70 objects
+     |  
+     |  GetOpenSlides(self)
+     |      Gets a dictionary of  Slide Id  vs Pathname of all open slides
+     |      
+     |      Parameters
+     |      ----------
+     |          none
+     |      
+     |      Returns
+     |      -------
+     |      dict
+     |          The dictionary of IDs/SlideName(Pathname)
      |  
      |  GetVector3ScannerPosition(self)
      |      Gets the current position of a hardware device

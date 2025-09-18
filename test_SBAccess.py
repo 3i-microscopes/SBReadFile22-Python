@@ -235,6 +235,10 @@ def test_create_new_slide():
         theSbAccess = SBAccess(s)
 
         theOutSlideId = theSbAccess.CreateNewSlide()
+        #close the slide in slidebook and test here to get an error because slide is not there anymore
+        time.sleep(20)
+
+        success = theSbAccess.SetTargetSlide(theOutSlideId)
         
         return theOutSlideId
 
@@ -245,7 +249,7 @@ def test_set_target_slide():
         s.connect((HOST, PORT))
         theSbAccess = SBAccess(s)
 
-        success = theSbAccess.SetTargetSlide(1)
+        success = theSbAccess.SetTargetSlide(0)
         
         return success
 
@@ -1220,6 +1224,15 @@ def test_xyz_saved_experiment_name():
         print('GetXYZSavedExperimentName: theExperimentName: ',theExperimentName)
         print('GetXYZSavedExperimentName: theRes: ',theRes)
 
+def test_get_open_slides():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+        theDict = theSbAccess.GetOpenSlides()
+        for id, path in theDict.items():
+            print(f"{id} -> {path}")
 
 def main():
     try:
@@ -1250,7 +1263,7 @@ def main():
         #test_save_slide()
         #test_save_as_slide()
         #test_close_slide()
-        test_close_modified_slide()
+        #test_close_modified_slide()
     	#test_tirf_hardware()
         #test_arc_slice_tirf()
         #test_image_capture()
@@ -1260,6 +1273,7 @@ def main():
         #test_run_saved_script()
         #test_run_user_script()
         #test_xyz_saved_experiment_name()
+        test_get_open_slides()
     except Exception as e:
         print(f"Error: {e}")
     except: 

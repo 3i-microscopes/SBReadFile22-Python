@@ -420,7 +420,12 @@ class SBAccess(object):
         return theVals[0]
 
     def GetCurrentSlideId(self):
-        """returns the Slide Id of the active slide
+        """Gets the Slide Id of the active slide
+
+        Parameters
+        ----------
+            none
+
         Returns
         -------
         int
@@ -431,6 +436,35 @@ class SBAccess(object):
         if( theNum != 1):
             raise Exception("GetCurrentSlideId: error")
         return theVals[0]
+
+    def GetOpenSlides(self):
+        """Gets a dictionary of  Slide Id  vs Pathname of all open slides
+
+        Parameters
+        ----------
+            none
+
+        Returns
+        -------
+        dict
+            The dictionary of IDs/SlideName(Pathname)
+        """
+        self.SendCommand('$GetOpenSlides()')
+        theNum,theVals = self.Recv()
+        if( theNum != 1):
+            raise Exception("GetOpenSlides: error")
+        theDict = dict()
+        for id in range(theVals[0]):
+
+            theNum,theVals = self.Recv()
+            if( theNum != 1):
+                raise Exception("GetOpenSlides: error")
+            theId = theVals[0]
+            thePath = self.Recv()
+            theDict[theId]= thePath
+
+        return theDict
+
 
     def SetTargetSlide(self,inSlideId):
         """Sets the target slide for subsequent operations 
