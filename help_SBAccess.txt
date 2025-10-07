@@ -5,10 +5,52 @@ NAME
 
 CLASSES
     builtins.object
+        PointStruct
         SBAccess
     enum.Enum(builtins.object)
+        AuxDataTypes
         MicroscopeHardwareComponent
         MicroscopeStates
+    
+    class AuxDataTypes(enum.Enum)
+     |  AuxDataTypes(value, names=None, *, module=None, qualname=None, type=None, start=1)
+     |  
+     |  Enumeration of auxiliary data types
+     |  
+     |  Method resolution order:
+     |      AuxDataTypes
+     |      enum.Enum
+     |      builtins.object
+     |  
+     |  Data and other attributes defined here:
+     |  
+     |  eDoubleData = <AuxDataTypes.eDoubleData: 4>
+     |  
+     |  eFloatData = <AuxDataTypes.eFloatData: 3>
+     |  
+     |  eSInt32Data = <AuxDataTypes.eSInt32Data: 1>
+     |  
+     |  eSInt64Data = <AuxDataTypes.eSInt64Data: 2>
+     |  
+     |  eXMLData = <AuxDataTypes.eXMLData: 0>
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from enum.Enum:
+     |  
+     |  name
+     |      The name of the Enum member.
+     |  
+     |  value
+     |      The value of the Enum member.
+     |  
+     |  ----------------------------------------------------------------------
+     |  Readonly properties inherited from enum.EnumMeta:
+     |  
+     |  __members__
+     |      Returns a mapping of member name->value.
+     |      
+     |      This mapping lists all enum members, including aliases. Note that this
+     |      is a read-only view of the internal mapping.
     
     class MicroscopeHardwareComponent(enum.Enum)
      |  MicroscopeHardwareComponent(value, names=None, *, module=None, qualname=None, type=None, start=1)
@@ -195,6 +237,44 @@ CLASSES
      |      
      |      This mapping lists all enum members, including aliases. Note that this
      |      is a read-only view of the internal mapping.
+    
+    class PointStruct(builtins.object)
+     |  PointStruct(x: 'float', y: 'float', z: 'float', aux_z: 'float', IsAuxZ: 'bool') -> None
+     |  
+     |  PointStruct(x: 'float', y: 'float', z: 'float', aux_z: 'float', IsAuxZ: 'bool')
+     |  
+     |  Methods defined here:
+     |  
+     |  __eq__(self, other)
+     |      Return self==value.
+     |  
+     |  __init__(self, x: 'float', y: 'float', z: 'float', aux_z: 'float', IsAuxZ: 'bool') -> None
+     |      Initialize self.  See help(type(self)) for accurate signature.
+     |  
+     |  __repr__(self)
+     |      Return repr(self).
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |  
+     |  __dict__
+     |      dictionary for instance variables (if defined)
+     |  
+     |  __weakref__
+     |      list of weak references to the object (if defined)
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data and other attributes defined here:
+     |  
+     |  __annotations__ = {'IsAuxZ': 'bool', 'aux_z': 'float', 'x': 'float', '...
+     |  
+     |  __dataclass_fields__ = {'IsAuxZ': Field(name='IsAuxZ',type='bool',defa...
+     |  
+     |  __dataclass_params__ = _DataclassParams(init=True,repr=True,eq=True,or...
+     |  
+     |  __hash__ = None
+     |  
+     |  __match_args__ = ('x', 'y', 'z', 'aux_z', 'IsAuxZ')
     
     class SBAccess(builtins.object)
      |  SBAccess(inSocket)
@@ -897,103 +977,67 @@ CLASSES
      |      Result
      |          1 = success 0 = failure
      |  
-     |  GetAuxDataNumElements(self, inCaptureIndex, inChannelIndex)
-     |      Gets the Auxiliary Data number of elements for an image group and a channel
+     |  GetAPIVersion(self)
+     |      Returns the current SlideBook build version
+     |      
+     |      Parameters
+     |      ----------
+     |      Returns
+     |      -------
+     |      Build Version : Int
+     |          Returns the current build version of the connected SlideBook
+     |  
+     |  GetAuxDataName(self, inCaptureIndex, inDataType: 'AuxDataTypes', inElementIndex)
+     |      Gets the Auxiliary Data Name for an image group, a data type, and an element index
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inDataType: AuxDataTypes
+     |          The data type value from the AuxDataTypes enum
+     |      inElementIndex: int
+     |          The Element number
+     |      
+     |      Returns
+     |      -------
+     |      str
+     |          The Element name
+     |  
+     |  GetAuxDataNumElements(self, inCaptureIndex, inDataType: 'AuxDataTypes')
+     |      Gets the Auxiliary Data Number of Elements for an image group and a data type
      |      Parameters
      |      ----------
      |      inCaptureIndex: int
      |          The index of the image group. Must be in range(0,number of captures)
-     |      inChannelIndex: int
-     |          The channel number
+     |      inDataType: AuxDataTypes
+     |          The data type value from the AuxDataTypes enum
      |      
      |      Returns
      |      -------
      |      int
      |          The number of elements
      |  
-     |  GetAuxDataXMLDescriptor(self, inCaptureIndex, inChannelIndex)
-     |      Gets the Auxiliary Data XML Descriptor for an image group and a channel
+     |  GetAuxDataValues(self, inCaptureIndex, inDataType: 'AuxDataTypes', inElementIndex)
+     |      Gets the Auxiliary Data Values for an image group, a data type, and an element index
      |      Parameters
      |      ----------
      |      inCaptureIndex: int
      |          The index of the image group. Must be in range(0,number of captures)
-     |      inChannelIndex: int
-     |          The channel number
+     |      inDataType: AuxDataTypes
+     |          The data type value from the AuxDataTypes enum
+     |      inElementIndex: int
+     |          The element number
      |      
      |      Returns
      |      -------
-     |      str
-     |          The XML Descriptor
-     |  
-     |  GetAuxDoubleData(self, inCaptureIndex, inChannelIndex)
-     |      Gets the Auxiliary Double Data for an image group and a channel
-     |      Parameters
-     |      ----------
-     |      inCaptureIndex: int
-     |          The index of the image group. Must be in range(0,number of captures)
-     |      inChannelIndex: int
-     |          The channel number
-     |      
-     |      Returns
-     |      -------
-     |      list : float
-     |          The Double Data as a list
-     |  
-     |  GetAuxFloatData(self, inCaptureIndex, inChannelIndex)
-     |      Gets the Auxiliary Float Data for an image group and a channel
-     |      Parameters
-     |      ----------
-     |      inCaptureIndex: int
-     |          The index of the image group. Must be in range(0,number of captures)
-     |      inChannelIndex: int
-     |          The channel number
-     |      
-     |      Returns
-     |      -------
-     |      list : float
-     |          The Float Data as a list
-     |  
-     |  GetAuxSInt32Data(self, inCaptureIndex, inChannelIndex)
-     |      Gets the Auxiliary Signed Int32 Data for an image group and a channel
-     |      Parameters
-     |      ----------
-     |      inCaptureIndex: int
-     |          The index of the image group. Must be in range(0,number of captures)
-     |      inChannelIndex: int
-     |          The channel number
-     |      
-     |      Returns
-     |      -------
-     |      list: int
-     |          The Signed Int32 Data as a list
-     |  
-     |  GetAuxSInt64Data(self, inCaptureIndex, inChannelIndex)
-     |      Gets the Auxiliary Signed Int64 Data for an image group and a channel
-     |      Parameters
-     |      ----------
-     |      inCaptureIndex: int
-     |          The index of the image group. Must be in range(0,number of captures)
-     |      inChannelIndex: int
-     |          The channel number
-     |      
-     |      Returns
-     |      -------
-     |      list: int
-     |          The Signed Int64 Data as a list
-     |  
-     |  GetAuxSerializedData(self, inCaptureIndex, inChannelIndex, inElementIndex)
-     |      Gets the Auxiliary XML Data for an image group and a channel
-     |      Parameters
-     |      ----------
-     |      inCaptureIndex: int
-     |          The index of the image group. Must be in range(0,number of captures)
-     |      inChannelIndex: int
-     |          The channel number
-     |      
-     |      Returns
-     |      -------
-     |      list: str
-     |          The XML Data as a list
+     |      if inDataType is AuxDataTypes.eXMLData
+     |          returns two strings, the description and the xml string 
+     |      if inDataType is AuxDataTypes.eSInt32Data
+     |          returns an int 32 array
+     |      if inDataType is AuxDataTypes.eSInt64Data
+     |          returns an int 64 array
+     |      if inDataType is AuxDataTypes.eFloatData
+     |          returns a float 64 array
+     |      if inDataType is AuxDataTypes.eDoubleData
+     |          returns a double 64 array
      |  
      |  GetCaptureDate(self, inCaptureIndex)
      |      Gets the date of acquisition of an image group
@@ -1665,6 +1709,38 @@ CLASSES
      |      -------
      |      float
      |          The X position in um
+     |  
+     |  GetXYZMontagePointList(self, PointIndex)
+     |      If the selected XYZ point is a montage this functions returns a list of XYZ1Z2 points in the montage for the current camera / lens configuration.
+     |      
+     |       Parameters
+     |       ----------
+     |       PointIndex : int
+     |             Index in global experiment list (0 to GetXYZPointCount())
+     |      
+     |       Returns
+     |      ----------
+     |       NumPoints : int
+     |           Returns the number of XY points in the montage
+     |       Points: PointStruct
+     |           Array of point information
+     |       bool
+     |         Returns True if successful and False if not successful (for example, the index is out of bounds or the experiment is not setup as a montage)
+     |  
+     |  GetXYZPoint(self, PointIndex)
+     |      Returns the XYZ1Z2 position for the selected point
+     |       Parameters
+     |       PointIndex
+     |            Index in global experiment list (0 to GetXYZPointCount())
+     |      ----------
+     |      Returns
+     |      -------
+     |       PointStruct
+     |         Returns the XYZ1Z2 point
+     |       PointType
+     |         Returns the
+     |       bool
+     |           Returns True if successful and False if not successful
      |  
      |  GetXYZPointCount(self)
      |      Returns the number of XY points in the XY point list

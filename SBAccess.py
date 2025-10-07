@@ -18,9 +18,30 @@ from CMetadataLib import COptovarDef70
 from enum import Enum
 import yaml
 
-
+from dataclasses import dataclass
 import ByteUtil as bu
 import numpy as np
+
+
+@dataclass
+class PointStruct:
+        x: float
+        y: float
+        z: float
+        aux_z: float
+        IsAuxZ: bool
+
+class AuxDataTypes(Enum):
+    """
+    Enumeration of auxiliary data types
+    """
+
+    eXMLData = 0 # XML String data
+    eSInt32Data = 1 # Signed Int32 Data
+    eSInt64Data = 2 # Signed Int64 Data
+    eFloatData = 3 # float data (4 bytes)
+    eDoubleData = 4 # double float data (8 bytes)
+
 
 class MicroscopeStates(Enum):
     """
@@ -1489,45 +1510,24 @@ class SBAccess(object):
         theNum,theVals = self.Recv()
         return theVals
 
-    def GetAuxDataXMLDescriptor(self,inCaptureIndex,inChannelIndex):
-        """ Gets the Auxiliary Data XML Descriptor for an image group and a channel
+
+    def GetAuxDataNumElements(self, inCaptureIndex, inDataType : AuxDataTypes):
+        """ Gets the Auxiliary Data Number of Elements for an image group and a data type
         Parameters
         ----------
         inCaptureIndex: int
             The index of the image group. Must be in range(0,number of captures)
-        inChannelIndex: int
-            The channel number
-
-        Returns
-        -------
-        str
-            The XML Descriptor
-        """
-        self.SendCommand('$GetAuxDataXMLDescriptor(CaptureIndex=i4,ChannelIndex=i4)')
-        self.SendVal(int(inCaptureIndex),'i4')
-        self.SendVal(int(inChannelIndex),'i4')
-
-        theStr = self.Recv()
-        return theStr
-
-
-    def GetAuxDataNumElements(self,inCaptureIndex,inChannelIndex):
-        """ Gets the Auxiliary Data number of elements for an image group and a channel
-        Parameters
-        ----------
-        inCaptureIndex: int
-            The index of the image group. Must be in range(0,number of captures)
-        inChannelIndex: int
-            The channel number
+        inDataType: AuxDataTypes
+            The data type value from the AuxDataTypes enum
 
         Returns
         -------
         int
             The number of elements
         """
-        self.SendCommand('$GetAuxDataNumElements(CaptureIndex=i4,ChannelIndex=i4)')
+        self.SendCommand('$GetAuxDataNumElements(CaptureIndex=i4,DataType=i4)')
         self.SendVal(int(inCaptureIndex),'i4')
-        self.SendVal(int(inChannelIndex),'i4')
+        self.SendVal(int(inDataType),'i4')
 
         theNum,theVals = self.Recv()
         if( theNum != 1):
@@ -1535,119 +1535,64 @@ class SBAccess(object):
 
         return theVals[0]
 
+    def GetAuxDataName(self, inCaptureIndex, inDataType : AuxDataTypes, inElementIndex):
+        """ Gets the Auxiliary Data Name for an image group, a data type, and an element index
+        inCaptureIndex: int
+            The index of the image group. Must be in range(0,number of captures)
+        inDataType: AuxDataTypes
+            The data type value from the AuxDataTypes enum
+        inElementIndex: int
+            The Element number
 
-        
+        Returns
+        -------
+        str
+            The Element name
+        """
+        self.SendCommand('$GetAuxDataName(CaptureIndex=i4,DataType=i4,ElementIndex=i4)')
+        self.SendVal(int(inCaptureIndex),'i4')
+        self.SendVal(int(inDataType),'i4')
+        self.SendVal(int(inElementIndex),'i4')
+        theName = self.Recv()
 
-    def GetAuxFloatData(self,inCaptureIndex,inChannelIndex):
-        """ Gets the Auxiliary Float Data for an image group and a channel
+        return theName
+
+    def GetAuxDataValues(self, inCaptureIndex, inDataType : AuxDataTypes, inElementIndex):
+        """ Gets the Auxiliary Data Values for an image group, a data type, and an element index
         Parameters
         ----------
         inCaptureIndex: int
             The index of the image group. Must be in range(0,number of captures)
-        inChannelIndex: int
-            The channel number
+        inDataType: AuxDataTypes
+            The data type value from the AuxDataTypes enum
+        inElementIndex: int
+            The element number
 
         Returns
         -------
-        list : float
-            The Float Data as a list
+        if inDataType is AuxDataTypes.eXMLData
+            returns two strings, the description and the xml string 
+        if inDataType is AuxDataTypes.eSInt32Data
+            returns an int 32 array
+        if inDataType is AuxDataTypes.eSInt64Data
+            returns an int 64 array
+        if inDataType is AuxDataTypes.eFloatData
+            returns a float 64 array
+        if inDataType is AuxDataTypes.eDoubleData
+            returns a double 64 array
         """
-        self.SendCommand('$GetAuxFloatData(CaptureIndex=i4,ChannelIndex=i4)')
+        self.SendCommand('$GetAuxDataValues(CaptureIndex=i4,DataType=i4,ElementIndex=i4)')
         self.SendVal(int(inCaptureIndex),'i4')
-        self.SendVal(int(inChannelIndex),'i4')
-
-        theNum,theVals = self.Recv()
-        return theVals
-
-
-    def GetAuxDoubleData(self,inCaptureIndex,inChannelIndex):
-        """ Gets the Auxiliary Double Data for an image group and a channel
-        Parameters
-        ----------
-        inCaptureIndex: int
-            The index of the image group. Must be in range(0,number of captures)
-        inChannelIndex: int
-            The channel number
-
-        Returns
-        -------
-        list : float
-            The Double Data as a list
-        """
-        self.SendCommand('$GetAuxDoubleData(CaptureIndex=i4,ChannelIndex=i4)')
-        self.SendVal(int(inCaptureIndex),'i4')
-        self.SendVal(int(inChannelIndex),'i4')
-
-        theNum,theVals = self.Recv()
-        return theVals
-
-
-
-    def GetAuxSInt32Data(self,inCaptureIndex,inChannelIndex):
-        """ Gets the Auxiliary Signed Int32 Data for an image group and a channel
-        Parameters
-        ----------
-        inCaptureIndex: int
-            The index of the image group. Must be in range(0,number of captures)
-        inChannelIndex: int
-            The channel number
-
-        Returns
-        -------
-        list: int
-            The Signed Int32 Data as a list
-        """
-        self.SendCommand('$GetAuxSInt32Data(CaptureIndex=i4,ChannelIndex=i4)')
-        self.SendVal(int(inCaptureIndex),'i4')
-        self.SendVal(int(inChannelIndex),'i4')
-
-        theNum,theVals = self.Recv()
-        return theVals
-
-
-    def GetAuxSInt64Data(self,inCaptureIndex,inChannelIndex):
-        """ Gets the Auxiliary Signed Int64 Data for an image group and a channel
-        Parameters
-        ----------
-        inCaptureIndex: int
-            The index of the image group. Must be in range(0,number of captures)
-        inChannelIndex: int
-            The channel number
-
-        Returns
-        -------
-        list: int
-            The Signed Int64 Data as a list
-        """
-        self.SendCommand('$GetAuxSInt64Data(CaptureIndex=i4,ChannelIndex=i4)')
-        self.SendVal(int(inCaptureIndex),'i4')
-        self.SendVal(int(inChannelIndex),'i4')
-
-        theNum,theVals = self.Recv()
-        return theVals
-
-
-    def GetAuxSerializedData(self,inCaptureIndex,inChannelIndex,inElementIndex):
-        """ Gets the Auxiliary XML Data for an image group and a channel
-        Parameters
-        ----------
-        inCaptureIndex: int
-            The index of the image group. Must be in range(0,number of captures)
-        inChannelIndex: int
-            The channel number
-
-        Returns
-        -------
-        list: str
-            The XML Data as a list
-        """
-        self.SendCommand('$GetAuxSerializedData(CaptureIndex=i4,ChannelIndex=i4,ElementIndex=i4)')
-        self.SendVal(int(inCaptureIndex),'i4')
-        self.SendVal(int(inChannelIndex),'i4')
+        self.SendVal(int(inDataType),'i4')
         self.SendVal(int(inElementIndex),'i4')
 
-        theStr = self.Recv()
-        return theStr
+        if AuxDataTypes(inDataType) == AuxDataTypes.eXMLData:
+            theDescription = self.Recv()
+            theXML = self.Recv()
+            return theDescription,theXML
+        else:
+            theNum,theVals = self.Recv()
+            return theVals
         
     def CreateImageGroup(self,inImageName,inNumChannels,inNumPlanes,inNumRows,inNumColumns,inNumTimepoints):
         """ creates a new image in the current slide
@@ -2743,6 +2688,97 @@ class SBAccess(object):
         else:
             return False
 
+    def GetXYZMontagePointList(self, PointIndex):
+        """ If the selected XYZ point is a montage this functions returns a list of XYZ1Z2 points in the montage for the current camera / lens configuration.
+
+        Parameters
+        ----------
+        PointIndex : int
+              Index in global experiment list (0 to GetXYZPointCount())
+
+        Returns
+       ----------
+        NumPoints : int
+            Returns the number of XY points in the montage
+        Points: PointStruct
+            Array of point information
+        bool
+          Returns True if successful and False if not successful (for example, the index is out of bounds or the experiment is not setup as a montage)
+        """
+        arr = []
+
+        version = self.GetAPIVersion()
+        if (version < 47334):
+            return 0, arr, False
+
+        self.SendCommand('$GetXYZMontagePointList(PointIndex=i4)')
+        self.SendVal(int(PointIndex), 'i4')
+
+        theNum, theNumPoints = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetXYZPointCount: failed")
+
+        print(type(theNumPoints))
+
+        for i in range(0, int (theNumPoints[0])):
+            theNum, x = self.Recv()
+            theNum, y = self.Recv()
+            theNum, z = self.Recv()
+            theNum, aux_z = self.Recv()
+            theNum, isAuxZ = self.Recv()
+            pt = PointStruct(float(x), float(y), float(z), float(aux_z), bool(isAuxZ))
+            arr.append(pt)
+
+        theNum, theReturn = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetXYZPointCount: failed")
+
+        if (theReturn[0] > 0):
+            return theNumPoints[0], arr, True
+        else:
+            return theNumPoints[0], arr, False
+
+    def GetXYZPoint(self, PointIndex):
+        """ Returns the XYZ1Z2 position for the selected point
+              Parameters
+              PointIndex
+                   Index in global experiment list (0 to GetXYZPointCount())
+             ----------
+             Returns
+             -------
+              PointStruct
+                Returns the XYZ1Z2 point
+              PointType
+                Returns the
+              bool
+                  Returns True if successful and False if not successful
+             """
+
+        arr = []
+
+        version = self.GetAPIVersion()
+        if (version < 47334):
+            return 0, arr, False
+
+        self.SendCommand('$GetXYZPoint(PointIndex=i4)')
+        self.SendVal(int(PointIndex),'i4')
+
+        theNum, x = self.Recv()
+        theNum, y = self.Recv()
+        theNum, z = self.Recv()
+        theNum, aux_z = self.Recv()
+        theNum, isAuxZ = self.Recv()
+        pt = PointStruct(float(x),float(y),float(z),float(aux_z),bool(isAuxZ))
+
+        theNum, theResult = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetXYZPointCount: failed")
+
+        if (theResult > 0):
+            return pt, True
+        else:
+            return pt, False
+
     def GetXYZPointCount(self):
         """ Returns the number of XY points in the XY point list
 
@@ -2770,6 +2806,25 @@ class SBAccess(object):
             return theNumPoints[0], True
         else:
             return theNumPoints[0], False
+
+    def GetAPIVersion(self):
+        """ Returns the current SlideBook build version
+
+        Parameters
+        ----------
+        Returns
+        -------
+        Build Version : Int
+            Returns the current build version of the connected SlideBook
+        """
+
+        self.SendCommand('$GetAPIVersion()')
+
+        theNum,theVals = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetAPIVersion: failed")
+
+        return theVals[0]
 
     def AddXYZPoint(self,inXum,inYum,inZum,inAuxZum=0,inIsAuxZ=False):
         """ Adds a point to the Focus Window XY Tab

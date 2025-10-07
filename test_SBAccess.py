@@ -125,7 +125,7 @@ def test_add_new_channel():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))
         theSbAccess = SBAccess(s)
-        theSbAccess.Open("E:\Data\Slides_msi\QweekTour.sldy");
+        theSbAccess.Open("E:\QuickTourWIN3.sldy");
 
         theNumCaptures = theSbAccess.GetNumCaptures()
 
@@ -146,7 +146,6 @@ def test_add_new_channel():
 
         data = input("Please hit Enter to exit:\n")
         print("Done")
-
 
         return
 
@@ -1224,6 +1223,24 @@ def test_xyz_saved_experiment_name():
         print('GetXYZSavedExperimentName: theExperimentName: ',theExperimentName)
         print('GetXYZSavedExperimentName: theRes: ',theRes)
 
+def test_xyz_montage():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+
+        theExperimentName, theRes = theSbAccess.GetXYZSavedExperimentName(0)
+        print('GetXYZSavedExperimentName: theExperimentName: ', theExperimentName)
+        print('GetXYZSavedExperimentName: theRes: ', theRes)
+
+        thePoint, theRes = theSbAccess.GetXYZPoint(0)
+
+        theNumPoints, thePointList, theRes = theSbAccess.GetXYZMontagePointList(0)
+
+        # now set an existing name
+        theRes = theSbAccess.SetXYZSavedExperimentName(0, '003d')
+
 def test_get_open_slides():
     HOST = '127.0.0.1'  # The server's hostname or IP address
 
@@ -1233,6 +1250,32 @@ def test_get_open_slides():
         theDict = theSbAccess.GetOpenSlides()
         for id, path in theDict.items():
             print(f"{id} -> {path}")
+
+def test_aux_data():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+        theCurSlideId = theSbAccess.GetCurrentSlideId()
+        theSbAccess.SetTargetSlide(theCurSlideId)
+        theCaptureIndex = 0
+        for theDataType in range(5):
+            print("theDataType: ",theDataType);
+            theNumElem = theSbAccess.GetAuxDataNumElements(theCaptureIndex,theDataType);
+            print("theNumElem: ",theNumElem);
+            for theElementIndex in range(theNumElem):
+                print("theElementIndex: ",theElementIndex);
+                theName = theSbAccess.GetAuxDataName(theCaptureIndex,theDataType,theElementIndex);
+                print("theName: ",theName);
+                if AuxDataTypes(theDataType) == AuxDataTypes.eXMLData:
+                    theDescription, theXMLData = theSbAccess.GetAuxDataValues(theCaptureIndex,theDataType,theElementIndex);
+                    print("theDescription: ",theDescription);
+                    print("theXMLData: ",theXMLData);
+                else:
+                    #theArray = theSbAccess.GetAuxDataValues(theCaptureIndex,theDataType,theElementIndex);
+                    theArray = theSbAccess.GetAuxDataValues(theCaptureIndex,theDataType,theElementIndex);
+                    print("the Array: ",theArray)
 
 def main():
     try:
@@ -1273,7 +1316,9 @@ def main():
         #test_run_saved_script()
         #test_run_user_script()
         #test_xyz_saved_experiment_name()
-        test_get_open_slides()
+        #test_xyz_montage()
+        #test_get_open_slides()
+        test_aux_data()
     except Exception as e:
         print(f"Error: {e}")
     except: 
