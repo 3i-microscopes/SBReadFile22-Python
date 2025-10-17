@@ -780,6 +780,33 @@ class SBAccess(object):
         return theVals[0]
 
 
+    def GetNumImages(self,inCaptureIndex):
+        """ Gets the number of images in an image group
+
+        Parameters
+        ----------
+        inCaptureIndex: int
+            The index of the image group. Must be in range(0,number of captures)
+
+        Returns
+        -------
+        int
+            The number of images
+        """
+        version = self.GetAPIVersion()
+        if (version < 47415):
+            raise Exception("GetNumImages: not available in current API")
+
+        self.SendCommand('$GetNumImages(CaptureIndex=i4)')
+        self.SendVal(int(inCaptureIndex),'i4')
+        theNum,theVals = self.Recv()
+        if( theNum != 1):
+            raise Exception("GetNumImages: invalid value")
+
+
+        return theVals[0]
+
+
     def GetNumTimepoints(self,inCaptureIndex):
         """ Gets the number of time points in an image group
 
@@ -1476,6 +1503,40 @@ class SBAccess(object):
             raise Exception("CaptureCameraImage: failed")
 
         return theWidth[0], theHeight[0], theVals, theResult
+
+
+    def ReadImagePlaneBufIx(self,inCaptureIndex,inImageIndex,inZPlaneIndex,inChannelIndex):
+        """ Reads a z plane of an image into a numpy array
+
+        Parameters
+        ----------
+        inCaptureIndex: int
+            The index of the image group. Must be in range(0,number of captures)
+        inImageIndex: int
+            The Image index
+        inZPlaneIndex: int
+            The z plane number
+        inChannelIndex: int
+            The channel number
+
+        Returns
+        -------
+        numpy uint16 array 
+            The image is returned as 1D numpy uint16 array
+
+        """
+        version = self.GetAPIVersion()
+        if (version < 47415):
+            raise Exception("ReadImagePlaneBufIx: not avai;lable in current API")
+
+        self.SendCommand('$ReadImagePlaneBuf(CaptureIndex=i4,ImageIndex=i4,ZPlaneIndex=i4,ChannelIndex=i4)')
+        self.SendVal(int(inCaptureIndex),'i4')
+        self.SendVal(int(inImageIndex),'i4')
+        self.SendVal(int(inZPlaneIndex),'i4')
+        self.SendVal(int(inChannelIndex),'i4')
+
+        theNum,theVals = self.Recv()
+        return theVals
 
 
     def ReadImagePlaneBuf(self,inCaptureIndex,inPositionIndex,inTimepointIndex,inZPlaneIndex,inChannelIndex):

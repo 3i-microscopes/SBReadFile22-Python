@@ -1277,6 +1277,51 @@ def test_aux_data():
                     theArray = theSbAccess.GetAuxDataValues(theCaptureIndex,theDataType,theElementIndex);
                     print("the Array: ",theArray)
 
+def test_montage_timelapse():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+        theCurSlideId = theSbAccess.GetCurrentSlideId()
+        theSbAccess.SetTargetSlide(theCurSlideId)
+
+        theNumCaptures = theSbAccess.GetNumCaptures()
+        for theCapture in range(theNumCaptures):
+            theImageName = theSbAccess.GetImageName(theCapture)
+            print('the image name for capture: ',theCapture,' is: ',theImageName)
+            theNumX = theSbAccess.GetNumXColumns(theCapture)
+            print('    the num X: ',theNumX)
+
+        theCapture = 0;
+
+        theNumRows = theSbAccess.GetNumYRows(theCapture)
+        theNumColumns = theSbAccess.GetNumXColumns(theCapture)
+        theNumPlanes = theSbAccess.GetNumZPlanes(theCapture)
+        theNumPositions = theSbAccess.GetNumPositions(theCapture)
+        theNumTimepoints = theSbAccess.GetNumTimepoints(theCapture)
+
+
+        the3DVolume = np.empty(theNumRows*theNumColumns*theNumPlanes,np.uint16)
+        for theTimepoint in range(theNumTimepoints):
+            for thePosition in range(theNumPositions):
+                for theZPlane in range(theNumPlanes):
+                    image = theSbAccess.ReadImagePlaneBuf(theCapture,thePosition,theTimepoint,theZPlane,0) #captureid,position,timepoint,zplane,channel
+                    print ("*** thePosition: ",thePosition," theTimepoint: ",theTimepoint," theZPlane: ",theZPlane," The read buffer len is: " , len(image))
+                    if thePosition == 0:
+                        image = image.reshape(theNumRows,theNumColumns)
+                        #plot the slice
+                        plt.figure()
+                        plt.imshow(image)
+                        plt.pause(0.001)
+
+        #the3DVolume = the3DVolume.reshape(theNumRows,theNumColumns,theNumPlanes
+        data = input("Please hit Enter to exit:\n")
+        print("Done")
+
+
+        return
+
 def main():
     try:
         #test_new_slide()
@@ -1318,7 +1363,8 @@ def main():
         #test_xyz_saved_experiment_name()
         #test_xyz_montage()
         #test_get_open_slides()
-        test_aux_data()
+        #test_aux_data()
+        test_montage_timelapse()
     except Exception as e:
         print(f"Error: {e}")
     except: 

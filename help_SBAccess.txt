@@ -1542,6 +1542,19 @@ CLASSES
      |      int
      |          The number of channels
      |  
+     |  GetNumImages(self, inCaptureIndex)
+     |      Gets the number of images in an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          The number of images
+     |  
      |  GetNumLiveCaptures(self)
      |      Gets the number of live captures (image groups) in the file
      |      
@@ -1938,6 +1951,25 @@ CLASSES
      |          The position of the image. If the image group is not a montage, use 0
      |      inTimepointIndex: int
      |          The time point
+     |      inZPlaneIndex: int
+     |          The z plane number
+     |      inChannelIndex: int
+     |          The channel number
+     |      
+     |      Returns
+     |      -------
+     |      numpy uint16 array 
+     |          The image is returned as 1D numpy uint16 array
+     |  
+     |  ReadImagePlaneBufIx(self, inCaptureIndex, inImageIndex, inZPlaneIndex, inChannelIndex)
+     |      Reads a z plane of an image into a numpy array
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inImageIndex: int
+     |          The Image index
      |      inZPlaneIndex: int
      |          The z plane number
      |      inChannelIndex: int
