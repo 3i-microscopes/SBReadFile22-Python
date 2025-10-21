@@ -482,9 +482,9 @@ class SBAccess(object):
                 raise Exception("GetOpenSlides: error")
             theId = theVals[0]
             thePath = self.Recv()
-            theDict[theId]= thePath
+            theDict[int(theId)]= thePath
 
-        return theDict
+        return dict(sorted(theDict.items()))
 
 
     def SetTargetSlide(self,inSlideId):

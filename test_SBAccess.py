@@ -1247,9 +1247,14 @@ def test_get_open_slides():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))
         theSbAccess = SBAccess(s)
+        slide_id = theSbAccess.GetCurrentSlideId()
+        print("Current Slide Id: ",slide_id)
         theDict = theSbAccess.GetOpenSlides()
         for id, path in theDict.items():
             print(f"{id} -> {path}")
+        data = input("Please hit Enter to continue after changing current slide in SlideBook:\n")
+        slide_id = theSbAccess.GetCurrentSlideId()
+        print("New Current Slide Id: ",slide_id)
 
 def test_aux_data():
     HOST = '127.0.0.1'  # The server's hostname or IP address
@@ -1362,9 +1367,9 @@ def main():
         #test_run_user_script()
         #test_xyz_saved_experiment_name()
         #test_xyz_montage()
-        #test_get_open_slides()
+        test_get_open_slides()
         #test_aux_data()
-        test_montage_timelapse()
+        #test_montage_timelapse()
     except Exception as e:
         print(f"Error: {e}")
     except: 
