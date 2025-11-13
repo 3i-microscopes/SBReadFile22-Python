@@ -113,7 +113,7 @@ class CSBFile70(object):
         if inTitle == None:
             return None
         theImageGroupDirectory = self.GetImageGroupDirectory(inTitle)
-        thePath = "%s%s%s_TP%07d%s" % ( theImageGroupDirectory, os.sep, "MaskData", inTimepoint, self.kBinaryFileSuffix)
+        thePath = "%s%s%s_TP%07d%s" % ( theImageGroupDirectory, os.sep, "MaskData", inTimepoint, self.kZBinaryFileSuffix)
         return thePath
 
     def GetHistogramDataFile(self, inTitle, inChannel, inTimepoint):

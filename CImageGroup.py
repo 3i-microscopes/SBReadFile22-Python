@@ -76,14 +76,17 @@ class CImageGroup(BaseDecoder):
         self.mAuxSInt64DataList = []
         self.mAuxXmlDataList = []
         self.mNpyHeader = None
+        self.mMaskNpyHeader = None
         self.mFile = inFile
         self.mImageTitle = inImageTitle
         self.mSingleTimepointFile = False
         self.mCompressor = CCompressionBase()
         self.mCompressionFlag = self.mCompressor.eCompressionNone
+        self.mMaskCompressor = CCompressionBase()
+        self.mMaskCompressionFlag = self.mCompressor.eCompressionNone
         self.mDebugPrint = False
-        self.mLastTimepoint = -1;
-        self.mLastChannel = -1;
+        self.mLastTimepoint = -1
+        self.mLastChannel = -1
 
     def IsSFMT(self,inPath):
         theStream = open(inPath,"rb")
@@ -612,6 +615,14 @@ class CImageGroup(BaseDecoder):
     def GetZPosition(self, inPosition, zplane):
         thePoint = self.mStagePositions[inPosition]
         return thePoint.mZ + self.GetInterplaneSpacing() * zplane
+
+    def GetMaskNames(self):
+        names = []
+        for record in self.mMaskRecordList:
+            names.append(record.mName)
+
+        return names
+
 
     def GetImageName(self):
         return self.mImageRecord.mName

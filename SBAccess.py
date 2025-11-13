@@ -240,6 +240,24 @@ class MicroscopeHardwareComponent(Enum):
 
     PMTController3 = 46
     """Third PMT controller."""
+
+class SequentialCaptureMode(Enum):
+    """
+    Enumeration of 6D Multicapture modes
+    """
+
+    Sequential = 0 
+    """Sequential (standard)."""
+
+    SequentialFreeRun = 1 
+    """Sequential (free run)"""
+
+    SequentialTriggered = 2
+    """Sequential (triggerd)"""
+
+    SequentialDirectToDisk = 3
+    """Sequential (direct to disk)"""
+
     
 #: Descriptions for each MicroscopeHardwareComponent enum member.
 
@@ -343,7 +361,7 @@ class SBAccess(object):
             if b == b'(':
                 continue
             if b == b')':
-                break;
+                break
 
             theRecvBuf += bytes(b)
         # parse the string
@@ -1415,6 +1433,80 @@ class SBAccess(object):
 
         return theFilterList
 
+    def GetFilterSetNames(self):
+        """ Gets the display names of the system filter sets
+
+        Parameters
+        ----------
+            none
+
+        Returns
+        -------
+        list
+            a list of filter set names
+        """
+        self.SendCommand('$GetFilterSetNames()')
+
+        theNum, theCount = self.Recv()
+        theFilterSetList = []
+        for theSetIndex in range(theCount[0]):
+            theSetName = self.Recv()
+            theFilterSetList.append(theSetName)
+
+        return theFilterSetList
+
+    def GetExperimentScriptNames(self):
+        """ Gets a list of the saved capture experiment script names
+
+        Parameters
+        ----------
+            none
+
+        Returns
+        -------
+        success
+            1 = success 0 = failure
+        list
+            a list of saved capture scripts
+        """
+        self.SendCommand('$GetExperimentScriptNames()')
+
+        theNum, theCount = self.Recv()
+        theExperimentList = []
+        for theSetIndex in range(theCount[0]):
+            theName = self.Recv()
+            theExperimentList.append(theName)
+
+        theNum, success = self.Recv()
+
+        return success, theExperimentList
+
+    def GetExperimentScriptData(self,inScriptName):
+        """ Gets a list of the saved capture experiment script names
+
+        Parameters
+        ----------
+       inScriptName: string
+            The script name to read
+
+        Returns
+        -------
+        int
+            1 for success, 0 for failure
+        string
+            The text of the capture script (core capture settings: channels, exposure times, 2d/3d settings, etc)
+        string 
+            The text of the capture preferences (advanced capture settings: photomanipulation, autofocus, TTL, etc)
+        """
+        l = len(inScriptName)
+        self.SendCommand('$GetExperimentScriptData(ExperimentName='+str(l)+':s)')
+        self.SendVal(inScriptName,'s')
+
+        theCoreCapturePrefs = self.Recv()
+        theAdvancedCapturePrefs = self.Recv()
+        success = self.Recv()
+
+        return success, theCoreCapturePrefs, theAdvancedCapturePrefs
 
     def GetMagnificationChangers(self):
         """ Gets the Magnification Changers
@@ -1942,8 +2034,30 @@ class SBAccess(object):
         if( theNum != 1 and theVals[0] != 1):
             raise Exception("WriteMaskPlaneBuf: error")
 
-
     # Live capture functions
+    def Start6DCaptureSequential(self,CaptureMode : SequentialCaptureMode, Repetitions):
+        """ Starts a 6d sequential capture
+        Parameters
+        ----------
+        CaptureMode: SequentialCaptureMode
+            Capture mode
+        Repetitions: Int
+            Number of repetitions
+
+        Returns
+        -------
+        int
+            the capture id. If the capture failed to start, return -1
+        """
+
+        self.SendCommand('$Start6DCaptureSequential(CaptureMode=i4,Repetitions=i4)')
+        self.SendVal(int(CaptureMode.value),'i4')
+        self.SendVal(int(Repetitions),'i4')
+        theNum,theVals = self.Recv()
+        if( theNum != 1 or theVals[0] == -1):
+            raise Exception("StartCapture: error")
+
+        return theVals[0]
 
     def StartCapture(self,inScriptName='Default'):
         """ Starts a capture with an optional script name
@@ -2749,14 +2863,15 @@ class SBAccess(object):
         else:
             return False
 
-    def GetXYZMontagePointList(self, PointIndex):
+    def GetXYZMontagePointList(self, PointIndex, CameraIndex, MicronsPerPixel):
         """ If the selected XYZ point is a montage this functions returns a list of XYZ1Z2 points in the montage for the current camera / lens configuration.
 
         Parameters
         ----------
         PointIndex : int
               Index in global experiment list (0 to GetXYZPointCount())
-
+        CameraIndex : int
+            
         Returns
        ----------
         NumPoints : int
@@ -2768,8 +2883,8 @@ class SBAccess(object):
         """
         arr = []
 
-        version = self.GetAPIVersion()
-        if (version < 47334):
+        isSupported = self.GetIsFunctionSupported('$GetXYZMontagePointList(PointIndex=i4)')
+        if (isSupported == False):
             return 0, arr, False
 
         self.SendCommand('$GetXYZMontagePointList(PointIndex=i4)')
@@ -2868,24 +2983,67 @@ class SBAccess(object):
         else:
             return theNumPoints[0], False
 
-    def GetAPIVersion(self):
-        """ Returns the current SlideBook build version
+    def GetIsCommandSupported(self,Command):
+        """ Returns the current SlideBook build version information
+
+                Parameters
+                ----------
+                Command : string
+                    The Synergy command
+                Returns
+                -------
+                Supported : bool
+                    True if the command is supported by the current system, false if the command is not supported (version old / API mis-match)
+                Authorized : bool
+                    True if the current hardware protection key authorizes the command, false if the command is not authorized
+                """
+        l = len(Command)
+        self.SendCommand('$GetIsCommandSupported(Command='+str(l)+':s)')
+        self.SendVal(Command, 's')
+        theNum, isSupported = self.Recv()
+
+        if(isSupported[0] > 0):
+            return True
+        else:
+            return False
+
+    def GetSlideBookVersion(self):
+
+        """ Returns the current SlideBook build version information
 
         Parameters
         ----------
         Returns
         -------
-        Build Version : Int
-            Returns the current build version of the connected SlideBook
+        Major Version : Int
+            Major version
+        Minor Version : Int
+            Minor version
+        Build : Int
+            Build
+        Serial : Int
+            SlideBook hardware protection key serial number
         """
 
-        self.SendCommand('$GetAPIVersion()')
+        self.SendCommand('$GetSlideBookVersion()')
 
-        theNum,theVals = self.Recv()
+        theNum, theMajor = self.Recv()
         if (theNum != 1):
-            raise Exception("GetAPIVersion: failed")
+            raise Exception("GetSlideBookVersion: failed (major)")
 
-        return theVals[0]
+        theNum, theMinor = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetSlideBookVersion: failed (minor)")
+
+        theNum, theBuild = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetSlideBookVersion: failed (build)")
+
+        theNum, theSerial = self.Recv()
+        if (theNum != 1):
+            raise Exception("GetSlideBookVersion: failed (serial)")
+
+        return theMajor, theMinor, theBuild, theSerial
 
     def AddXYZPoint(self,inXum,inYum,inZum,inAuxZum=0,inIsAuxZ=False):
         """ Adds a point to the Focus Window XY Tab
@@ -3097,6 +3255,23 @@ class SBAccess(object):
         """
 
         return self.SendStringParam('FocusWindowMainSelectFilterSet',inStringParam)
+
+    def FocusWindowMainSelectFilterSetIndex(self,inIntParam):
+        """ Selects a string in the Filter Set ComboBox of the Focus Window
+
+        Parameters
+        ----------
+        inIntParam: int
+            Filter set index (0 - 11)
+
+        Returns
+        -------
+        int
+            1 if is succesful, 0 otherwise (e.g. invalid index)
+        
+        """
+
+        return self.SendIntParam('FocusWindowMainSelectFilterSetIndex',inIntParam)
 
     def FocusWindowMainSelectLaserPower(self,inStringParam):
         """ Selects a string in the Laser Power ComboBox of the Focus Window

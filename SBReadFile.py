@@ -27,7 +27,7 @@ class SBReadFile(object):
 
     # All access functions as in SBReadFile.h
 
-    def Open(self,inPath,All=True):
+    def Open(self,inPath,inAll=True,inDebugPrint=False):
         """Open a SlideBook file and loads the Metadata
 
         Parameters
@@ -41,7 +41,7 @@ class SBReadFile(object):
         """
 
         self.mDL = DataLoader(inPath)
-        res = self.mDL.LoadMetadata(All)
+        res = self.mDL.LoadMetadata(inAll,inDebugPrint)
         return res
 
 
@@ -648,6 +648,24 @@ class SBReadFile(object):
         theImageGroup = self.mDL.GetImageGroup(inCaptureIndex)
         return theImageGroup.GetThumbnail()
 
+    def GetMaskNames(self,inCaptureIndex):
+        """ Gets the names of the masks in an image group
+
+        Parameters
+        ----------
+        inCaptureIndex: int
+            The index of the image group. Must be in range(0,number of captures)
+
+        Returns
+        -------
+        list of str
+            The list of mask names in the image group
+        """
+
+        self.mDL.CheckCaptureIndex(inCaptureIndex)
+        theImageGroup = self.mDL.GetImageGroup(inCaptureIndex)
+        return theImageGroup.GetMaskNames()
+
     def ReadImagePlaneBuf(self,inCaptureIndex,inPositionIndex,inTimepointIndex,inZPlaneIndex,inChannelIndex,inAs2D=False):
         """ Reads a z plane of an image into a numpy array
 
@@ -676,6 +694,32 @@ class SBReadFile(object):
 
         self.mDL.CheckCaptureIndex(inCaptureIndex)
         return self.mDL.ReadPlane(inCaptureIndex,  inPositionIndex, inTimepointIndex, inZPlaneIndex, inChannelIndex,inAs2D)
+
+    def ReadMaskBuf(self,inCaptureIndex,inMaskIndex,inTimepointIndex,inAs3D=False):
+        """ Reads a full stack of a mask into a numpy array
+
+        Parameters
+        ----------
+        inCaptureIndex: int
+            The index of the image group. Must be in range(0,number of captures)
+        inMaskIndex: int
+            The mask index
+        inTimepointIndex: int
+            The time point
+        inAs3D: bool, optional
+            if True, returna 3D array,nz,ny,nx, otherwise (default) returna 1D array
+
+        Returns
+        -------
+        numpy uint16 array 
+            The image is returned as 1D numpy uint16 array if inAs3D is false
+            Otherwise is returned as a 3D array of (nz,ny,nx)
+
+        """
+
+        self.mDL.CheckCaptureIndex(inCaptureIndex)
+        return self.mDL.ReadMaskBuf(inCaptureIndex,  inMaskIndex, inTimepointIndex, inAs3D)
+
 
     def GetAuxDataXMLDescriptor(self,inCaptureIndex,inChannelIndex):
         """ Gets the Auxiliary Data XML Descriptor for an image group and a channel

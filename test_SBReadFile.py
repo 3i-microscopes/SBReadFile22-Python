@@ -6,29 +6,9 @@ from matplotlib import pyplot as plt
 import numpy as np
 import sys, getopt
 
-def main(argv):
+def test_read_image(theFileName):
+
     theSBFileReader = SBReadFile()
-
-    # change it to use your file
-    #theSBFileReader.Open("/media/sf_E_DRI VE/Data/Slides/Format 7/SlideBook BCG test data/Slide1.sld")
-    if len(sys.argv) < 3:
-        print ('usage: python test_SBReadFile.py -i <inputfile>')
-        sys.exit(2)
-
-    theFileName = ''
-    try:
-        opts, args = getopt.getopt(argv,"hi:",["ifile="])
-    except getopt.GetoptError:
-        print ('usage: python test_SBReadFile.py -i <inputfile>')
-        sys.exit(2)
-    for opt, arg in opts:
-        if opt == '-h':
-            print ('usage: python test_SBReadFile.py -i <inputfile>')
-            sys.exit()
-        elif opt in ("-i", "--ifile"):
-            theFileName = arg
-    print ('Input file is ', theFileName)
-
     theRes = theSBFileReader.Open(theFileName)
     if not theRes:
         #print ('Cannot open the file: ', theFileName)
@@ -107,6 +87,56 @@ def main(argv):
     plt.pause(100)
     data = input("Please hit Enter to exit:\n")
     print("Done")
+
+def test_read_mask(theFileName):
+    theSBFileReader = SBReadFile()
+    theRes = theSBFileReader.Open(theFileName,True,False) # all the metadata, dubug print
+    if not theRes:
+        #print ('Cannot open the file: ', theFileName)
+        sys.exit()
+
+    theCapture = 0
+    theNumRows = theSBFileReader.GetNumYRows(theCapture)
+    theNumColumns = theSBFileReader.GetNumXColumns(theCapture)
+    theNumPlanes = theSBFileReader.GetNumZPlanes(theCapture)
+    mask_names = theSBFileReader.GetMaskNames(theCapture)
+    print("Mask Names")
+    print(mask_names)
+    theTimepoint = 0
+
+    mask = theSBFileReader.ReadMaskBuf(theCapture,0,theTimepoint,True) #captureid,mask index,timepoint,as3d
+    plt.figure(theTimepoint+1)
+    plt.imshow(mask[0,:,:])
+    plt.pause(1)
+    data = input("Please hit Enter to exit:\n")
+    print("Done")
+
+
+
+def main(argv):
+
+    # change it to use your file
+    #theSBFileReader.Open("/media/sf_E_DRI VE/Data/Slides/Format 7/SlideBook BCG test data/Slide1.sld")
+    if len(sys.argv) < 3:
+        print ('usage: python test_SBReadFile.py -i <inputfile>')
+        sys.exit(2)
+
+    theFileName = ''
+    try:
+        opts, args = getopt.getopt(argv,"hi:",["ifile="])
+    except getopt.GetoptError:
+        print ('usage: python test_SBReadFile.py -i <inputfile>')
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == '-h':
+            print ('usage: python test_SBReadFile.py -i <inputfile>')
+            sys.exit()
+        elif opt in ("-i", "--ifile"):
+            theFileName = arg
+    print ('Input file is ', theFileName)
+
+    #test_read_image(theFileName)
+    test_read_mask(theFileName)
 
 
 if __name__ == "__main__":

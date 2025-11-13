@@ -122,7 +122,11 @@ class CCompressionBase(object):
         theUncompressedBuf = self.DecompressBuffer(ouBuf)
 
 
-        if len(theUncompressedBuf) != self.mNumX * self.mNumY *self.mUint16Size :
-            raise NameError("Error in decoding")
+        if self.mNumBlocks == 0:
+            if theUncompressedBuf.nbytes != self.mNumX * self.mNumY * self.mUint16Size :
+                raise NameError("Error in decoding")
+        else:
+            if theUncompressedBuf.nbytes != self.mNumX * self.mNumY * self.mNumZ * self.mUint16Size :
+                raise NameError("Error in decoding")
 
         return theUncompressedBuf

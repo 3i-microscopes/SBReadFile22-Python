@@ -54,7 +54,7 @@ class DataLoader(object):
         inputStream.close()
         return res
 
-    def LoadMetadata(self,All=True):
+    def LoadMetadata(self,inAll=True,inDebugPrint=False):
         try:
             theResult = self.ReadSld()
 
@@ -70,7 +70,8 @@ class DataLoader(object):
             theImageGroupIndex = 0
             for theImageTitle in  theImageTitles:
                 theImageGroup = CImageGroup(self.mFile,theImageTitle)
-                theResult = theImageGroup.Load(All)
+                theImageGroup.mDebugPrint = inDebugPrint
+                theResult = theImageGroup.Load(inAll)
                 if theResult:
                     self.mCImageGroupList.append(theImageGroup)
                 else:
@@ -170,3 +171,100 @@ class DataLoader(object):
 
     def CloseFile(self):
         return True
+
+    def ReadMaskBuf(self, inCaptureId, inMaskIndex,inTimepointIndex, inAs3D=False):
+        #print("ReadPlane: inTimepointIndex: " , inTimepointIndex)
+        #print("ReadPlane: inMaskIndex: " , inMaskIndex)
+        theImageGroup = self.GetImageGroup(inCaptureId)
+        theSbTimepointIndex = inTimepointIndex
+        thePath = theImageGroup.mFile.GetMaskDataFile(theImageGroup.mImageTitle, theSbTimepointIndex)
+        theNumRows = theImageGroup.GetNumRows()
+        theNumColumns = theImageGroup.GetNumColumns()
+        theNumPlanes = theImageGroup.GetNumPlanes()
+        theMaskSize = theNumRows * theNumColumns * theNumPlanes
+
+        if thePath not in self.mPathToStreamMap:
+            if len(self.mCounterToPathMap) > self.kMaxNumberOpenFiles:
+                theKeyValue = next(iter(self.mCounterToPathMap.values()))  # gets the first value
+                theKeyPath = self.mCounterToPathMap.get(theKeyValue)
+                if theKeyPath != None:
+                    theKeyStream = mPathToStreamMap.get(theKeyPath)
+                    if theKeyStream != None:
+                        theKeyStream.close()
+                        del self.mCounterToPathMap[theKeyValue]
+                        del self.mPathToStreamMap[theKeyPath]
+            try:
+                theStream = open(thePath,"rb")
+            except:
+                self.mErrorMessage += "Could not open file: " + thePath
+                theNpBuf = np.zeros(theMaskSize,dtype=np.uint16);
+                if inAs3D:
+                    theNpBuf = theNpBuf.reshape(theNumPlanes,theNumRows,theNumColumns)
+                return theNpBuf
+            if theImageGroup.mMaskNpyHeader == None or inTimepointIndex != theImageGroup.mLastTimepoint:
+                #theImageGroup.mLastTimepoint = inTimepointIndex
+                #theImageGroup.mLastChannel = inChannelIndex
+                theImageGroup.mMaskNpyHeader = CNpyHeader()
+                theRes = theImageGroup.mMaskNpyHeader.ParseNpyHeader( theStream)
+                if not theRes:
+                    return False
+                theNumDim = len(theImageGroup.mMaskNpyHeader.mShape)
+                theNumBlocks = 0
+                j = 0
+                if theNumDim == 4:
+                    theNumBlocks = theImageGroup.mMaskNpyHeader.mShape[j]
+                    j += 1
+
+                theNumMaskPlanes = theImageGroup.mMaskNpyHeader.mShape[j]
+                theNumMaskRows = theImageGroup.mMaskNpyHeader.mShape[j+1]
+                theNumMaskColumns = theImageGroup.mMaskNpyHeader.mShape[j+2]
+                theCompressionFlag = theImageGroup.mMaskNpyHeader.mCompressionFlag
+                if theNumMaskPlanes != theNumPlanes or theNumMaskRows != theNumRows or theNumMaskColumns != theNumColumns:
+                    s = f"""
+                    Error: Mask Size does not match Image size:
+                    Num Mask Planes = {theNumMaskPlanes},
+                    Num Image Planes = {theNumPlanes}
+                    Num Mask Rows = {theNumMaskRows},
+                    Num Image Rows = {theNumRows}
+                    Num Mask Columns = {theNumMaskColumns},
+                    Num Image Columns = {theNumColumns}
+                    """
+                    self.mErrorMessage += s
+                    theNpBuf = np.zeros(theMaskSize,dtype=np.uint16);
+                    if inAs3D:
+                        theNpBuf = theNpBuf.reshape(theNumPlanes,theNumRows,theNumColumns)
+
+                if theCompressionFlag == 0:
+                    self.mErrorMessage += "Error: Mask File: " + thePath + " is not compressed"
+                    theNpBuf = np.zeros(theMaskSize,dtype=np.uint16);
+                    if inAs3D:
+                        theNpBuf = theNpBuf.reshape(theNumPlanes,theNumRows,theNumColumns)
+                    return theNpBuf
+
+
+                theImageGroup.mMaskCompressor = CCompressionBase()
+                if theNumDim == 4:
+                    theImageGroup.mMaskCompressor.InitializeEx(theImageGroup.mMaskNpyHeader.mHeaderSize,theImageGroup.mMaskNpyHeader.mCompressionFlag,theNumMaskColumns,theNumMaskRows,theNumMaskPlanes,theNumBlocks,0)
+                else:
+                    theImageGroup.mMaskCompressor.Initialize(theImageGroup.mMaskNpyHeader.mHeaderSize,theImageGroup.mMaskNpyHeader.mCompressionFlag,theNumMaskColumns,theNumMaskRows,theNumMaskPlanes,0)
+
+                theImageGroup.mMaskCompressor.ReadDictionary(theStream)
+
+            self.mPathToStreamMap[thePath] = theStream
+            self.mCounterToPathMap[self.mCurrentFileCounter] = thePath
+            self.mCurrentFileCounter += 1
+        else:
+            theStream = self.mPathToStreamMap[thePath]
+
+        ouBuf = theImageGroup.mMaskCompressor.ReadData(theStream,inMaskIndex)
+
+        if len(ouBuf) < theMaskSize:
+            self.mErrorMessage += "Could not read the mask for path: " + thePath + "length found: " + str(len(ouBuf))
+            theNpBuf = np.zeros(theMaskSize,dtype=np.uint16);
+        else:
+            theNpBuf = np.frombuffer(ouBuf,dtype=np.uint16)
+        if inAs3D:
+            theNpBuf = theNpBuf.reshape(theNumPlanes,theNumRows,theNumColumns)
+
+
+        return theNpBuf

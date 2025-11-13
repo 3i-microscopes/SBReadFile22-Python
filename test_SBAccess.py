@@ -391,6 +391,18 @@ def test_send_mask():
 
         return
 
+def test_start_6d_seq_capture():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+    #title = "Timepoint: {tp:6d}, Mean: {mn:.1f}"
+    title = "Timepoint: {tp:6d}"
+    testStop = False
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+
+        theSbAccess = SBAccess(s)
+        theCapture = theSbAccess.Start6DCaptureSequential(SequentialCaptureMode.SequentialDirectToDisk, 1);
+
 def test_start_capture():
     HOST = '127.0.0.1'  # The server's hostname or IP address
     #title = "Timepoint: {tp:6d}, Mean: {mn:.1f}"
@@ -1255,6 +1267,48 @@ def test_get_open_slides():
         data = input("Please hit Enter to continue after changing current slide in SlideBook:\n")
         slide_id = theSbAccess.GetCurrentSlideId()
         print("New Current Slide Id: ",slide_id)
+       
+def test_command_supported():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+        major, minor, build, theSerial = theSbAccess.GetSlideBookVersion();
+        isSupported = theSbAccess.GetIsCommandSupported("GetSlideBookVersion")
+        print("Is supported:", isSupported)
+
+def test_experiment_get_set():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+        success, theNames = theSbAccess.GetExperimentScriptNames();
+        for i, theName in enumerate(theNames, start=1):
+            print(f"Set {i}: {theName}")
+
+
+        if theNames:
+            success, core, advanced = theSbAccess.GetExperimentScriptData(theNames[0])
+        else:
+            print("No experiments are available")
+
+        success, core, advanced = theSbAccess.GetExperimentScriptData("invalid name")
+        print(f"success: {success}")
+
+def test_filter_sets():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+        theSets = theSbAccess.GetFilterSetNames()
+        for i, word in enumerate(theSets, start=1):
+            print(f"Set {i}: {word}")
+        theSbAccess.FocusWindowMainSelectFilterSetIndex(1);
+        theSbAccess.FocusWindowMainSelectFilterSetIndex(0);
+        theSbAccess.FocusWindowMainSelectFilterSetIndex(2);
 
 def test_aux_data():
     HOST = '127.0.0.1'  # The server's hostname or IP address
@@ -1335,6 +1389,7 @@ def main():
         #test_plot_3dstack()
         #test_plot_current_capture()
         #test_start_capture()
+        test_start_6d_seq_capture()
         #test_add_new_channel()
         #test_copy_capture()
         #set_xyz_point_in_focus_xy_tab()
@@ -1367,7 +1422,10 @@ def main():
         #test_run_user_script()
         #test_xyz_saved_experiment_name()
         #test_xyz_montage()
-        test_get_open_slides()
+        #test_get_open_slides()
+        #test_experiment_get_set()
+        #test_command_supported()
+        #test_filter_sets()
         #test_aux_data()
         #test_montage_timelapse()
     except Exception as e:
