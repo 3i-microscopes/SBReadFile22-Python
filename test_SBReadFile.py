@@ -75,7 +75,7 @@ def test_read_image(theFileName):
     theNumColumns = theSBFileReader.GetNumXColumns(theCapture)
     theNumPlanes = theSBFileReader.GetNumZPlanes(theCapture)
     theZplane = int(theNumPlanes/2)
-    for theTimepoint in range(0,theNumTimepoints):
+    for theTimepoint in range(0,theNumTimepoints,max(1,int(theNumTimepoints/3))):
         image = theSBFileReader.ReadImagePlaneBuf(theCapture,0,theTimepoint,theZplane,0,True) #captureid,position,timepoint,zplane,channel,as 2d
         print ("*** The read buffer len is: " , len(image))
 
@@ -83,8 +83,8 @@ def test_read_image(theFileName):
 
         plt.figure(theTimepoint+1)
         plt.imshow(image)
+        plt.pause(0.1)
 
-    plt.pause(100)
     data = input("Please hit Enter to exit:\n")
     print("Done")
 
@@ -135,8 +135,8 @@ def main(argv):
             theFileName = arg
     print ('Input file is ', theFileName)
 
-    #test_read_image(theFileName)
-    test_read_mask(theFileName)
+    test_read_image(theFileName)
+    #test_read_mask(theFileName)
 
 
 if __name__ == "__main__":

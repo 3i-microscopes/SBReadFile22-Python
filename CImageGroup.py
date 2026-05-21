@@ -8,6 +8,7 @@ from CSBFile70 import *
 from CCompressionBase import *
 from CSBPoint import *
 import os
+import traceback
 import yaml
 import numpy as np
 
@@ -178,6 +179,12 @@ class CImageGroup(BaseDecoder):
                 return False
             if self.mDebugPrint:
                 print ("CountImageDataFiles: OK ")
+        except Exception as e:
+            #print(f"Error: {e}")
+            print ("CImageGroup::LoadImageRecord: Did not succeed")
+            print(f"error type: {type(e).__name__}")
+            print(f"error repr: {e!r}")
+            traceback.print_exc()
         except: 
             print ("LoadImageRecord: Did not succeed ")
         return True
@@ -238,6 +245,12 @@ class CImageGroup(BaseDecoder):
                         break
 
                 theChannel += 1
+        except Exception as e:
+            #print(f"Error: {e}")
+            print ("CImageGroup::LoadChannelRecord error")
+            print(f"error type: {type(e).__name__}")
+            print(f"error repr: {e!r}")
+            traceback.print_exc()
         except:
             print ("CImageGroup::LoadChannelRecord error")
         return True
@@ -286,6 +299,12 @@ class CImageGroup(BaseDecoder):
                     theLastIndex += 1
                     self.mMaskPosList.append(thePos)
 
+        except Exception as e:
+            #print(f"Error: {e}")
+            print ("CImageGroup::LoadMask error")
+            print(f"error type: {type(e).__name__}")
+            print(f"error repr: {e!r}")
+            traceback.print_exc()
         except:
             print ("CImageGroup::LoadMask error")
         return True
@@ -293,6 +312,7 @@ class CImageGroup(BaseDecoder):
     def LoadAnnotations(self):
         try:
             thePath = self.mFile.GetImageGroupDirectory(self.mImageTitle) + os.sep +  self.mFile.kAnnotationRecordFilename
+            self.DetectYamlEncoding(thePath)
             inputStream = open(thePath,"r")
             theNode = yaml.compose(inputStream)
 
@@ -334,8 +354,16 @@ class CImageGroup(BaseDecoder):
                     theAnnotationIndex += 1
                 self.mAnnotationList.append(theAnno)
 
+        except Exception as e:
+            #print(f"Error: {e}")
+            print ("CImageGroup::LoadAnnotations error")
+            print(f"error type: {type(e).__name__}")
+            print(f"error repr: {e!r}")
+            traceback.print_exc()
         except:
             print ("CImageGroup::LoadAnnotations error")
+
+        BaseDecoder.Encoding = self.kEncodingAscii
         return True
 
     def LoadElapsedTimes(self):
@@ -351,6 +379,12 @@ class CImageGroup(BaseDecoder):
                 return False
             theCurrentNode = theTuple[1]
             self.mElapsedTimes = self.GetIntArray(theCurrentNode, "theElapsedTimes", True)
+        except Exception as e:
+            #print(f"Error: {e}")
+            print ("CImageGroup::LoadElapsedTimes error")
+            print(f"error type: {type(e).__name__}")
+            print(f"error repr: {e!r}")
+            traceback.print_exc()
         except:
             print ("CImageGroup::LoadElapsedTimes error")
         return True
@@ -376,6 +410,12 @@ class CImageGroup(BaseDecoder):
                 self.mSAPositionList.append(theSAPositionsvector)
                 theLastIndex += 1
                 theImageIndex += 1
+        except Exception as e:
+            #print(f"Error: {e}")
+            print ("CImageGroup::LoadSAPositions error")
+            print(f"error type: {type(e).__name__}")
+            print(f"error repr: {e!r}")
+            traceback.print_exc()
         except:
             print ("CImageGroup::LoadSAPositions error")
         return True
@@ -406,6 +446,12 @@ class CImageGroup(BaseDecoder):
                 thePoint.mY = thePoints[theP + 1]
                 thePoint.mZ = thePoints[theP + 2]
                 self.mStagePositions.append(thePoint)
+        except Exception as e:
+            #print(f"Error: {e}")
+            print ("CImageGroup::LoadStagePosition error")
+            print(f"error type: {type(e).__name__}")
+            print(f"error repr: {e!r}")
+            traceback.print_exc()
         except:
             print ("CImageGroup::LoadStagePosition error")
         return True
@@ -479,8 +525,8 @@ class CImageGroup(BaseDecoder):
                 theKey = theKeyNode[0].value
                 if not theKey == "theAuxData":
                     return False
-                theAux.mSInt32Data = self.GetIntArray(theCurrentNode, "theAuxSInt32Data", True)
                 theCurrentNode = theKeyNode[1]
+                theAux.mSInt32Data = self.GetIntArray(theCurrentNode, "theAuxSInt32Data", True)
                 theLastIndex += 1
                 self.mAuxSInt32DataList.append(theAux)
 
@@ -526,6 +572,12 @@ class CImageGroup(BaseDecoder):
                 if theLastIndex < 0:
                     return True
                 self.mAuxXmlDataList.append(theAux)
+        except Exception as e:
+            #print(f"Error: {e}")
+            print ("CImageGroup::LoadAuxData error")
+            print(f"error type: {type(e).__name__}")
+            print(f"error repr: {e!r}")
+            traceback.print_exc()
         except:
             print ("CImageGroup::LoadAuxData error")
         return True

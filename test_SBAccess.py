@@ -9,6 +9,7 @@ import time
 import random
 from matplotlib import pyplot as plt
 from SBAccess import *
+import traceback
 #from io import StringIO
 
 #HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
@@ -210,11 +211,18 @@ def test_new_slide():
 
         theOutCaptureIndex = theSbAccess.CreateImageGroup('Made By Python 2',theNumChannels,theNumPlanes,theNumRows,theNumColumns,1)
 
+        test_output_array = 1
+        if test_output_array == 1:
+            image = np.empty(theNumRows*theNumColumns,np.uint16)
         for theZPlane in range(theNumPlanes):
             for theChannel in range(theNumChannels):
                 #access the input slide
                 theSbAccess.SetTargetSlide(theInpSlideId)
-                image = theSbAccess.ReadImagePlaneBuf(theInpCaptureIndex,0,0,theZPlane,theChannel) #captureid,position,timepoint,zplane,channel
+                if test_output_array == 1:
+                    res = theSbAccess.ReadImagePlaneBuf(theInpCaptureIndex,0,0,theZPlane,theChannel,image) #captureid,position,timepoint,zplane,channel, ouArr
+                else:
+                    image = theSbAccess.ReadImagePlaneBuf(theInpCaptureIndex,0,0,theZPlane,theChannel) #captureid,position,timepoint,zplane,channel
+
                 #access the output slide
                 theSbAccess.SetTargetSlide(theOutSlideId)
                 theSbAccess.WriteImagePlaneBuf(theOutCaptureIndex,0,theZPlane,theChannel,image) #CaptureIndex,TimepointIndex,ZPlaneIndex,ChannelIndex,ByteArray
@@ -269,9 +277,152 @@ def test_plot_3dstack():
     HOST = '127.0.0.1'  # The server's hostname or IP address
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT)) # connect to host port
+        theSbAccess = SBAccess(s) # create a SBaccess object
+        theSbAccess.Open("E:\Data\Slides_msi\QweekTour.sldy")  #open a slide
+
+        theNumCaptures = theSbAccess.GetNumCaptures()  #get the number of image froups in the slide 
+        for theCapture in range(theNumCaptures):
+            theImageName = theSbAccess.GetImageName(theCapture) #get the image name
+            print('the image name for capture: ',theCapture,' is: ',theImageName)
+            theNumX = theSbAccess.GetNumXColumns(theCapture) #get the number of columns
+            print('    the num X: ',theNumX)
+
+        theCapture = 0  # work with the first image
+        theNumRows = theSbAccess.GetNumYRows(theCapture)    # get the number f rows
+        theNumColumns = theSbAccess.GetNumXColumns(theCapture) #get the number of columns
+        theNumPlanes = theSbAccess.GetNumZPlanes(theCapture) #get the number of planes
+        theVoxelX,theVoxelY,theVoxelZ = theSbAccess.GetVoxelSize(theCapture) # get the voxel sizes
+        theNumChannels = theSbAccess.GetNumChannels(theCapture) #get the number of channels
+        for theChannel in range(theNumChannels):
+            name = theSbAccess.GetChannelName(theCapture,theChannel) #get each channel name and pront it
+            print('Channel Name: ',name)
+
+
+        for theZPlane in range(theNumPlanes):   #loop over each plane
+            image = theSbAccess.ReadImagePlaneBuf(theCapture,0,0,theZPlane,0) #read a plane, arguments are: capture id,position,timepoint,zplane,channel
+            print ("*** theZPlane: ",theZPlane," The read buffer len is: " , len(image))
+            image = image.reshape(theNumRows,theNumColumns) # reshape the image as a 2D array
+
+            #plot the slice
+
+            plt.imshow(image)
+            plt.pause(0.001)
+
+        data = input("Please hit Enter to exit:\n")
+        print("Done")
+
+
+        return
+
+def test_read_all_planes_into_np():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT)) # connect to host port
+        theSbAccess = SBAccess(s) # create a SBaccess object
+        #theSbAccess.Open("E:\Data\Slides_msi\QweekTour.sldy")  #open a slide
+        slide_id = theSbAccess.GetCurrentSlideId()
+
+        theNumCaptures = theSbAccess.GetNumCaptures()  #get the number of image froups in the slide 
+        for theCapture in range(theNumCaptures):
+            theImageName = theSbAccess.GetImageName(theCapture) #get the image name
+            print('the image name for capture: ',theCapture,' is: ',theImageName)
+            theNumX = theSbAccess.GetNumXColumns(theCapture) #get the number of columns
+            print('    the num X: ',theNumX)
+
+        theCapture = 0  # work with the first image
+        theNumRows = theSbAccess.GetNumYRows(theCapture)    # get the number f rows
+        theNumColumns = theSbAccess.GetNumXColumns(theCapture) #get the number of columns
+        theNumPlanes = theSbAccess.GetNumZPlanes(theCapture) #get the number of planes
+        theVoxelX,theVoxelY,theVoxelZ = theSbAccess.GetVoxelSize(theCapture) # get the voxel sizes
+        theNumChannels = theSbAccess.GetNumChannels(theCapture) #get the number of channels
+        for theChannel in range(theNumChannels):
+            name = theSbAccess.GetChannelName(theCapture,theChannel) #get each channel name and pront it
+            print('Channel Name: ',name)
+
+        image = np.empty(theNumRows*theNumColumns*theNumPlanes,np.uint16)
+        t0 = time.perf_counter()
+        theSbAccess.ReadAllImagePlanes(theCapture,0,0,True,image) #read a plane, arguments are: capture id,image index,channel, readInOneScoop
+        t1 = time.perf_counter()
+        print(f"Elapsed time: {t1 - t0:.3f} s")
+
+        image = image.reshape(theNumPlanes,theNumRows,theNumColumns) # reshape the image as a 2D array
+
+
+        for theZPlane in range(0,theNumPlanes,int(theNumPlanes/10)):   #loop over each plane
+            print ("*** theZPlane: ",theZPlane," The read buffer len is: " , len(image))
+
+            #plot the slice
+            slice = image[theZPlane,:,:]
+
+            plt.figure()
+            plt.imshow(slice)
+            plt.pause(0.001)
+
+        data = input("Please hit Enter to exit:\n")
+        print("Done")
+
+
+        return
+
+def test_read_all_planes():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT)) # connect to host port
+        theSbAccess = SBAccess(s) # create a SBaccess object
+        #theSbAccess.Open("E:\Data\Slides_msi\QweekTour.sldy")  #open a slide
+        slide_id = theSbAccess.GetCurrentSlideId()
+
+        theNumCaptures = theSbAccess.GetNumCaptures()  #get the number of image froups in the slide 
+        for theCapture in range(theNumCaptures):
+            theImageName = theSbAccess.GetImageName(theCapture) #get the image name
+            print('the image name for capture: ',theCapture,' is: ',theImageName)
+            theNumX = theSbAccess.GetNumXColumns(theCapture) #get the number of columns
+            print('    the num X: ',theNumX)
+
+        theCapture = 0  # work with the first image
+        theNumRows = theSbAccess.GetNumYRows(theCapture)    # get the number f rows
+        theNumColumns = theSbAccess.GetNumXColumns(theCapture) #get the number of columns
+        theNumPlanes = theSbAccess.GetNumZPlanes(theCapture) #get the number of planes
+        theVoxelX,theVoxelY,theVoxelZ = theSbAccess.GetVoxelSize(theCapture) # get the voxel sizes
+        theNumChannels = theSbAccess.GetNumChannels(theCapture) #get the number of channels
+        for theChannel in range(theNumChannels):
+            name = theSbAccess.GetChannelName(theCapture,theChannel) #get each channel name and pront it
+            print('Channel Name: ',name)
+
+        t0 = time.perf_counter()
+        image = theSbAccess.ReadAllImagePlanes(theCapture,0,0,False) #read a plane, arguments are: capture id,image index,channel, readInOneScoop
+        t1 = time.perf_counter()
+        print(f"Elapsed time: {t1 - t0:.3f} s")
+
+        image = image.reshape(theNumPlanes,theNumRows,theNumColumns) # reshape the image as a 2D array
+
+
+        for theZPlane in range(0,theNumPlanes,int(theNumPlanes/1)):   #loop over each plane
+            print ("*** theZPlane: ",theZPlane," The read buffer len is: " , len(image))
+
+            #plot the slice
+            slice = image[theZPlane,:,:]
+
+            plt.figure()
+            plt.imshow(slice)
+            plt.pause(0.001)
+
+        data = input("Please hit Enter to exit:\n")
+        print("Done")
+
+
+        return
+
+def test_write_all_planes():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))
         theSbAccess = SBAccess(s)
-        theSbAccess.Open("E:\Data\Slides_msi\QweekTour.sldy");
+        theInpSlideId = theSbAccess.Open("E:\Data\Slides_msi\QweekTour.sldy");
 
         theNumCaptures = theSbAccess.GetNumCaptures()
         for theCapture in range(theNumCaptures):
@@ -280,35 +431,28 @@ def test_plot_3dstack():
             theNumX = theSbAccess.GetNumXColumns(theCapture)
             print('    the num X: ',theNumX)
 
-        theCapture = 0;
-        theNumRows = theSbAccess.GetNumYRows(theCapture)
-        theNumColumns = theSbAccess.GetNumXColumns(theCapture)
-        theNumPlanes = theSbAccess.GetNumZPlanes(theCapture)
-        theVoxelX,theVoxelY,theVoxelZ = theSbAccess.GetVoxelSize(theCapture)
-        theNumChannels = theSbAccess.GetNumChannels(theCapture)
-        for theChannel in range(theNumChannels):
-            name = theSbAccess.GetChannelName(theCapture,theChannel)
-            print('Channel Name: ',name)
+        theInpCaptureIndex = 0;
+        theNumRows = theSbAccess.GetNumYRows(theInpCaptureIndex)
+        theNumColumns = theSbAccess.GetNumXColumns(theInpCaptureIndex)
+        theNumPlanes = theSbAccess.GetNumZPlanes(theInpCaptureIndex)
+        theNumChannels = theSbAccess.GetNumChannels(theInpCaptureIndex)
+
+        t0 = time.perf_counter()
+        image = theSbAccess.ReadAllImagePlanes(theInpCaptureIndex,0,0,True) #read a plane, arguments are: capture id,image index,channel, readInOneScoop
+        t1 = time.perf_counter()
+        theOutSlideId = theSbAccess.CreateNewSlide()
+        theOutCaptureIndex = theSbAccess.CreateImageGroup('Made By Python 2',theNumChannels,theNumPlanes,theNumRows,theNumColumns,1)
+        theSbAccess.WriteAllImagePlanes(theOutCaptureIndex,0,0,image)
 
 
-        the3DVolume = np.empty(theNumRows*theNumColumns*theNumPlanes,np.uint16)
-        for theZPlane in range(theNumPlanes):
-            image = theSbAccess.ReadImagePlaneBuf(theCapture,0,0,theZPlane,0) #captureid,position,timepoint,zplane,channel
-            # np.insert(the3DVolume,theNumRows*theNumColumns,image)
-            print ("*** theZPlane: ",theZPlane," The read buffer len is: " , len(image))
-            image = image.reshape(theNumRows,theNumColumns)
 
-            #plot the slice
 
-            plt.imshow(image)
-            plt.pause(0.001)
-
-        #the3DVolume = the3DVolume.reshape(theNumRows,theNumColumns,theNumPlanes
         data = input("Please hit Enter to exit:\n")
         print("Done")
 
 
         return
+
 def test_plot_mask():
     HOST = '127.0.0.1'  # The server's hostname or IP address
 
@@ -360,7 +504,7 @@ def test_send_mask():
         s.connect((HOST, PORT))
         theSbAccess = SBAccess(s)
         #theSbAccess.Open("E:\Data\Slides_msi\QweekTour.sldy");
-        theSbAccess.Open("E:\\Data\\Slides_msi\\3D Montage\\big3d.sldy");
+        theSbAccess.Open("E:\Data\Slides_msi\QweekTour.sldy");
 
         theNumCaptures = theSbAccess.GetNumCaptures()
         for theCapture in range(theNumCaptures):
@@ -403,6 +547,42 @@ def test_start_6d_seq_capture():
         theSbAccess = SBAccess(s)
         theCapture = theSbAccess.Start6DCaptureSequential(SequentialCaptureMode.SequentialDirectToDisk, 1);
 
+def test_read_property():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+    #title = "Timepoint: {tp:6d}, Mean: {mn:.1f}"
+    title = "Timepoint: {tp:6d}"
+    testStop = False
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+
+        theSbAccess = SBAccess(s)
+        # test success
+        theSet = "SlideBook Info"
+        theProperty = "Version Number"
+        thePropVal, result = theSbAccess.GetHardwareProperty(theSet, theProperty)
+        if result:
+            print(f"{theSet}: {theProperty} = {thePropVal} result = {result}")
+        else:
+            print(f"Result = {result} (failure)")
+
+        # test failure
+        theBadProperty = "Version Num"
+        thePropVal, result = theSbAccess.GetHardwareProperty(theSet, theBadProperty)
+        if result:
+            print(f"{theSet}: {theProperty} = {thePropVal} result = {result}")
+        else:
+            print(f"Result = {result} (failure)")
+
+        theSet = "XY Stage"
+        theProperty = "MoveFieldDownSign"
+        thePropVal, result = theSbAccess.GetHardwareProperty(theSet, theProperty)
+        if result:
+            print(f"{theSet}: {theProperty} = {thePropVal} result = {result}")
+        else:
+            print(f"Result = {result} (failure)")
+
+
 def test_start_capture():
     HOST = '127.0.0.1'  # The server's hostname or IP address
     #title = "Timepoint: {tp:6d}, Mean: {mn:.1f}"
@@ -414,6 +594,88 @@ def test_start_capture():
 
         theSbAccess = SBAccess(s)
         theCapture = theSbAccess.StartCapture('0000');
+
+        while True:
+            res = theSbAccess.IsCapturing()
+            theLastCapture = theSbAccess.GetLastImageCaptured(theCapture)
+            time.sleep(0.02)
+            if(res and theLastCapture > 0):
+                break
+
+
+        theImageName = theSbAccess.GetImageName(theCapture)
+        print('the image name for capture: ',theCapture,' is: ',theImageName)
+        theNumChannels = theSbAccess.GetNumChannels(theCapture)
+        theNumRows = theSbAccess.GetNumYRows(theCapture)
+        theNumColumns = theSbAccess.GetNumXColumns(theCapture)
+        theNumPlanes = theSbAccess.GetNumZPlanes(theCapture)
+        theNumTimepoints = theSbAccess.GetNumTimepoints(theCapture) # the max number of timepoints to record
+
+        the3DVolume = np.empty(theNumRows*theNumColumns*theNumPlanes,np.uint16)
+        thePreviousCapture = -1
+
+        theCnt = 0
+        while True:
+            time.sleep(0.02)
+            res = theSbAccess.IsCapturing()
+            if(not res):
+                break
+
+            theLastCapture = theSbAccess.GetLastImageCaptured(theCapture)
+            if(theLastCapture == thePreviousCapture):
+                continue
+
+            print("theLastCapture {0}, thePreviousCapture {1}".format(theLastCapture,thePreviousCapture))
+            for theTP in range(thePreviousCapture+1,theLastCapture+1):  # include theLastCapture
+
+                for theChannel in range(theNumChannels):
+                    for theZPlane  in range(theNumPlanes):
+                        image = theSbAccess.ReadImagePlaneBuf(theCapture,0,theTP,theZPlane,theChannel) #captureid,position,timepoint,zplane,channel
+                        # np.insert(the3DVolume,theNumRows*theNumColumns,image)
+                        print ("*** read theTP: ",theTP)
+                        if(theTP > 200 and testStop):
+                            theSbAccess.StopCapture()
+                            break
+                        if (len(image) > 0):
+                            average = sum(image.astype(float)) / len(image) #avoid overflow
+                            print(" TP = {0}, Ch = {1}, Z = {2} Average pixel intensity = {3}".format(theTP,theChannel,theZPlane, average))
+                        """
+                        if( theCnt % 100 == 0):
+                            image = image.reshape(theNumRows,theNumColumns)
+
+                            #plot the slice
+
+                            plt.imshow(image)
+                            plt.title(title.format(tp=theTP),loc='left')
+                            plt.pause(0.001)
+                        """
+
+                        theCnt = theCnt + 1
+            thePreviousCapture = theLastCapture
+            if(theLastCapture == theNumTimepoints-1):
+                break
+            res = theSbAccess.IsCapturing()
+            if(not res):
+                break
+
+        #the3DVolume = the3DVolume.reshape(theNumRows,theNumColumns,theNumPlanes
+        data = input("Please hit Enter to exit:\n")
+        print("Done")
+
+
+        return
+
+def test_start_capture_background():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+    #title = "Timepoint: {tp:6d}, Mean: {mn:.1f}"
+    title = "Timepoint: {tp:6d}"
+    testStop = False
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+
+        theSbAccess = SBAccess(s)
+        theCapture = theSbAccess.StartCaptureBackground('Test');
 
         while True:
             res = theSbAccess.IsCapturing()
@@ -633,6 +895,85 @@ def test_show_capture_status():
 
         return
 
+def test_set_xyz_montage():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+
+        theNumXY, res = theSbAccess.GetXYZPointCount()
+        print("The num points", theNumXY)
+
+        isEnabled = theSbAccess.GetIsHardwareComponentEnabled(MicroscopeHardwareComponent.AuxZStage)
+
+        res = theSbAccess.AddXYZMontagePoint(-1.0,-2.0,-3.0,0.0,100,200,300,10,isEnabled)
+        print("Added a montge point =", res)
+        res = theSbAccess.AddXYZPoint(-1.0,-3.0,-5.0,1.0,isEnabled)
+        print("Added a point =", res)
+        res = theSbAccess.AddXYZMontagePoint(-1.0,-2.0,-3.0,0.0,100,200,300,10,isEnabled)
+        print("Added a montge point =", res)
+ 
+        theNumXY, res = theSbAccess.GetXYZPointCount()
+        print("The num points", theNumXY)
+
+        thePoints, res = theSbAccess.GetXYZMontagePoint(theNumXY - 1)
+
+        res = theSbAccess.DeleteXYZPoint(theNumXY)
+        print("Deleting invalid index",  theNumXY, "result =", res)
+
+        res = theSbAccess.DeleteXYZPoint(theNumXY - 1)
+        print("Deleting valid index", theNumXY - 1, "result =", res)
+
+        theNumXY, res = theSbAccess.GetXYZPointCount()
+        print("The num points:", theNumXY)
+
+        theName, success = theSbAccess.GetXYZPositionDescription(theNumXY - 1)
+        print("The point description:", theName)
+
+        theNewName = theName + "- new"
+        success = theSbAccess.SetXYZPositionDescription(theNumXY - 1, theNewName)
+
+        theName, success = theSbAccess.GetXYZPositionDescription(theNumXY - 1)
+        print("The new point description:", theName)
+
+        theSbAccess.ClearXYZPoints()
+
+        theNumXY, res = theSbAccess.GetXYZPointCount()
+        print("The num points", theNumXY)
+
+def test_get_camera_info():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+
+        theCameraIndex = 1
+        theWidth, theHeight, theMicronsPerPixel, theName, theResult = theSbAccess.GetCameraProperties(theCameraIndex)
+
+        if (theResult):
+            print("Height", theHeight, "Width", theWidth, "Microns per pixel", theMicronsPerPixel, "Display name", theName)
+        else:
+            print("GetCameraProperties Camera", theCameraIndex, "Failed")
+
+        theCameraIndex = 6
+        theWidth, theHeight, theMicronsPerPixel, theName, theResult = theSbAccess.GetCameraProperties(theCameraIndex)
+
+        if (theResult):
+            print("Height", theHeight, "Width", theWidth, "Microns per pixel", theMicronsPerPixel, "Display name", theName)
+        else:
+            print("GetCameraProperties Camera", theCameraIndex, "Failed")
+
+        theCameraIndex = 7
+        theWidth, theHeight, theMicronsPerPixel, theName, theResult = theSbAccess.GetCameraProperties(theCameraIndex)
+
+        if (theResult):
+            print("Height", theHeight, "Width", theWidth, "Microns per pixel", theMicronsPerPixel, "Display name", theName)
+        else:
+            print("GetCameraProperties Camera", theCameraIndex, "Failed")
+
+
 def set_xyz_point_in_focus_xy_tab():
     HOST = '127.0.0.1'  # The server's hostname or IP address
 
@@ -643,11 +984,43 @@ def set_xyz_point_in_focus_xy_tab():
         theNumXY, res = theSbAccess.GetXYZPointCount()
         print("The num points", theNumXY)
 
-        theSbAccess.AddXYZPoint(1.0,2.0,3.0)
-        theSbAccess.AddXYZPoint(-1.0,-2.0,-3.0)
+        isEnabled = theSbAccess.GetIsHardwareComponentEnabled(MicroscopeHardwareComponent.AuxZStage)
+
+        if (isEnabled):
+            res = theSbAccess.AddXYZPoint(-1.0,-2.0,-3.0,0.0,True)
+            print("Added a point =", res)
+            res = theSbAccess.AddXYZPoint(-1.0,-3.0,-5.0,1.0,True)
+            print("Added a point =", res)
+            res = theSbAccess.AddXYZPoint(-1.0,-3.0,-5.0,1.0,False)
+            print("Added a point (failure condition) =", res)
+        else:
+            res = theSbAccess.AddXYZPoint(-1.0,-2.0,-3.0)
+            print("Added a point =", res)
+            res = theSbAccess.AddXYZPoint(-1.0,-3.0,-5.0)
+            print("Added a point =", res)
+            res = theSbAccess.AddXYZPoint(-1.0,-3.0,-5.0,1.0,True)
+            print("Added a point (failure condition) =", res)
 
         theNumXY, res = theSbAccess.GetXYZPointCount()
         print("The num points", theNumXY)
+
+        res = theSbAccess.DeleteXYZPoint(theNumXY)
+        print("Deleting invalid index",  theNumXY, "result =", res)
+
+        res = theSbAccess.DeleteXYZPoint(theNumXY - 1)
+        print("Deleting valid index", theNumXY - 1, "result =", res)
+
+        theNumXY, res = theSbAccess.GetXYZPointCount()
+        print("The num points:", theNumXY)
+
+        theName, success = theSbAccess.GetXYZPositionDescription(theNumXY - 1)
+        print("The point description:", theName)
+
+        theNewName = theName + "- new"
+        success = theSbAccess.SetXYZPositionDescription(theNumXY - 1, theNewName)
+
+        theName, success = theSbAccess.GetXYZPositionDescription(theNumXY - 1)
+        print("The new point description:", theName)
 
         theSbAccess.ClearXYZPoints()
 
@@ -841,7 +1214,7 @@ def test_get_objectives():
             print("mMicronPerPixel ",lens.mMicronPerPixel)
             print("")
 
-        theFilterList = theSbAccess.GetFilters()
+        theFilterList = theSbAccess.GetSystemFluorDefs()
 
         for filter in theFilterList:
             print("filter name ",filter.mName)
@@ -852,6 +1225,80 @@ def test_get_objectives():
         for magnificationChanger in theMagnificationChangerList:
             print("magnificationChanger name ",magnificationChanger.mName)
             print("")
+
+    return
+
+def test_get_set_lens_def():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        theSbAccess = SBAccess(s)
+
+        s.connect((HOST, PORT))
+        theSbAccess.Open("E:\Data\Slides_msi\Bugs\LiteNaomi\LiteNaomi.sld");
+
+        theCaptureIndex = 0;
+        theLensDef = theSbAccess.GetLensDef(theCaptureIndex)
+
+        print("lens name ",theLensDef.mName)
+        print("mActualMagnification ",theLensDef.mActualMagnification)
+        print("mMicronPerPixel ",theLensDef.mMicronPerPixel)
+        print("")
+
+        theLensDef.mMicronPerPixel = theLensDef.mMicronPerPixel + 0.5
+        theLensDef.mActualMagnification = theLensDef.mActualMagnification  + 2
+        theLensDef.mName = theLensDef.mName + '_back'
+
+        theSbAccess.SetLensDef(theCaptureIndex,theLensDef)
+
+
+    return
+
+def test_get_set_fluor_def():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        theSbAccess = SBAccess(s)
+
+        s.connect((HOST, PORT))
+        theSbAccess.Open("E:\Data\Slides_msi\Bugs\LiteNaomi\LiteNaomi.sld");
+
+        theCaptureIndex = 0;
+        theFluorDefList = theSbAccess.GetFluorDef(theCaptureIndex)
+
+        for theFluorDef in theFluorDefList:
+            print("name ",theFluorDef.mName)
+            print("mLambda ",theFluorDef.mLambda)
+            print("mTurretPosition ",theFluorDef.mTurretPosition)
+            print("")
+
+            theFluorDef.mLambda = theFluorDef.mLambda + 0.5
+            theFluorDef.mTurretPosition = theFluorDef.mTurretPosition  + 2
+            theFluorDef.mName = theFluorDef.mName + '_back'
+
+        theSbAccess.SetFluorDef(theCaptureIndex,theFluorDefList)
+
+
+    return
+
+def test_get_fluor_def():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        theSbAccess = SBAccess(s)
+
+        s.connect((HOST, PORT))
+        theSbAccess.Open("E:\Data\Slides_msi\QweekTour.sldy");
+
+        theCaptureIndex = 0;
+        theFluorDefList = theSbAccess.GetFluorDef(theCaptureIndex)
+        for theFluorDef in theFluorDefList:
+
+            print("name ",theFluorDef.mName)
+            print("mLambda ",theFluorDef.mLambda)
+            print("mTurretPosition ",theFluorDef.mTurretPosition)
+            print("")
+
 
     return
 
@@ -1248,7 +1695,8 @@ def test_xyz_montage():
 
         thePoint, theRes = theSbAccess.GetXYZPoint(0)
 
-        theNumPoints, thePointList, theRes = theSbAccess.GetXYZMontagePointList(0)
+        # -1 = camera don't care, -1.0 = use current microns / pixel
+        theNumPoints, thePointList, theRes = theSbAccess.GetXYZMontagePointList(0,-1,-1.0)
 
         # now set an existing name
         theRes = theSbAccess.SetXYZSavedExperimentName(0, '003d')
@@ -1267,7 +1715,26 @@ def test_get_open_slides():
         data = input("Please hit Enter to continue after changing current slide in SlideBook:\n")
         slide_id = theSbAccess.GetCurrentSlideId()
         print("New Current Slide Id: ",slide_id)
-       
+
+def test_xml():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+        theCurSlideId = theSbAccess.GetCurrentSlideId()
+        theSbAccess.SetTargetSlide(theCurSlideId)
+        theNumCaptures = theSbAccess.GetNumCaptures()
+        for theCapture in range(theNumCaptures):
+            theImageName = theSbAccess.GetImageName(theCapture)
+            print('the image name for capture: ',theCapture,' is: ',theImageName)
+            isLLS = theSbAccess.GetIsLLSCapture(theCapture)
+            print('Is LLS: ', isLLS)
+            if (isLLS):
+                xml, result = theSbAccess.GetLLSXML(theCapture)
+                print('XML: ', xml)
+                result = theSbAccess.StartLLSCapture(xml)
+
 def test_command_supported():
     HOST = '127.0.0.1'  # The server's hostname or IP address
 
@@ -1278,24 +1745,114 @@ def test_command_supported():
         isSupported = theSbAccess.GetIsCommandSupported("GetSlideBookVersion")
         print("Is supported:", isSupported)
 
+        theCommands, result = theSbAccess.GetCommandList()
+        for i, theName in enumerate(theCommands, start=1):
+            print(f"Command {i}: {theName}")
+
 def test_experiment_get_set():
     HOST = '127.0.0.1'  # The server's hostname or IP address
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))
         theSbAccess = SBAccess(s)
-        success, theNames = theSbAccess.GetExperimentScriptNames();
+
+        theSlideName, isSaved = theSbAccess.IsCurrentSlideSaved()
+
+        success, theNames = theSbAccess.GetExperimentScriptNames()
         for i, theName in enumerate(theNames, start=1):
             print(f"Set {i}: {theName}")
 
-
         if theNames:
             success, core, advanced = theSbAccess.GetExperimentScriptData(theNames[0])
+            success = theSbAccess.SetExperimentScriptData(theNames[0], core, advanced, 1)
         else:
             print("No experiments are available")
 
         success, core, advanced = theSbAccess.GetExperimentScriptData("invalid name")
         print(f"success: {success}")
+
+        count, experiments, isOK = theSbAccess.GetAllXYZExperiments()
+        print(f"success: {isOK}")
+        arr = []
+
+        pt = ExperimentStruct(0.0, 1.0, 2.0, 3.0, True, "", "hello")
+        arr.append(pt)
+        pt = ExperimentStruct(10.0, 10.0, 20.0, 30.0, False, "", "hello22")
+        arr.append(pt)
+        pt = ExperimentStruct(100.0, 100.0, 200.0, 300.0, True, "", "hello32")
+        arr.append(pt)
+
+        theSbAccess.SetAllXYZExperiments(arr, True)
+
+        count, experiments, isOK = theSbAccess.GetAllXYZExperiments()
+        print(f"success: {isOK}")
+        print(f"count: {count}")
+
+        arr.clear()
+        pt = ExperimentStruct(0.0, 1.0, 2.0, 3.0, True, "", "hello2")
+        arr.append(pt)
+        pt = ExperimentStruct(10.0, 10.0, 20.0, 30.0, False, "", "hello222")
+        arr.append(pt)
+        pt = ExperimentStruct(100.0, 100.0, 200.0, 300.0, True, "", "hello322")
+        arr.append(pt)
+
+        theSbAccess.SetAllXYZExperiments(arr, False)
+
+def test_definite_focus():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+
+        isDFEnabled, theDFVersion= theSbAccess.HasDefiniteFocus()
+
+        isZEnabled = theSbAccess.GetIsHardwareComponentEnabled(MicroscopeHardwareComponent.ZStage)
+
+        print(f"{'DF: Enabled' if isDFEnabled == True else 'DF: Not enabled'}: DF version: {theDFVersion}")
+        print(f"{'Z: Enabled' if isDFEnabled == True else 'Z: Not enabled'}")
+
+        if isDFEnabled and isZEnabled:
+            success, parameters = theSbAccess.GetCurrentDefiniteFocusOffset()
+            print(f"success: {success}")
+
+            if (success == False):
+                return
+            else:
+                print("DF parameters:")
+                for x in enumerate(parameters):
+                    try:
+                        v = int(x[1])
+                    except(ValueError, TypeError) as e:
+                        print(f"Cannot convert {x}  to intL {e}")
+                    ascii_or_hex = chr(v) if 32 <= v <= 126 else f"0x{v:02X}"
+                    print(f"dec={v} hex={v:02X} ascii={ascii_or_hex} ")
+
+                success = theSbAccess.ExecuteDefiniteFocus(parameters)
+                print(f"success: {success}")
+
+            x = np.random.uniform(-10, 10)
+            theSbAccess.IncrementHardwareComponentLocationMicrons(MicroscopeHardwareComponent.ZStage, 0, 0, x)
+
+            success, parameters = theSbAccess.GetCurrentDefiniteFocusOffset()
+            print(f"success: {success}")
+
+            if (success == False):
+                return
+            else:
+                print("DF parameters:")
+                for x in enumerate(parameters):
+                    try:
+                        v = int(x[1])
+                    except(ValueError, TypeError) as e:
+                        print(f"Cannot convert {x}  to intL {e}")
+                    ascii_or_hex = chr(v) if 32 <= v <= 126 else f"0x{v:02X}"
+                    print(f"dec={v} hex={v:02X} ascii={ascii_or_hex} ")
+
+            success = theSbAccess.ExecuteDefiniteFocus(parameters)
+            print(f"Autofocus success: {success}")
+
+        print("DF test complete")
 
 def test_filter_sets():
     HOST = '127.0.0.1'  # The server's hostname or IP address
@@ -1335,6 +1892,8 @@ def test_aux_data():
                     #theArray = theSbAccess.GetAuxDataValues(theCaptureIndex,theDataType,theElementIndex);
                     theArray = theSbAccess.GetAuxDataValues(theCaptureIndex,theDataType,theElementIndex);
                     print("the Array: ",theArray)
+
+        isValid, theAuxZ = theSbAccess.GetAuxZPosition(theCaptureIndex, 0)
 
 def test_montage_timelapse():
     HOST = '127.0.0.1'  # The server's hostname or IP address
@@ -1383,16 +1942,20 @@ def test_montage_timelapse():
 
 def main():
     try:
-        #test_new_slide()
+#        test_new_slide()
         #test_plot_mask()
         #test_send_mask()
         #test_plot_3dstack()
         #test_plot_current_capture()
         #test_start_capture()
-        test_start_6d_seq_capture()
+        #test_read_property()
+        #test_start_capture_background()
+        #test_start_6d_seq_capture()
         #test_add_new_channel()
         #test_copy_capture()
         #set_xyz_point_in_focus_xy_tab()
+        #test_set_xyz_montage()
+        #test_get_camera_info()
         #test_get_xyz_position()
         #test_start_streaming()
         #test_focus_window_parameters()
@@ -1424,12 +1987,24 @@ def main():
         #test_xyz_montage()
         #test_get_open_slides()
         #test_experiment_get_set()
+        #test_definite_focus()
+        #test_xml()
         #test_command_supported()
         #test_filter_sets()
         #test_aux_data()
         #test_montage_timelapse()
+        #test_read_all_planes()
+        #test_read_all_planes_into_np()
+        #test_write_all_planes()
+        #test_get_set_lens_def()
+        #test_get_fluor_def()
+        test_get_set_fluor_def()
+
     except Exception as e:
-        print(f"Error: {e}")
+        #print(f"Error: {e}")
+        print(f"error type: {type(e).__name__}")
+        print(f"error repr: {e!r}")
+        traceback.print_exc()
     except: 
         print("Error")
     finally:

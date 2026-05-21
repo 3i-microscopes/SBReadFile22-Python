@@ -3,12 +3,130 @@ __license__  = "This source code is licensed under the BSD-style license found i
 
 import yaml
 import re
+import base64
+import struct
+
 
 class BaseDecoder(object):
+    kEncodingAscii = "ascii"
+    kEncodingBase64 = "base64"
+    Encoding = kEncodingAscii
+
     def __init__(self):
         self.ClassName = self.__class__.__name__
         #print ("Base is: ", self.__class__.__name__)
 
+    def DetectYamlEncoding(self,inPath):
+        with open(inPath, "rt", encoding="utf-8") as f:
+            for line in f:
+                stripped = line.strip()
+
+                if not stripped or stripped == "---":
+                    continue
+
+                if line.startswith("Encoding:"):
+                    value = line[len("Encoding:"):].strip().lower()
+                    value = value.strip('"')
+                    print("DetectYamlEncoding: value is ",value)
+                    if value in ("base64", "ascii"):
+                        BaseDecoder.Encoding = value
+                        return
+                    raise ValueError(f"Unknown Encoding value: {value!r}")
+
+                BaseDecoder.Encoding = "ascii"
+                return
+
+        BaseDecoder.Encoding = "ascii"
+        return
+
+    def DecodeBase64ToBytes(self,s: str) -> bytes:
+        if s is None:
+            raise ValueError("Input is None")
+        return base64.b64decode(s.strip())
+
+    def DecodeBase64ToString(self,s: str, encoding: str = "utf-8") -> str:
+        return self.DecodeBase64ToBytes(s).decode(encoding)
+
+    def DecodeBase64Scalar(self,s: str, fmt: str):
+        """
+        fmt:
+          b  int8
+          B  uint8
+          h  int16
+          Hp   uint16
+          i  int32
+          I  uint32
+          q  int64
+          Q  uint64
+          f  float
+          d  double
+        Assumes little-endian.
+        """
+        data = self.DecodeBase64ToBytes(s)
+        expected = struct.calcsize("<" + fmt)
+        if len(data) != expected:
+            raise ValueError(f"Expected {expected} bytes, got {len(data)}")
+        return struct.unpack("<" + fmt, data)[0]
+
+    def DecodeBase64Integer(self,s: str, signed: bool = True) -> int:
+        data = base64.b64decode(s.strip())
+        n = len(data)
+
+        if n not in (1, 2, 4, 8):
+            raise ValueError(f"Unsupported integer size: {n} bytes")
+
+        return int.from_bytes(data, byteorder="little", signed=signed)
+
+    def DecodeBase64Real(self,s: str) -> float:
+        data = base64.b64decode(s.strip())
+        n = len(data)
+
+        if n == 4:
+            return struct.unpack("<f", data)[0]
+        elif n == 8:
+            return struct.unpack("<d", data)[0]
+        else:
+            raise ValueError(f"Unsupported floating-point size: {n} bytes")
+
+    def DecodeBase64Array(self,s: str, fmt: str):
+        data = self.DecodeBase64ToBytes(s)
+        item_size = struct.calcsize("<" + fmt)
+        if len(data) % item_size != 0:
+            raise ValueError(f"Byte count {len(data)} is not a multiple of {item_size}")
+        count = len(data) // item_size
+        return list(struct.unpack("<" + fmt * count, data))
+
+    def EncodeBytesToBase64(self,data: bytes) -> str:
+        return base64.b64encode(data).decode("ascii")
+
+    def EncodeStringToBase64(self,s: str, encoding: str = "utf-8") -> str:
+        return self.EncodeBytesToBase64(s.encode(encoding))
+
+    def EncodeIntegerToBase64(self,value: int, num_bytes: int, signed: bool = True) -> str:
+        """
+        Encode a Python int into base64 using little-endian byte order.
+
+        num_bytes must be 1, 2, 4, or 8.
+        """
+        if num_bytes not in (1, 2, 4, 8):
+            raise ValueError(f"Unsupported integer size: {num_bytes} bytes")
+
+        data = value.to_bytes(num_bytes, byteorder="little", signed=signed)
+        return self.EncodeBytesToBase64(data)
+
+    def EncodeFloatToBase64(self,value: float) -> str:
+        """
+        Encode as 4-byte IEEE float (little-endian).
+        """
+        data = struct.pack("<f", value)
+        return self.EncodeBytesToBase64(data)
+
+    def EncodeDoubleToBase64(self,value: float) -> str:
+        """
+        Encode as 8-byte IEEE double (little-endian).
+        """
+        data = struct.pack("<d", value)
+        return self.EncodeBytesToBase64(data)
 
     def RestoreSpecialCharacters(self, inString):
         ouString = inString
@@ -27,6 +145,27 @@ class BaseDecoder(object):
         ouString = re.sub("__empty", "",ouString)
         return ouString
 
+    def EncodeStringToString(self,inString):
+        if(BaseDecoder.Encoding == self.kEncodingAscii):
+            return inString
+        elif(BaseDecoder.Encoding == self.kEncodingBase64):
+            val = self.DecodeBase64ToString(inString)
+            return val
+
+    def EncodeStringToInt(self,inString):
+        if(BaseDecoder.Encoding == self.kEncodingAscii):
+            return int(inString)
+        elif(BaseDecoder.Encoding == self.kEncodingBase64):
+            val = self.DecodeBase64Integer(inString)
+            return int(val)
+
+    def EncodeStringToReal(self,inString):
+        if(BaseDecoder.Encoding == self.kEncodingAscii):
+            return float(inString)
+        elif(BaseDecoder.Encoding == self.kEncodingBase64):
+            val = self.DecodeBase64Real(inString)
+            return float(val)
+
     def GetStringValue(self, inNode, inStartIndex, inKeyname, inRestoreSpecialValues):
 
         theValueClassList = inNode.value
@@ -43,7 +182,8 @@ class BaseDecoder(object):
     def GetIntValue(self, inNode, inStartIndex, inKeyname):
         theValueString, theNextIndex = self.GetStringValue(inNode, inStartIndex, inKeyname, False)
         if not theNextIndex == -1:
-            return int(theValueString), theNextIndex
+            theVal = self.EncodeStringToInt(theValueString)
+            return int(theVal), theNextIndex
 
         return -1,-1
 
@@ -58,11 +198,14 @@ class BaseDecoder(object):
         for theListNode in range(len(theList)):
             theAttrValue = theList[theListNode].value
             if theListNode == 0 and inFirstIsSize:
-                if not int(theAttrValue) == len(theList)-1:
+                #if not int(self.EncodeStringToInt(theAttrValue)) == len(theList)-1:
+                if not int(self.EncodeStringToInt(theAttrValue)) == len(theList)-1:
                     print("Error: List Size mismatch")
                 continue
             if inRestoreSpecialValues:
-                theAttrValue = self.RestoreSpecialCharacters(theAttrValue)
+                if(BaseDecoder.Encoding == self.kEncodingAscii):
+                    theAttrValue = self.RestoreSpecialCharacters(theAttrValue)
+            #theAttrValue = self.EncodeStringToString(theAttrValue)
             theArray.append(theAttrValue)
 
         return theArray
@@ -74,7 +217,7 @@ class BaseDecoder(object):
         if len(theStringArray) == 0:
             return theIntArray
         for theString in theStringArray:
-            theIntArray.append(int(theString))
+            theIntArray.append(int(self.EncodeStringToInt(theString)))
 
         return theIntArray
 
@@ -85,9 +228,72 @@ class BaseDecoder(object):
         if len(theStringArray) == 0:
             return theFloatArray
         for theString in theStringArray:
-            theFloatArray.append(float(theString))
+            theFloatArray.append(float(self.EncodeStringToReal(theString)))
 
         return theFloatArray
+
+    def SetAttrInt(self, inAttrName, inAttrValue):
+        if(BaseDecoder.Encoding == self.kEncodingAscii):
+            setattr(self,inAttrName,int(inAttrValue))
+        elif(BaseDecoder.Encoding == self.kEncodingBase64):
+            val = self.DecodeBase64Integer(inAttrValue)
+            setattr(self,inAttrName,int(val))
+
+    def SetAttrFloat(self, inAttrName, inAttrValue):
+        if(BaseDecoder.Encoding == self.kEncodingAscii):
+            setattr(self,inAttrName,float(inAttrValue))
+        elif(BaseDecoder.Encoding == self.kEncodingBase64):
+            val = self.DecodeBase64Real(inAttrValue)
+            setattr(self,inAttrName,float(val))
+
+    def SetAttrString(self, inAttrName, inAttrValue):
+        if(BaseDecoder.Encoding == self.kEncodingAscii):
+            theAttrValue = self.RestoreSpecialCharacters(inAttrValue)
+            setattr(self,inAttrName,theAttrValue)
+        elif(BaseDecoder.Encoding == self.kEncodingBase64):
+            val = self.DecodeBase64ToString(inAttrValue)
+            setattr(self,inAttrName,val)
+
+    def SetAttrBool(self, inAttrName, inAttrValue):
+        if(BaseDecoder.Encoding == self.kEncodingAscii):
+            if inAttrValue == 'true':
+                setattr(self,inAttrName,True)
+            else:
+                setattr(self,inAttrName,False)
+        elif(BaseDecoder.Encoding == self.kEncodingBase64):
+            val = self.DecodeBase64Integer(inAttrValue)
+            if val != 0:
+                setattr(self,inAttrName,True)
+            else:
+                setattr(self,inAttrName,False)
+
+    def ConvertToInt(self, inValue):
+        if(BaseDecoder.Encoding == self.kEncodingAscii):
+            return int(inValue)
+        elif(BaseDecoder.Encoding == self.kEncodingBase64):
+            val = self.DecodeBase64Integer(inValue)
+            return int(val)
+
+    def ConvertToFloat(self, inValue):
+        if(BaseDecoder.Encoding == self.kEncodingAscii):
+            return float(inValue)
+        elif(BaseDecoder.Encoding == self.kEncodingBase64):
+            val = self.DecodeBase64Real(inValue)
+            return float(val)
+
+    def ConvertToBool(self, inValue):
+        if(BaseDecoder.Encoding == self.kEncodingAscii):
+            if inValue == 'true':
+                return True
+            else:
+                return False
+        elif(BaseDecoder.Encoding == self.kEncodingBase64):
+            val = self.DecodeBase64Integer(inValue)
+            if val != 0:
+                return True
+            else:
+                return False
+
 
     def DecodeUnknownString(self, inUnknownString, inAttrKeyNode):
         return False
@@ -121,7 +327,7 @@ class BaseDecoder(object):
             theKeyNode = theIter[0]
             if debugDecode:
                 print ("tuple len: ",len(theIter))
-            s = theKeyNode.value
+            #s = theKeyNode.value
 
             if theKeyNode.value == 'EndClass':
                 break
@@ -156,40 +362,32 @@ class BaseDecoder(object):
                     if theType == 'int':
                         if debugDecode:
                             print ("is an int")
-                        setattr(self,theAttrName,int(theAttrValue))
+                        self.SetAttrInt(theAttrName,theAttrValue)
                     elif theType == 'float':
                         if debugDecode:
                             print ("is an float")
-                        setattr(self,theAttrName,float(theAttrValue))
+                        self.SetAttrFloat(theAttrName,theAttrValue)
                     elif theType == 'bool':
                         if debugDecode:
                             print ("is an bool")
-                        if theAttrValue == 'true':
-                            setattr(self,theAttrName,True)
-                        else:
-                            setattr(self,theAttrName,False)
-                        pass
+                        self.SetAttrBool(theAttrName,theAttrValue)
                     elif theType == 'str':
                         if debugDecode:
                             print ("is a string")
-                        theAttrValue = self.RestoreSpecialCharacters(theAttrValue)
-                        setattr(self,theAttrName,theAttrValue)
+                        self.SetAttrString(theAttrName,theAttrValue)
 
                     elif theType == 'list':
-                        l = len(theAttrValue)
+                        #l = len(theAttrValue)
                         m = getattr(self,theAttrName)
                         theType = type(m[0]).__name__
                         theTempList = []
                         for theListVal in theAttrValue:
                             if theType == 'int':
-                                theTempList.append(int(theListVal.value))
+                                theTempList.append(int(self.ConvertToInt(theListVal.value)))
                             elif theType == 'float':
-                                theTempList.append(float(theListVal.value))
+                                theTempList.append(float(self.ConvertToFloat(theListVal.value)))
                             elif theType == 'bool':
-                                if theListVal.value == 'true':
-                                    theTempList.append(True)
-                                else:
-                                    theTempList.append(False)
+                                theTempList.append((self.ConvertToBool(theListVal.value)))
 
                         setattr(self,theAttrName,theTempList)
 
@@ -231,4 +429,69 @@ class BaseDecoder(object):
         sbName = re.sub(".*\\.", "",sbName)
         return sbName
 
+    def Encode(self,inClassName=None):
+        str = '---\n'
+        str = str + self.EncodeClass(inClassName)
+        str = str + '...\n'
+        return str
+
+
+    def EncodeClass(self,inClassName=None):
+
+        if inClassName is None:
+            inClassName = self.__class__.__name__
+
+        debugDecode = False
+        v =  vars(self).items()
+        #print ("v is: ",v)
+        theDict = {"":""}
+        theParts = []
+        theIndent = '  '
+
+        str = 'StartClass:'
+        theParts.append(str)
+        theParts.append("\n")
+
+        theParts.append(theIndent)
+        str = 'ClassName: ' + inClassName
+        theParts.append(str)
+        theParts.append("\n")
+
+        for x,y in v:
+            theDict[x] = type(y).__name__
+
+        if debugDecode:
+            print("theDict is: ",theDict)
+        for theAttrName,theAttrType in v:
+            theParts.append(theIndent)
+            theParts.append(theAttrName+': ')
+
+            theType = type(theAttrType).__name__
+            theValue = getattr(self,theAttrName)
+            if theType == 'int':
+                str = self.EncodeIntegerToBase64(theValue,8)
+            elif theType == 'float':
+                str = self.EncodeFloatToBase64(theValue)
+            elif theType == 'bool':
+                if(theValue):
+                    i = int(1)
+                    str = self.EncodeIntegerToBase64(i,2)
+                else:
+                    i = int(0)
+                    str = self.EncodeIntegerToBase64(i,2)
+            elif theType == 'str':
+                    str = self.EncodeStringToBase64(theValue)
+            elif theType == 'list':
+                print("Encode type is list, And now what???")
+                str = "list"
+
+            theParts.append(str)
+            theParts.append("\n")
+
+        str = 'EndClass:'
+        theParts.append(str)
+        theParts.append("\n")
+
+        theOutputStr = "".join(theParts)
+        return theOutputStr
 

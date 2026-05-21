@@ -5,12 +5,14 @@ NAME
 
 CLASSES
     builtins.object
+        ExperimentStruct
         PointStruct
         SBAccess
     enum.Enum(builtins.object)
         AuxDataTypes
         MicroscopeHardwareComponent
         MicroscopeStates
+        SequentialCaptureMode
     
     class AuxDataTypes(enum.Enum)
      |  AuxDataTypes(value, names=None, *, module=None, qualname=None, type=None, start=1)
@@ -51,6 +53,44 @@ CLASSES
      |      
      |      This mapping lists all enum members, including aliases. Note that this
      |      is a read-only view of the internal mapping.
+    
+    class ExperimentStruct(builtins.object)
+     |  ExperimentStruct(x: 'float', y: 'float', z: 'float', aux_z: 'float', isAuxZ: 'bool', experiment_name: 'str', experiment_label: 'str') -> None
+     |  
+     |  ExperimentStruct(x: 'float', y: 'float', z: 'float', aux_z: 'float', isAuxZ: 'bool', experiment_name: 'str', experiment_label: 'str')
+     |  
+     |  Methods defined here:
+     |  
+     |  __eq__(self, other)
+     |      Return self==value.
+     |  
+     |  __init__(self, x: 'float', y: 'float', z: 'float', aux_z: 'float', isAuxZ: 'bool', experiment_name: 'str', experiment_label: 'str') -> None
+     |      Initialize self.  See help(type(self)) for accurate signature.
+     |  
+     |  __repr__(self)
+     |      Return repr(self).
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |  
+     |  __dict__
+     |      dictionary for instance variables (if defined)
+     |  
+     |  __weakref__
+     |      list of weak references to the object (if defined)
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data and other attributes defined here:
+     |  
+     |  __annotations__ = {'aux_z': 'float', 'experiment_label': 'str', 'exper...
+     |  
+     |  __dataclass_fields__ = {'aux_z': Field(name='aux_z',type='float',defau...
+     |  
+     |  __dataclass_params__ = _DataclassParams(init=True,repr=True,eq=True,or...
+     |  
+     |  __hash__ = None
+     |  
+     |  __match_args__ = ('x', 'y', 'z', 'aux_z', 'isAuxZ', 'experiment_name',...
     
     class MicroscopeHardwareComponent(enum.Enum)
      |  MicroscopeHardwareComponent(value, names=None, *, module=None, qualname=None, type=None, start=1)
@@ -239,16 +279,16 @@ CLASSES
      |      is a read-only view of the internal mapping.
     
     class PointStruct(builtins.object)
-     |  PointStruct(x: 'float', y: 'float', z: 'float', aux_z: 'float', IsAuxZ: 'bool') -> None
+     |  PointStruct(x: 'float', y: 'float', z: 'float', aux_z: 'float', isAuxZ: 'bool') -> None
      |  
-     |  PointStruct(x: 'float', y: 'float', z: 'float', aux_z: 'float', IsAuxZ: 'bool')
+     |  PointStruct(x: 'float', y: 'float', z: 'float', aux_z: 'float', isAuxZ: 'bool')
      |  
      |  Methods defined here:
      |  
      |  __eq__(self, other)
      |      Return self==value.
      |  
-     |  __init__(self, x: 'float', y: 'float', z: 'float', aux_z: 'float', IsAuxZ: 'bool') -> None
+     |  __init__(self, x: 'float', y: 'float', z: 'float', aux_z: 'float', isAuxZ: 'bool') -> None
      |      Initialize self.  See help(type(self)) for accurate signature.
      |  
      |  __repr__(self)
@@ -266,15 +306,15 @@ CLASSES
      |  ----------------------------------------------------------------------
      |  Data and other attributes defined here:
      |  
-     |  __annotations__ = {'IsAuxZ': 'bool', 'aux_z': 'float', 'x': 'float', '...
+     |  __annotations__ = {'aux_z': 'float', 'isAuxZ': 'bool', 'x': 'float', '...
      |  
-     |  __dataclass_fields__ = {'IsAuxZ': Field(name='IsAuxZ',type='bool',defa...
+     |  __dataclass_fields__ = {'aux_z': Field(name='aux_z',type='float',defau...
      |  
      |  __dataclass_params__ = _DataclassParams(init=True,repr=True,eq=True,or...
      |  
      |  __hash__ = None
      |  
-     |  __match_args__ = ('x', 'y', 'z', 'aux_z', 'IsAuxZ')
+     |  __match_args__ = ('x', 'y', 'z', 'aux_z', 'isAuxZ')
     
     class SBAccess(builtins.object)
      |  SBAccess(inSocket)
@@ -282,6 +322,31 @@ CLASSES
      |  A Class to Read Slide Book Format 7 Files
      |  
      |  Methods defined here:
+     |  
+     |  AddXYZMontagePoint(self, inXum, inYum, inZum, inAuxZum, inX2um, inY2um, inZ2um, inAuxZ2um, inIsAuxZ=False)
+     |      Adds a montage point to the Focus Window XY Tab defined by upper left and lower right
+     |      
+     |       Parameters
+     |       ----------
+     |       inXum: float
+     |           The point X coordinate in microns
+     |      
+     |       inYum: float
+     |           The point Y coordinate in microns
+     |      
+     |       inZum: float
+     |           The point Z coordinate in microns
+     |      
+     |       inAuxZum: float
+     |           The auxiliary Z stage coordinate in microns
+     |      
+     |       inIsAuxZ: bool
+     |           True if the Auxiliary Z Stage is enabled, False otherwise
+     |      
+     |      Returns
+     |       -------
+     |           bool
+     |               Returns True if successful and False if not successful
      |  
      |  AddXYZPoint(self, inXum, inYum, inZum, inAuxZum=0, inIsAuxZ=False)
      |      Adds a point to the Focus Window XY Tab
@@ -405,6 +470,30 @@ CLASSES
      |      -------
      |      int
      |          The Slide Id
+     |  
+     |  DeleteXYZPoint(self, PointIndex)
+     |      Delete point in XYZ point list
+     |      
+     |      Parameters
+     |      ----------
+     |      PointIndex : int
+     |            Index in global experiment list (0 to GetXYZPointCount())
+     |      Returns
+     |      -------
+     |      bool
+     |          Returns True if successful and False if not successful
+     |  
+     |  ExecuteDefiniteFocus(self, inFocusOffset)
+     |      Set the definite focus parameters and execute an autofocus
+     |      
+     |      Parameters
+     |      ----------
+     |      inFocusOffset: numpy array of u1 (characters) for definte focus offset
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          result (1 = success, 0 = failure)
      |  
      |  FocusSurface_AddCalibrationPoint(self, inXum, inYum, inZum, inAuxZum=0, inIsAuxZ=False)
      |      Adds a calibration point to the Focus Surface
@@ -631,6 +720,19 @@ CLASSES
      |      -------
      |      int
      |          1 if is succesful, 0 otherwise
+     |  
+     |  FocusWindowMainSelectFilterSetIndex(self, inIntParam)
+     |      Selects a string in the Filter Set ComboBox of the Focus Window
+     |      
+     |      Parameters
+     |      ----------
+     |      inIntParam: int
+     |          Filter set index (0 - 11)
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if is succesful, 0 otherwise (e.g. invalid index)
      |  
      |  FocusWindowMainSelectLaserPower(self, inStringParam)
      |      Selects a string in the Laser Power ComboBox of the Focus Window
@@ -977,15 +1079,18 @@ CLASSES
      |      Result
      |          1 = success 0 = failure
      |  
-     |  GetAPIVersion(self)
-     |      Returns the current SlideBook build version
-     |      
+     |  GetAllXYZExperiments(self)
+     |      Returns the XYZ1Z2 + Expierment Name all points
      |      Parameters
      |      ----------
      |      Returns
      |      -------
-     |      Build Version : Int
-     |          Returns the current build version of the connected SlideBook
+     |       Count
+     |         The number of experiments
+     |       ExperimentStruct
+     |         Returns an array of XYZ1Z2 point + experiment name + label
+     |       bool
+     |           Returns True if successful and False if not successful
      |  
      |  GetAuxDataName(self, inCaptureIndex, inDataType: 'AuxDataTypes', inElementIndex)
      |      Gets the Auxiliary Data Name for an image group, a data type, and an element index
@@ -1039,6 +1144,59 @@ CLASSES
      |      if inDataType is AuxDataTypes.eDoubleData
      |          returns a double 64 array
      |  
+     |  GetAuxZPosition(self, inCaptureIndex, inPositionIndex)
+     |      Gets the auxiliary Z position in microns of start of capture for an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inPositionIndex: int
+     |          The index of the image in the montage, or 0 if all images are at the same location
+     |      
+     |      Returns
+     |      -------
+     |      bool
+     |          True if the auxiliary Z value is valid, false otherwise
+     |      float
+     |          The auxiliary Z position in um
+     |  
+     |  GetCTLSXML(self, inCaptureIndex)
+     |      Gets the CTLS XML metadata
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      Returns
+     |      -------
+     |      str
+     |          The XML Metadata
+     |      bool   
+     |          True if the XML is valid, false if not
+     |  
+     |  GetCameraProperties(self, inCameraIndex)
+     |      Gets the width, height and pixel pitch (if known) of a camera
+     |      
+     |      Parameters
+     |      ----------
+     |      inCameraIndex: int
+     |          The index of the camera (1-6)
+     |      
+     |      Returns
+     |      -------
+     |      Width: int
+     |          camera full-chip width
+     |      Height: int
+     |          camera full-chip height
+     |      Pixel size: float
+     |          sensor pixel dimension in microns (0 if not available)
+     |      Camera name: str
+     |          Descriptive camera name
+     |      Result: bool
+     |          True if success, false if failure
+     |  
      |  GetCaptureDate(self, inCaptureIndex)
      |      Gets the date of acquisition of an image group
      |      
@@ -1050,7 +1208,7 @@ CLASSES
      |      Returns
      |      -------
      |      str
-     |          date is inhe format: yyyy:MM:dd:hh:mm:ss
+     |          date is in the format: yyyy:MM:dd:hh:mm:ss
      |  
      |  GetChannelName(self, inCaptureIndex, inChannelIndex)
      |      Gets the name of a given channel of an image group
@@ -1067,6 +1225,18 @@ CLASSES
      |      -------
      |      str
      |          The name of the channel
+     |  
+     |  GetCommandList(self)
+     |      Returns a list of supported Synery commands
+     |      
+     |      Parameters
+     |      ----------
+     |      Returns
+     |      -------
+     |      Commands : array of str
+     |          Returns an array of strings containing supported Synergy commands
+     |      Success : bool
+     |          True if successful, false if not
      |  
      |  GetCurrentCaptureId(self, inPositionIndex)
      |      Gets the id of the capture which is currently taking place.
@@ -1093,6 +1263,20 @@ CLASSES
      |      -------
      |      int
      |          thei channel number being captured
+     |  
+     |  GetCurrentDefiniteFocusOffset(self)
+     |      Executes a definite focus autofocus at the current location and return the focus parameters
+     |      
+     |      Parameters
+     |      -------
+     |      none
+     |      
+     |      Returns
+     |      -------
+     |      bool
+     |          result (1 = success, 0 = failure)
+     |      char
+     |          array of bytes representing the goodness of fit metric
      |  
      |  GetCurrentExperimentCaptured(self)
      |      Gets the index of the last plane captured
@@ -1176,6 +1360,37 @@ CLASSES
      |      int
      |          The elapsed time in ms
      |  
+     |  GetExperimentScriptData(self, inScriptName)
+     |      Gets a list of the saved capture experiment script names
+     |      
+     |       Parameters
+     |       ----------
+     |      inScriptName: string
+     |           The script name to read
+     |      
+     |       Returns
+     |       -------
+     |       int
+     |           1 for success, 0 for failure
+     |       string
+     |           The text of the capture script (core capture settings: channels, exposure times, 2d/3d settings, etc)
+     |       string 
+     |           The text of the capture preferences (advanced capture settings: photomanipulation, autofocus, TTL, etc)
+     |  
+     |  GetExperimentScriptNames(self)
+     |      Gets a list of the saved capture experiment script names
+     |      
+     |      Parameters
+     |      ----------
+     |          none
+     |      
+     |      Returns
+     |      -------
+     |      success
+     |          1 = success 0 = failure
+     |      list
+     |          a list of saved capture scripts
+     |  
      |  GetExposureTime(self, inCaptureIndex, inChannelIndex)
      |      Gets the exposure time in ms for a particular channel of an image group
      |      
@@ -1192,8 +1407,10 @@ CLASSES
      |      int
      |          The exposure time in ms
      |  
-     |  GetFilters(self)
-     |      Gets the filters
+     |  GetFilter(self, inCaptureIndex)
+     |  
+     |  GetFilterSetNames(self)
+     |      Gets the display names of the system filter sets
      |      
      |      Parameters
      |      ----------
@@ -1202,7 +1419,22 @@ CLASSES
      |      Returns
      |      -------
      |      list
-     |          a list of CFluorDef70 objects
+     |          a list of filter set names
+     |  
+     |  GetFilters(self)
+     |  
+     |  GetFluorDef(self, inCaptureIndex)
+     |      Gets a list of the image CFluorDef for each channel
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      Returns
+     |      -------
+     |      list
+     |          a list of CFluorDef70 objects for each channel
      |  
      |  GetHardwareComponentLocationMicrons(self, inComponentID: 'MicroscopeHardwareComponent')
      |      Gets the current XYZ location of hardware component inComponentIndex
@@ -1279,6 +1511,24 @@ CLASSES
      |      int
      |          Returns success (1) or failure (0)
      |  
+     |  GetHardwareProperty(self, inSetName, inPropertyName)
+     |      Obtains the text value of a hardware property
+     |      
+     |      Parameters
+     |      ----------
+     |      inSetName: str
+     |          The name of a hardware property set
+     |      inPropertyName: str
+     |          The name of a hardware property
+     |      
+     |      Returns
+     |      -------
+     |      
+     |      Property value: str
+     |          Text string of the property
+     |      Result: bool
+     |          True if success, false if failure
+     |  
      |  GetImageComment(self, inCaptureIndex)
      |      Gets the comments of an image group
      |      
@@ -1335,6 +1585,33 @@ CLASSES
      |      str
      |          The name of the image group
      |  
+     |  GetIsCTLSCapture(self, inCaptureIndex)
+     |      Returns whether the selected image contains CTLS metadata
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      Returns
+     |      -------
+     |      bool
+     |          True if the image is CTLS, false if it is not
+     |  
+     |  GetIsCommandSupported(self, Command)
+     |      Returns the current SlideBook build version information
+     |      
+     |      Parameters
+     |      ----------
+     |      Command : string
+     |          The Synergy command
+     |      Returns
+     |      -------
+     |      Supported : bool
+     |          True if the command is supported by the current system, false if the command is not supported (version old / API mis-match)
+     |      Authorized : bool
+     |          True if the current hardware protection key authorizes the command, false if the command is not authorized
+     |  
      |  GetIsHardwareComponentEnabled(self, inComponentID: 'MicroscopeHardwareComponent')
      |      Checks if the hardware component is enabled
      |      
@@ -1347,6 +1624,32 @@ CLASSES
      |      -------
      |      bool
      |          True if is enabled, false if it is not
+     |  
+     |  GetIsLLSCapture(self, inCaptureIndex)
+     |      Returns whether the selected image contains LLS metadata
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      Returns
+     |      -------
+     |      bool
+     |          True if the image is LLS, false if it is not
+     |  
+     |  GetIsMLSCapture(self, inCaptureIndex)
+     |      Returns whether the selected image contains MLS metadata
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      Returns
+     |      -------
+     |      bool
+     |          True if the image is MLS, false if it is not
      |  
      |  GetIsSlideModified(self, inSlideId)
      |      Get modified status of slide
@@ -1361,6 +1664,21 @@ CLASSES
      |          True if file has been modified since last save, false if the file has not been modified
      |      int
      |          True if successful and false if failure
+     |  
+     |  GetLLSXML(self, inCaptureIndex)
+     |      Gets the LLS XML metadata
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      Returns
+     |      -------
+     |      str
+     |          The XML Metadata
+     |      bool   
+     |          True if the XMLS is valid, false if not
      |  
      |  GetLastChannelCaptured(self, inCaptureIndex)
      |      Gets the index of the last Channel captured
@@ -1414,17 +1732,21 @@ CLASSES
      |      int
      |          the index (plane) of the last plane captured
      |  
-     |  GetLensInfo(self)
-     |      Gets the lens info
+     |  GetLensDef(self, inCaptureIndex)
+     |      Gets the CLensDef object of an image
      |      
      |      Parameters
      |      ----------
-     |          none
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
      |      
      |      Returns
      |      -------
      |      str
-     |          the objectives
+     |          a CLensDef70 object
+     |  
+     |  GetLensInfo(self, inCaptureIndex)
+     |      #deprecated functions
      |  
      |  GetLensName(self, inCaptureIndex)
      |      Gets the name of the lens of an image group
@@ -1438,6 +1760,21 @@ CLASSES
      |      -------
      |      str
      |          The name of the lens
+     |  
+     |  GetMLSXML(self, inCaptureIndex)
+     |      Gets the MLS XML metadata
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      
+     |      Returns
+     |      -------
+     |      str
+     |          The XML Metadata
+     |      bool   
+     |          True if the XML is valid, false if not
      |  
      |  GetMagnification(self, inCaptureIndex)
      |      Gets the magnification of the lens of an image group
@@ -1642,16 +1979,6 @@ CLASSES
      |          The number of z planes of the image
      |  
      |  GetObjectives(self)
-     |      Gets the objectives
-     |      
-     |      Parameters
-     |      ----------
-     |          none
-     |      
-     |      Returns
-     |      -------
-     |      list
-     |          a list of CLensDef70 objects
      |  
      |  GetOpenSlides(self)
      |      Gets a dictionary of  Slide Id  vs Pathname of all open slides
@@ -1664,6 +1991,46 @@ CLASSES
      |      -------
      |      dict
      |          The dictionary of IDs/SlideName(Pathname)
+     |  
+     |  GetSlideBookVersion(self)
+     |      Returns the current SlideBook build version information
+     |      
+     |      Parameters
+     |      ----------
+     |      Returns
+     |      -------
+     |      Major Version : Int
+     |          Major version
+     |      Minor Version : Int
+     |          Minor version
+     |      Build : Int
+     |          Build
+     |      Serial : Int
+     |          SlideBook hardware protection key serial number
+     |  
+     |  GetSystemFluorDefs(self)
+     |      Gets a list of all the system CFluorDef
+     |      
+     |      Parameters
+     |      ----------
+     |          none
+     |      
+     |      Returns
+     |      -------
+     |      list
+     |          a list of CFluorDef70 objects
+     |  
+     |  GetSystemLensDefs(self)
+     |      Gets a list of all the system CLensDef
+     |      
+     |      Parameters
+     |      ----------
+     |          none
+     |      
+     |      Returns
+     |      -------
+     |      list
+     |          a list of CLensDef70 objects
      |  
      |  GetVector3ScannerPosition(self)
      |      Gets the current position of a hardware device
@@ -1723,14 +2090,33 @@ CLASSES
      |      float
      |          The X position in um
      |  
-     |  GetXYZMontagePointList(self, PointIndex)
+     |  GetXYZMontagePoint(self, PointIndex)
+     |      If the selected XYZ point is a montage this functions returns the upper left XYZ11Z12 and lower right X2Y2Z21Z22 points in the montage 
+     |      
+     |       Parameters
+     |       ----------
+     |       PointIndex : int
+     |             Index in global experiment list (0 to GetXYZPointCount())
+     |           
+     |       Returns
+     |      ----------
+     |       Points: PointStruct
+     |           Array of point information (UL = 0 LR = 1) Note: Aux Z position is currently the average aux Z
+     |       bool
+     |         Returns True if successful and False if not successful (for example, the index is out of bounds or the experiment is not setup as a montage)
+     |  
+     |  GetXYZMontagePointList(self, PointIndex, CameraIndex=1, MicronsPerPixel=-1.0)
      |      If the selected XYZ point is a montage this functions returns a list of XYZ1Z2 points in the montage for the current camera / lens configuration.
      |      
      |       Parameters
      |       ----------
      |       PointIndex : int
      |             Index in global experiment list (0 to GetXYZPointCount())
-     |      
+     |       CameraIndex : int
+     |             Camera used to compute montage size (-1 = use current camera)
+     |       MicronsPerPixel: float 
+     |             Microns / pixel used to compute montage size (-1.0 to use current objective magnification)
+     |           
      |       Returns
      |      ----------
      |       NumPoints : int
@@ -1750,8 +2136,6 @@ CLASSES
      |      -------
      |       PointStruct
      |         Returns the XYZ1Z2 point
-     |       PointType
-     |         Returns the
      |       bool
      |           Returns True if successful and False if not successful
      |  
@@ -1777,6 +2161,17 @@ CLASSES
      |      -------
      |      list
      |          a list of strings . If there is no point list defined in the XY Tab, it returns the keyword 'Empty'
+     |  
+     |  GetXYZPositionDescription(self, inIndex)
+     |      Gets the description of an XYZ point
+     |      Parameters
+     |      ----------   
+     |      inIndex: int
+     |          the experiment index
+     |      Returns
+     |      ----------
+     |          string, bool
+     |              Returns the description name as a string and true/false for success (bounds checking)
      |  
      |  GetXYZSavedExperimentName(self, inIndex)
      |      Gets the name of a saved experiment
@@ -1820,6 +2215,18 @@ CLASSES
      |      float
      |          The Z position in um
      |  
+     |  HasDefiniteFocus(self)
+     |      Determine if the system has a definite focus enabled
+     |      
+     |      Parameters
+     |      ----------
+     |      Returns
+     |      -------
+     |      bool
+     |          Is definite focus enabled?
+     |      int
+     |          Definite focus version (DF1 = 1, DF2 = 2, DF3 = 3, Simulated DF2/3 = 4)
+     |  
      |  IncrementHardwareComponentLocationMicrons(self, inComponentID: 'MicroscopeHardwareComponent', inXMicrons, inYMicrons, inZMicrons)
      |      Increment the current XYZ position of a hardware device
      |      
@@ -1849,6 +2256,19 @@ CLASSES
      |      -------
      |      bool
      |          True if is capturing, false if it is not
+     |  
+     |  IsCurrentSlideSaved(self)
+     |      Checks if the current topmost slide document is saved
+     |      
+     |      Parameters
+     |      ----------
+     |      
+     |      Returns
+     |      -------
+     |      str
+     |          The name of the current slide document
+     |      bool
+     |          True if is current slide document is saved, false if not saved
      |  
      |  IsStreaming(self)
      |      Checks if there is an active streaming acquisition
@@ -1940,7 +2360,54 @@ CLASSES
      |      int
      |          The Slide Id
      |  
-     |  ReadImagePlaneBuf(self, inCaptureIndex, inPositionIndex, inTimepointIndex, inZPlaneIndex, inChannelIndex)
+     |  ReadAllImagePlanes(self, inCaptureIndex, inImageIndex, inChannelIndex, inReadOneScoop=True, ioArr: 'Optional[np.ndarray]' = None)
+     |      Reads all the z planes of an image into a numpy array
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inImageIndex: int
+     |          The Image index (or Timepoint for non montage data)
+     |      inChannelIndex: int
+     |          The channel number
+     |      inReadOneScoop: int
+     |          If true, have SB read the whole image in one scopp, else read it a plane at a time to use much less memory 
+     |      ioArr: optional np uint16 array
+     |          An optional Numpy uint16 preallocated array to receive the image
+     |          To preallocate, use something like: np.empty(theNumRows*theNumColumns*theNumPlanes,np.uint16)
+     |          If ioArr is not specified, the array is returned as 1D numpy uint16 array
+     |      
+     |      
+     |      Returns
+     |      -------
+     |      if ioArr is specified, then it will return a 0 for failure, or 1 for success
+     |      otherwise it will return the image as 1D numpy uint16 array
+     |  
+     |  ReadAllMaskPlanes(self, inCaptureIndex, inMaskIndex, inImageIndex, inReadOneScoop=True, ioArr: 'Optional[np.ndarray]' = None)
+     |      Reads all the z planes of a mask into a numpy array
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inMaskIndex: int
+     |          The index of the mask
+     |      inImageIndex: int
+     |          The Image index (or Timepoint for non montage data)
+     |      inReadOneScoop: int
+     |          If true, have SB read the whole image in one scopp, else read it a plane at a time to use much less memory 
+     |      ioArr: optional np uint16 array
+     |          An optional Numpy uint16 preallocated array to receive the mask
+     |          To preallocate, use something like: np.empty(theNumRows*theNumColumns*theNumPlanes,np.uint16)
+     |          If ioArr is not specified, the array is returned as 1D numpy uint16 array
+     |      
+     |      Returns
+     |      -------
+     |      if ioArr is specified, then it will return a 0 for failure, or 1 for success
+     |      otherwise it will return the mask as 1D numpy uint16 array
+     |  
+     |  ReadImagePlaneBuf(self, inCaptureIndex, inPositionIndex, inTimepointIndex, inZPlaneIndex, inChannelIndex, ioArr: 'Optional[np.ndarray]' = None)
      |      Reads a z plane of an image into a numpy array
      |      
      |      Parameters
@@ -1955,13 +2422,17 @@ CLASSES
      |          The z plane number
      |      inChannelIndex: int
      |          The channel number
+     |      ioArr: 
+     |          An optional Numpy uint16 preallocated array to receive the image
+     |          To preallocate, use something like: np.empty(theNumRows*theNumColumns,np.uint16)
+     |          If ioArr is not specified, the array is returned as 1D numpy uint16 array
      |      
      |      Returns
      |      -------
-     |      numpy uint16 array 
-     |          The image is returned as 1D numpy uint16 array
+     |      if ioArr is specified, then it will return a 0 for failure, or 1 for success
+     |      otherwise it will return the image as 1D numpy uint16 array
      |  
-     |  ReadImagePlaneBufIx(self, inCaptureIndex, inImageIndex, inZPlaneIndex, inChannelIndex)
+     |  ReadImagePlaneBufIx(self, inCaptureIndex, inImageIndex, inZPlaneIndex, inChannelIndex, ioArr: 'Optional[np.ndarray]' = None)
      |      Reads a z plane of an image into a numpy array
      |      
      |      Parameters
@@ -1969,18 +2440,22 @@ CLASSES
      |      inCaptureIndex: int
      |          The index of the image group. Must be in range(0,number of captures)
      |      inImageIndex: int
-     |          The Image index
+     |          The Image index (or Timepoint for non montage data)
      |      inZPlaneIndex: int
      |          The z plane number
      |      inChannelIndex: int
      |          The channel number
+     |      ioArr: 
+     |          An optional Numpy uint16 preallocated array to receive the image
+     |          To preallocate, use something like: np.empty(theNumRows*theNumColumns,np.uint16)
+     |          If ioArr is not specified, the array is returned as 1D numpy uint16 array
      |      
      |      Returns
      |      -------
-     |      numpy uint16 array 
-     |          The image is returned as 1D numpy uint16 array
+     |      if ioArr is specified, then it will return a 0 for failure, or 1 for success
+     |      otherwise it will return the image as 1D numpy uint16 array
      |  
-     |  ReadMaskPlaneBuf(self, inCaptureIndex, inMaskIndex, inTimepointIndex, inZPlaneIndex)
+     |  ReadMaskPlaneBuf(self, inCaptureIndex, inMaskIndex, inImageIndex, inZPlaneIndex, ioArr: 'Optional[np.ndarray]' = None)
      |      Reads a z plane of a mask into a numpy array
      |      
      |      Parameters
@@ -1988,19 +2463,26 @@ CLASSES
      |      inCaptureIndex: int
      |          The index of the image group. Must be in range(0,number of captures)
      |      inMaskIndex: int
-     |          The nindex of the mask
-     |      inTimepointIndex: int
-     |          The time point
+     |          The index of the mask
+     |      inImageIndex: int
+     |          The Image index (or Timepoint for non montage data)
      |      inZPlaneIndex: int
      |          The z plane number
+     |      ioArr: 
+     |          An optional Numpy uint16 preallocated array to receive the mask
+     |          To preallocate, use something like: np.empty(theNumRows*theNumColumns,np.uint16)
+     |          If ioArr is not specified, the array is returned as 1D numpy uint16 array
+     |      
      |      Returns
      |      -------
-     |      numpy uint16 array 
-     |          The mask is returned as 1D numpy uint16 array
+     |      if ioArr is specified, then it will return a 0 for failure, or 1 for success
+     |      otherwise it will return the mask as 1D numpy uint16 array
      |  
      |  Recv(self)
      |  
      |  RecvBigData(self, n)
+     |  
+     |  RecvDataIntoArray(self, arr, expected_dtype=<class 'numpy.uint16'>)
      |  
      |  RunSavedScript(self, inStringParam)
      |      Runs a script file
@@ -2056,7 +2538,7 @@ CLASSES
      |      int
      |          1 on success
      |  
-     |  SendByteArray(self, inBytes)
+     |  SendByteArray(self, inData, chunk_size=4194304)
      |  
      |  SendCommand(self, inCommand)
      |  
@@ -2084,6 +2566,20 @@ CLASSES
      |          Returns information about the status of the command
      |      bool
      |          Returns success or failure
+     |  
+     |  SetAllXYZExperiments(self, Experiments: 'list[ExperimentStruct]', ClearExisting)
+     |      Sets all XYZZ + experiment name + description at once, optionally clearing any existing experiments
+     |      
+     |      Parameters
+     |      ----------
+     |      Experiments: List[ExperimentStruct]
+     |          An array of ExperimentStruct
+     |      ClearExisting: bool
+     |          Clear all existing experiments
+     |      
+     |      Returns
+     |      -------
+     |      True if successful, false if not successful
      |  
      |  SetCaptureDate(self, inCaptureIndex, inYear, inMonth, inDay, inHour, inMinute, inSecond)
      |      Sets the date of acquisition of an image group
@@ -2114,6 +2610,28 @@ CLASSES
      |      Returns
      |      -------
      |      none
+     |  
+     |  SetExperimentScriptData(self, inScriptName, inCaptureScript, inCaptureSettings, inOverwriteExisting)
+     |      Gets a list of the saved capture experiment script names
+     |      
+     |       Parameters
+     |       ----------
+     |      inScriptName: string
+     |           The script name to read
+     |      inCaptureScript: string
+     |           The text of the capture script (core capture settings: channels, exposure times, 2d/3d settings, etc)
+     |      inCaptureSettings: string
+     |           The text of the capture preferences (advanced capture settings: photomanipulation, autofocus, TTL, etc)
+     |      inOverwrite
+     |           1 = if the script exists overwrite it, 0 = do not overwrite existing 
+     |       Returns
+     |       -------
+     |       int
+     |           1 for success, 0 for failure
+     |       string
+     |           The text of the capture script (core capture settings: channels, exposure times, 2d/3d settings, etc)
+     |       string 
+     |           The text of the capture preferences (advanced capture settings: photomanipulation, autofocus, TTL, etc)
      |  
      |  SetHardwareComponentLocationMicrons(self, inComponentID: 'MicroscopeHardwareComponent', inXMicrons, inYMicrons, inZMicrons)
      |      Set the current XYZ position of a hardware device
@@ -2177,6 +2695,24 @@ CLASSES
      |      Returns
      |      -------
      |      none
+     |  
+     |  SetLensDef(self, inCaptureIndex, inLensDef)
+     |      Sets the lens info
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group for which to set the info. Must be in range(0,number of captures)
+     |      
+     |      inLensDef: CLensDef70
+     |          The CLensDef70 object to be sent
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 for success, 0 for failure
+     |  
+     |  SetLensInfo(self, inCaptureIndex, inLensDef)
      |  
      |  SetMagnification(self, inCaptureIndex, inLensMagnification, inOptovarMagnification)
      |      Sets the Magnification of an image group
@@ -2271,6 +2807,19 @@ CLASSES
      |      -------
      |      none
      |  
+     |  SetXYZPositionDescription(self, inIndex, inPointDescription)
+     |      Sets the description of an XYZ point
+     |      Parameters
+     |      ----------
+     |      inIndex: int
+     |          the experiment index
+     |      string
+     |          the unique experiment description
+     |      Returns
+     |      ----------
+     |      bool
+     |          Return True/False based on bounds checking AND confirmation that the inPointDescription is unique
+     |  
      |  SetXYZSavedExperimentName(self, inIndex, inExperimentName)
      |      Sets the name of an experiment at given index in the 6D tab, experiment list
      |      Parameters
@@ -2284,12 +2833,74 @@ CLASSES
      |      bool
      |          Return True/False based on bounds checking AND confirmation that the ExperimentName exists
      |  
+     |  Start6DCaptureSequential(self, CaptureMode: 'SequentialCaptureMode', Repetitions)
+     |      Starts a 6d sequential capture
+     |      Parameters
+     |      ----------
+     |      CaptureMode: SequentialCaptureMode
+     |          Capture mode
+     |      Repetitions: Int
+     |          Number of repetitions
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          the capture id. If the capture failed to start, return -1
+     |  
+     |  StartCTLSCapture(self, inXML)
+     |      Starts a CTLS capture with the provided XML script
+     |      Parameters
+     |      ----------
+     |      inXML: string
+     |          The XML script for the desired capture (can be queried by GetCTLSXML)
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          the capture id. If the capture failed to start, return -1
+     |  
      |  StartCapture(self, inScriptName='Default')
      |      Starts a capture with an optional script name
      |      Parameters
      |      ----------
      |      inScriptName: string
      |          The script name to load before starting the capture. If blank, the Default script  is loaded
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          the capture id. If the capture failed to start, return -1
+     |  
+     |  StartCaptureBackground(self, inScriptName='Default')
+     |      Starts a capture with an optional script name, without displaying the image capture dialog box
+     |      Parameters
+     |      ----------
+     |      inScriptName: string
+     |          The script name to load before starting the capture. If blank, the Default script  is loaded
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          the capture id. If the capture failed to start, return -1
+     |  
+     |  StartLLSCapture(self, inXML)
+     |      Starts a LLS capture with the specified XML
+     |      Parameters
+     |      ----------
+     |      inXML: string
+     |          XML description of the experiment to run
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          the capture id. If the capture failed to start, return -1
+     |  
+     |  StartMLSCapture(self, inXML)
+     |      Starts a LLS capture with the specified XML
+     |      Parameters
+     |      ----------
+     |      inXML: string
+     |          XML description of the experiment to run
      |      
      |      Returns
      |      -------
@@ -2328,6 +2939,41 @@ CLASSES
      |      int
      |          0
      |  
+     |  WriteAllImagePlanes(self, inCaptureIndex, inImageIndex, inChannelIndex, inNumpyArray)
+     |      Writes all planes of an image from a numpy array
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inImageIndex: int
+     |          The image index or time point in a non montage image
+     |      inChannelIndex: int
+     |          The channel number. If the channel number (they start at 0) is equal to the number of channels, then a new channel is added
+     |      inNumpyArray: numpy array of u2 (unsigned 16 bit integer)
+     |          The data buffer for the plane to be written
+     |      
+     |      Returns
+     |      -------
+     |      none
+     |  
+     |  WriteAllMaskPlanes(self, inCaptureIndex, inMaskName, inImageIndex, inZPlaneIndex, inNumpyArray)
+     |      Writes a z plane of a mask from a numpy array
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inMaskName: str
+     |          The name of the mask
+     |      inImageIndex: int
+     |          The image index or time point in a non montage image
+     |      inNumpyArray: numpy array of u2 (unsigned 16 bit integer)
+     |      
+     |      Returns
+     |      -------
+     |      none
+     |  
      |  WriteImagePlaneBuf(self, inCaptureIndex, inTimepointIndex, inZPlaneIndex, inChannelIndex, inNumpyArray)
      |      Writes a z plane of an image from a numpy array
      |      
@@ -2348,7 +2994,7 @@ CLASSES
      |      -------
      |      none
      |  
-     |  WriteMaskPlaneBuf(self, inCaptureIndex, inMaskName, inTimepointIndex, inZPlaneIndex, inNumpyArray)
+     |  WriteMaskPlaneBuf(self, inCaptureIndex, inMaskName, inImageIndex, inZPlaneIndex, inNumpyArray)
      |      Writes a z plane of a mask from a numpy array
      |      
      |      Parameters
@@ -2357,8 +3003,8 @@ CLASSES
      |          The index of the image group. Must be in range(0,number of captures)
      |      inMaskName: str
      |          The name of the mask
-     |      inTimepointIndex: int
-     |          The time point
+     |      inImageIndex: int
+     |          The image index or time point in a non montage image
      |      inZPlaneIndex: int
      |          The z plane number
      |      inNumpyArray: numpy array of u2 (unsigned 16 bit integer)
@@ -2370,8 +3016,6 @@ CLASSES
      |  __init__(self, inSocket)
      |      Initialize self.  See help(type(self)) for accurate signature.
      |  
-     |  mysend(self, inBytes)
-     |  
      |  ----------------------------------------------------------------------
      |  Data descriptors defined here:
      |  
@@ -2380,8 +3024,53 @@ CLASSES
      |  
      |  __weakref__
      |      list of weak references to the object (if defined)
+    
+    class SequentialCaptureMode(enum.Enum)
+     |  SequentialCaptureMode(value, names=None, *, module=None, qualname=None, type=None, start=1)
+     |  
+     |  Enumeration of 6D Multicapture modes
+     |  
+     |  Method resolution order:
+     |      SequentialCaptureMode
+     |      enum.Enum
+     |      builtins.object
+     |  
+     |  Data and other attributes defined here:
+     |  
+     |  Sequential = <SequentialCaptureMode.Sequential: 0>
+     |  
+     |  SequentialDirectToDisk = <SequentialCaptureMode.SequentialDirectToDisk...
+     |  
+     |  SequentialDirectToDiskNoSldy = <SequentialCaptureMode.SequentialDirect...
+     |  
+     |  SequentialFreeRun = <SequentialCaptureMode.SequentialFreeRun: 1>
+     |  
+     |  SequentialTriggered = <SequentialCaptureMode.SequentialTriggered: 2>
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from enum.Enum:
+     |  
+     |  name
+     |      The name of the Enum member.
+     |  
+     |  value
+     |      The value of the Enum member.
+     |  
+     |  ----------------------------------------------------------------------
+     |  Readonly properties inherited from enum.EnumMeta:
+     |  
+     |  __members__
+     |      Returns a mapping of member name->value.
+     |      
+     |      This mapping lists all enum members, including aliases. Note that this
+     |      is a read-only view of the internal mapping.
 
 DATA
+    Optional = typing.Optional
+        Optional type.
+        
+        Optional[X] is equivalent to Union[X, None].
+    
     __copyright__ = 'Copyright (c) 2022-2025, Intelligent Imaging Inn..., ...
     __license__ = 'This source code is licensed under the BSD-style...E fi...
     annotations = _Feature((3, 7, 0, 'beta', 1), (3, 11, 0, 'alpha', 0), 1...

@@ -3,6 +3,11 @@ __license__  = "This source code is licensed under the BSD-style license found i
 
 import numpy as np
 
+def uint8_to_bytes(inVal):
+    theArray = np.array([inVal],np.uint8)
+    theBytes = theArray.tobytes()
+    return theBytes
+
 def uint16_to_bytes(inVal):
     theArray = np.array([inVal],np.uint16)
     theBytes = theArray.tobytes()
@@ -62,7 +67,9 @@ def bytes_to_float32(inBytes):
     return theArr
 
 def type_to_bytes(inVal,inType):
-    if(inType == 'u2'):
+    if(inType == 'u1'):
+        theBytes = uint8_to_bytes(inVal)
+    elif(inType == 'u2'):
         theBytes = uint16_to_bytes(inVal)
     elif(inType == 'i2'):
         theBytes = int16_to_bytes(inVal)
@@ -84,7 +91,9 @@ def type_to_bytes(inVal,inType):
     return theBytes
     
 def bytes_to_type(inBytes,inType):
-    if(inType == 'u2'):
+    if(inType == 'u1'):
+        theArr = np.frombuffer(inBytes,np.uint8)
+    elif(inType == 'u2'):
         theArr = np.frombuffer(inBytes,np.uint16)
     elif(inType == 'i2'):
         theArr = np.frombuffer(inBytes,np.int16)

@@ -54,13 +54,15 @@ class CAnnotation70(BaseDecoder):
         if isinstance(inAttrKeyNode[1], yaml.nodes.ScalarNode):
             theAttrValue = inAttrKeyNode[1].value
             if inUnknownString == "mStageOffsetMicrons.mX":
-                self.mStageOffsetMicrons.mX = float(theAttrValue)
+                self.mStageOffsetMicrons.mX = float(self.EncodeStringToReal(theAttrValue))
             elif inUnknownString == "mStageOffsetMicrons.mY":
-                self.mStageOffsetMicrons.mY = float(theAttrValue)
+                self.mStageOffsetMicrons.mY = float(self.EncodeStringToReal(theAttrValue))
             elif inUnknownString == "mFieldOffsetMicrons.mX":
-                self.mFieldOffsetMicrons.mX = float(theAttrValue)
+                self.mFieldOffsetMicrons.mX = float(self.EncodeStringToReal(theAttrValue))
             elif inUnknownString == "mFieldOffsetMicrons.mY":
-                self.mFieldOffsetMicrons.mY = float(theAttrValue)
+                self.mFieldOffsetMicrons.mY = float(self.EncodeStringToReal(theAttrValue))
+            elif inUnknownString == "StructName":
+                str = self.EncodeStringToString(theAttrValue);
             else:
                 return False
             return True
