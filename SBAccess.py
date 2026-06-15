@@ -2623,6 +2623,7 @@ class SBAccess(object):
         inImageIndex: int
             The image index or time point in a non montage image
         inNumpyArray: numpy array of u2 (unsigned 16 bit integer)
+            Note: undivided mask values are 0 (unset) and 1 (set). Divided (submask) values are 0 (unset) and 5-16383 (object ID 0 to 16738)
 
         Returns
         -------
@@ -2657,6 +2658,7 @@ class SBAccess(object):
         inZPlaneIndex: int
             The z plane number
         inNumpyArray: numpy array of u2 (unsigned 16 bit integer)
+            Note: undivided mask values are 0 (unset) and 1 (set). Divided (submask) values are 0 (unset) and 5-16383 (object ID 0 to 16738)
 
         Returns
         -------
@@ -2846,6 +2848,12 @@ class SBAccess(object):
         int
             the capture id. If the capture failed to start, return -1
         """
+
+        # make sure a slide is open
+        theDict = self.GetOpenSlides()
+        if(len(theDict) == 0):
+            raise Exception("StartCapture: no open slides")
+
         l = len(inScriptName)
         self.SendCommand('$StartCapture(ScriptName='+str(l)+':s)')
         self.SendVal(inScriptName,'s')
@@ -2867,6 +2875,12 @@ class SBAccess(object):
         int
             the capture id. If the capture failed to start, return -1
         """
+
+        # make sure a slide is open
+        theDict = self.GetOpenSlides()
+        if(len(theDict) == 0):
+            raise Exception("StartCaptureBackground: no open slides")
+
         l = len(inScriptName)
         self.SendCommand('$StartCaptureBackground(ScriptName='+str(l)+':s)')
         self.SendVal(inScriptName,'s')
