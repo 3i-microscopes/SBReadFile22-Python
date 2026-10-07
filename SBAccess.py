@@ -331,7 +331,7 @@ class SBAccess(object):
     def __init__(self, inSocket):
         self.mSocket = inSocket
         self.mSendBuffer = bytearray()
-        self.mUnbufferedSend = False
+        self.mUnbufferedSend = True
 
     def SendCommand(self,inCommand):
         theBytes = bu.string_to_bytes(inCommand)
