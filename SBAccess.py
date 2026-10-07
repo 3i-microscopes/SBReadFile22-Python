@@ -330,16 +330,32 @@ class SBAccess(object):
 
     def __init__(self, inSocket):
         self.mSocket = inSocket
+        self.mSendBuffer = bytearray()
+        self.mUnbufferedSend = False
 
     def SendCommand(self,inCommand):
         theBytes = bu.string_to_bytes(inCommand)
-        self.mSocket.send(theBytes)
+        if self.mUnbufferedSend:
+            self.mSocket.send(theBytes)
+        else:
+            self.mSendBuffer.extend(theBytes)
 
     def SendVal(self,inVal,inType):
         theBytes = bu.type_to_bytes(inVal,inType)
-        self.mSocket.send(theBytes)
+        if self.mUnbufferedSend:
+            self.mSocket.send(theBytes)
+        else:
+            self.mSendBuffer.extend(theBytes)
+
+    def Flush(self):
+        if self.mUnbufferedSend:
+            return
+        if self.mSendBuffer:
+            self.mSocket.sendall(self.mSendBuffer)
+            self.mSendBuffer.clear()
 
     def SendByteArray(self,inData,chunk_size=4 * 1024 * 1024):
+        self.Flush()
         view = memoryview(inData)
         total_sent = 0
         msg_len = len(view)
@@ -353,6 +369,7 @@ class SBAccess(object):
 
     def RecvBigData(self, n):
         #print("In RecvBigData, expect size", n)
+        self.Flush()
 
         data = bytearray()
         chunk_size = 256 * 1024 * 1024   # 256 MB
@@ -378,7 +395,7 @@ class SBAccess(object):
             traceback.print_exc()
         raise
     def Recv(self):
-
+        self.Flush()
         theRecvBuf = b''
         b = self.mSocket.recv(1)
         if b != b'&':
@@ -2911,12 +2928,64 @@ class SBAccess(object):
 
         return theVals[0]
 
+    def StopDirectCapture(self):
+        """ Stops the current direct to disk capture after the current experiment is complete
+        Parameters
+        ----------
+
+        Returns
+        -------
+        int
+            1 if successful and 0 if failure
+        """
+        self.SendCommand('$StopDirectCapture()')
+        theNum,theVals = self.Recv()
+        if( theNum != 1 or theVals[0] == -1):
+            raise Exception("StopDirectCapture: error")
+
+        return theVals[0]
+
+    def GetDirectCaptureStatus(self):
+        """ Returns the current status of direct to disk capture
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        int
+            Is direct to disk capture running (1 = yes 0 = no)
+        int
+            Last completed direct to disk experiment index
+        int
+            Total experiment count from last direct to disk capture session
+        int
+            Success (1 = success 0 = failure)
+        """
+        self.SendCommand('$GetDirectCaptureStatus()')
+
+        theNum,isRunning = self.Recv()
+        if( theNum != 1):
+            raise Exception("GetDirectCaptureStatus: invalid value")
+
+        theNum,theLastIndex = self.Recv()
+        if( theNum != 1):
+            raise Exception("GetDirectCaptureStatus: invalid value")
+
+        theNum,theNumExperiments = self.Recv()
+        if( theNum != 1):
+            raise Exception("GetDirectCaptureStatus: invalid value")
+
+        theNum,isSuccess = self.Recv()
+        if( theNum != 1):
+            raise Exception("GetDirectCaptureStatus: invalid value")
+
+        return isRunning[0], theLastIndex[0], theNumExperiments[0], isSuccess[0]
+
     def StopCapture(self):
         """ Stops the current capture
         Parameters
         ----------
-        inScriptName: int
-            The script name to load before starting the capture. If blank, the Default script  is loaded
 
         Returns
         -------
@@ -3309,7 +3378,7 @@ class SBAccess(object):
         self.SendCommand('$GetHardwareComponentName(ComponentIndex=i4)')
         self.SendVal(int(inComponentID.value),'i4')
         theString = self.Recv()
-        return theString
+        return theString  
 
     def GetHardwareComponentMinMax(self, inComponentID : MicroscopeHardwareComponent):
         """ Returns the device minimum and maximum hardware positions
@@ -5403,6 +5472,33 @@ class SBAccess(object):
         else:
             return False
 
+    def RunTerminalCommand(self,inCommandLine):
+        """ Runs one SBTerminal command line (for example 'ao.perturb.set 3 0.5')
+        Parameters
+        ----------
+        inCommandLine: string
+            The command exactly as it would be typed in the SlideBook terminal
+
+        Returns
+        -------
+            string
+                The text the command printed, without color codes
+            bool
+                True if the command exists and was run. The call returns when the
+                command finishes, so the socket must not have a timeout.
+        """
+
+        l = len(inCommandLine)
+        self.SendCommand('$RunTerminalCommand(StringParam='+str(l)+':s)')
+        self.SendVal(inCommandLine,'s')
+        theOutput = self.Recv()
+
+        theNum,theVals = self.Recv()
+        if( theNum != 1):
+            raise Exception("RunTerminalCommand: failed")
+
+        return theOutput, theVals[0] > 0
+
 
 
 
@@ -5524,4 +5620,77 @@ class SBAccess(object):
     def GetFilters(self):
         return self.GetSystemFluorDefs()
 
-        
+    def GetSupportedCameraList(self, inIndex, inPointDescription):
+        """ Sets the description of an XYZ point
+        Parameters
+        ----------
+        inIndex: int
+            the experiment index
+        string
+            the unique experiment description
+        Returns
+        ----------
+        bool
+            Return True/False based on bounds checking AND confirmation that the inPointDescription is unique
+        """
+
+        l = len(inPointDescription)
+        self.SendCommand('$SetXYZPositionDescription(PointIndex=i4,Description=' + str(l) + ':s)')
+        self.SendVal(int(inIndex), 'i4')
+        self.SendVal(inPointDescription, 's')
+
+        theNum, theVals = self.Recv()
+        if (theNum != 1):
+            raise Exception("SetXYZPositionDescription: failed")
+        if (theVals[0] > 0):
+            return True
+        else:
+            return False
+
+    def GetHardwareComponentForIndex(self, inComponentID : MicroscopeHardwareComponent):
+        """ Returns the device name of a hardware component
+
+        Parameters
+        ----------
+        inComponentID: MicroscopeHardwareComponent
+            The component ID (0 <= inComponentID <= 46)
+
+        Returns
+        -------
+        list
+            Returns the device name of inComponentID. If not enabled returns keyword 'Empty'
+        """
+        self.SendCommand('$GetHardwareComponentName(ComponentIndex=i4)')
+        self.SendVal(int(inComponentID.value),'i4')
+        theString = self.Recv()
+        return theString
+    """
+    $GetHardwareComponentForIndex(ComponentIndex=i4)
+    $SetHardwareComponentForIndex(ComponentIndex=i4, ComponentID=i4)
+    $GetSupportedHardwareForIndex(ComponentIndex=i4)
+    """
+
+    def SetLensDef(self,inLensDef:CLensDef70):
+        """ Gets the CLensDef object of an image
+
+        Parameters
+        ----------
+        inCaptureIndex: int
+            The index of the image group. Must be in range(0,number of captures)
+
+        Returns
+        -------
+        str
+            a CLensDef70 object
+        """
+        self.SendCommand('$GetLensDef(CaptureIndex=i4)')
+        self.SendVal(int(inCaptureIndex),'i4')
+
+        theStr = self.Recv()
+        # decode the string
+        txt_stream = io.StringIO(theStr)
+        theNode = yaml.compose(txt_stream)
+        theLastIndex = 0
+        theLensDef70 = CLensDef70()
+        theLastIndex = theLensDef70.Decode(theNode, theLastIndex)
+        return theLensDef70

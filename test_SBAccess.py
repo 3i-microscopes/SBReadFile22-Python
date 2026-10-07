@@ -1254,6 +1254,17 @@ def test_get_set_lens_def():
 
     return
 
+def test_direct_disk():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        theSbAccess = SBAccess(s)
+
+        s.connect((HOST, PORT))
+
+        result = theSbAccess.StopDirectCapture()
+        result, last, total = theSbAccess.GetDirectCaptureStatus()
+    
 def test_get_set_fluor_def():
     HOST = '127.0.0.1'  # The server's hostname or IP address
 
@@ -1940,6 +1951,36 @@ def test_montage_timelapse():
 
         return
 
+def test_command_speed():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT)) # connect to host port
+        #s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+        theSbAccess = SBAccess(s) # create a SBaccess object
+        theSbAccess.Open("E:\Data\Slides_msi\QweekTour.sldy")  #open a slide
+
+        theNumCaptures = theSbAccess.GetNumCaptures()  #get the number of image froups in the slide 
+        t0 = time.perf_counter()
+        for theCnt in range(100):
+            theImageName = theSbAccess.GetImageName(0) #get the image name
+            #print("Name: " + theImageName)
+
+        t1 = time.perf_counter()
+        print(f"Elapsed time: {t1 - t0:.3f} s")
+
+def test_error_messages():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT)) # connect to host port
+        #s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+        theSbAccess = SBAccess(s) # create a SBaccess object
+        theSbAccess.Open("E:\Data\Slides_msi\QweekTour.sldy")  #open a slide
+        for theCnt in range(100):
+            theSbAccess.GetZPosition(0,0,3333)
+
+
 def main():
     try:
 #        test_new_slide()
@@ -1998,7 +2039,10 @@ def main():
         #test_write_all_planes()
         #test_get_set_lens_def()
         #test_get_fluor_def()
-        test_get_set_fluor_def()
+        #test_get_set_fluor_def()
+        #test_direct_disk()
+        #test_error_messages()
+        test_command_speed()
 
     except Exception as e:
         #print(f"Error: {e}")
