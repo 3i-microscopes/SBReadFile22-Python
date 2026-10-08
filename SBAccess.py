@@ -15,6 +15,7 @@ from CMetadataLib import BaseDecoder
 from CMetadataLib import CLensDef70
 from CMetadataLib import CFluorDef70
 from CMetadataLib import COptovarDef70
+from multiprocessing import shared_memory
 from enum import Enum
 import yaml
 import traceback
@@ -321,6 +322,36 @@ descriptions = {
     MicroscopeHardwareComponent.PMTController2: "Second PMT controller.",
     MicroscopeHardwareComponent.PMTController3: "Third PMT controller.",
 }
+
+
+
+class SharedMemoryImageStack(shared_memory.SharedMemory):
+    def __init__(self, inNx, inNy, inNz, inDtype=np.uint16):
+        self.nx = int(inNx)
+        self.ny = int(inNy)
+        self.nz = int(inNz)
+        self.dtype = np.dtype(inDtype)
+
+        if min(self.nx, self.ny, self.nz) <= 0:
+            raise ValueError("Image dimensions must be positive")
+
+        if self.dtype.hasobject:
+            raise ValueError("Pixel type cannot contain Python objects")
+
+        self.shape = (self.nz, self.ny, self.nx)
+        self.byte_count = (
+            self.nx * self.ny * self.nz * self.dtype.itemsize
+        )
+
+        super().__init__(create=True, size=self.byte_count)
+
+    def AsArray(self):
+        return np.ndarray(
+            shape=self.shape,
+            dtype=self.dtype,
+            buffer=self.buf,
+            order='C'
+        )
 
 class SBAccess(object):
 
@@ -2086,7 +2117,7 @@ class SBAccess(object):
         inChannelIndex: int
             The channel number
         inReadOneScoop: int
-            If true, have SB read the whole image in one scopp, else read it a plane at a time to use much less memory 
+            If true, have SB read the whole image in one scoop, else read it a plane at a time to use much less memory 
         ioArr: optional np uint16 array
             An optional Numpy uint16 preallocated array to receive the image
             To preallocate, use something like: np.empty(theNumRows*theNumColumns*theNumPlanes,np.uint16)
@@ -2200,6 +2231,65 @@ class SBAccess(object):
             self.RecvDataIntoArray(ioArr)
             return 1
 
+    def ReadAllImagePlanesSM(self,inCaptureIndex,inImageIndex,inChannelIndex,inSharedMemory,inReadOneScoop=True):
+        """ Reads all the z planes of an image into Shared Memory
+
+        Parameters
+        ----------
+        inCaptureIndex: int
+            The index of the image group. Must be in range(0,number of captures)
+        inImageIndex: int
+            The Image index (or Timepoint for non montage data)
+        inChannelIndex: int
+            The channel number
+        inSharedMemory: a SharedMemoryImageStack object allocated with AllocateSharedMemory
+            The Shared Memory object. the object must be allocated with the corrct nx,ny,nz to hold the image.
+        inReadOneScoop: int
+            If true, have SB read the whole image in one scoop, else read it a plane at a time to use much less memory 
+
+
+        Returns
+        -------
+        it will return a 0 for failure, or 1 for success
+
+        """
+        theMappingName = inSharedMemory.name
+        theMemorySize = inSharedMemory.size
+        l = len(theMappingName)
+        self.SendCommand('$ReadAllImagePlanesSM(CaptureIndex=i4,ImageIndex=i4,ChannelIndex=i4,MappingName='+str(l)+':s,MemorySize=i8,ReadOneScoop=i4)')
+        self.SendVal(int(inCaptureIndex),'i4')
+        self.SendVal(int(inImageIndex),'i4')
+        self.SendVal(int(inChannelIndex),'i4')
+        self.SendVal(theMappingName,'s')
+        self.SendVal(int(theMemorySize),'i8')
+        self.SendVal(int(inReadOneScoop),'i4')
+
+        theNum,theVals = self.Recv()
+        if( theNum != 1):
+            raise Exception("ReadAllImagePlanesSM: invalid returned value")
+
+        return inSharedMemory.AsArray()
+
+    def AllocateSharedMemory(self, inNx, inNy, inNz):
+        """ Allocate a block of shared memory for data transfer
+
+        Parameters
+        ----------
+        inNx: int
+            number of columns in the image
+        inNy: int
+            number of rows in the image
+        inNz: int
+            number of planes in the image
+
+        Returns
+        -------
+        it will return the SharedMemoryImageStack object
+        """
+        theSharedMemory = SharedMemoryImageStack(inNx, inNy, inNz)
+
+
+        return theSharedMemory
 
     def GetAuxDataNumElements(self, inCaptureIndex, inDataType : AuxDataTypes):
         """ Gets the Auxiliary Data Number of Elements for an image group and a data type

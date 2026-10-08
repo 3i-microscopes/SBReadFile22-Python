@@ -341,26 +341,26 @@ def test_read_all_planes_into_np():
             name = theSbAccess.GetChannelName(theCapture,theChannel) #get each channel name and pront it
             print('Channel Name: ',name)
 
-        image = np.empty(theNumRows*theNumColumns*theNumPlanes,np.uint16)
         t0 = time.perf_counter()
+        image = np.empty(theNumRows*theNumColumns*theNumPlanes,np.uint16)
         theSbAccess.ReadAllImagePlanes(theCapture,0,0,True,image) #read a plane, arguments are: capture id,image index,channel, readInOneScoop
         t1 = time.perf_counter()
         print(f"Elapsed time: {t1 - t0:.3f} s")
 
         image = image.reshape(theNumPlanes,theNumRows,theNumColumns) # reshape the image as a 2D array
 
+        theZPlane = int(theNumPlanes/2)
 
-        for theZPlane in range(0,theNumPlanes,int(theNumPlanes/10)):   #loop over each plane
-            print ("*** theZPlane: ",theZPlane," The read buffer len is: " , len(image))
+        print ("*** theZPlane: ",theZPlane," The read buffer len is: " , len(image))
 
-            #plot the slice
-            slice = image[theZPlane,:,:]
+        #plot the slice
+        slice = image[theZPlane,:,:]
 
-            plt.figure()
-            plt.imshow(slice)
-            plt.pause(0.001)
+        plt.figure()
+        plt.imshow(slice)
+        plt.pause(1)
 
-        data = input("Please hit Enter to exit:\n")
+
         print("Done")
 
 
@@ -395,21 +395,63 @@ def test_read_all_planes():
         t0 = time.perf_counter()
         image = theSbAccess.ReadAllImagePlanes(theCapture,0,0,False) #read a plane, arguments are: capture id,image index,channel, readInOneScoop
         t1 = time.perf_counter()
+        image = image.reshape(theNumPlanes,theNumRows,theNumColumns) # reshape the image as a 2D array
         print(f"Elapsed time: {t1 - t0:.3f} s")
 
-        image = image.reshape(theNumPlanes,theNumRows,theNumColumns) # reshape the image as a 2D array
+        theZPlane = int(theNumPlanes/2)
+
+        print ("*** theZPlane: ",theZPlane," The read buffer len is: " , len(image))
+
+        #plot the slice
+        slice = image[theZPlane,:,:]
+
+        plt.figure()
+        plt.imshow(slice)
+        plt.pause(1)
 
 
-        for theZPlane in range(0,theNumPlanes,int(theNumPlanes/1)):   #loop over each plane
-            print ("*** theZPlane: ",theZPlane," The read buffer len is: " , len(image))
+        data = input("Please hit Enter to exit:\n")
+        print("Done")
 
-            #plot the slice
-            slice = image[theZPlane,:,:]
 
-            plt.figure()
-            plt.imshow(slice)
-            plt.pause(0.001)
+        return
 
+def test_read_all_planes_into_shared_memory():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT)) # connect to host port
+        theSbAccess = SBAccess(s) # create a SBaccess object
+        #theSbAccess.Open("E:\Data\Slides_msi\QweekTour.sldy")  #open a slide
+        slide_id = theSbAccess.GetCurrentSlideId()
+
+        theNumCaptures = theSbAccess.GetNumCaptures()  #get the number of image froups in the slide 
+
+        theCapture = 0  # work with the first image
+        theNx = theSbAccess.GetNumXColumns(theCapture) #get the number of columns
+        theNy = theSbAccess.GetNumYRows(theCapture)    # get the number f rows
+        theNz = theSbAccess.GetNumZPlanes(theCapture) #get the number of planes
+
+        theSharedMemory = theSbAccess.AllocateSharedMemory(theNx,theNy,theNz);
+        t0 = time.perf_counter()
+        image = theSbAccess.ReadAllImagePlanesSM(theCapture,0,0,theSharedMemory,True) #read a plane, arguments are: capture id,image index,channel, shared_mem, readInOneScoop
+        t1 = time.perf_counter()
+        print(f"Elapsed time: {t1 - t0:.3f} s")
+
+
+        #for theZPlane in range(0,theNz,int(theNz/10)):   #loop over each plane
+        theZPlane = int(theNz/2)
+
+        print ("*** theZPlane: ",theZPlane," The read buffer len is: " , len(image))
+
+        #plot the slice
+        slice = image[theZPlane,:,:]
+
+        plt.figure()
+        plt.imshow(slice)
+        plt.pause(1)
+
+        theSharedMemory.close() # close only when you are done with your image data
         data = input("Please hit Enter to exit:\n")
         print("Done")
 
@@ -2034,15 +2076,16 @@ def main():
         #test_filter_sets()
         #test_aux_data()
         #test_montage_timelapse()
-        #test_read_all_planes()
-        #test_read_all_planes_into_np()
         #test_write_all_planes()
         #test_get_set_lens_def()
         #test_get_fluor_def()
         #test_get_set_fluor_def()
         #test_direct_disk()
         #test_error_messages()
-        test_command_speed()
+        #test_command_speed()
+        #test_read_all_planes()
+        #test_read_all_planes_into_np()
+        test_read_all_planes_into_shared_memory()
 
     except Exception as e:
         #print(f"Error: {e}")

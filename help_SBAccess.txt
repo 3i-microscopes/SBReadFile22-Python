@@ -13,6 +13,8 @@ CLASSES
         MicroscopeHardwareComponent
         MicroscopeStates
         SequentialCaptureMode
+    multiprocessing.shared_memory.SharedMemory(builtins.object)
+        SharedMemoryImageStack
     
     class AuxDataTypes(enum.Enum)
      |  AuxDataTypes(value, names=None, *, module=None, qualname=None, type=None, start=1)
@@ -373,6 +375,22 @@ CLASSES
      |           bool
      |               Returns True if successful and False if not successful
      |  
+     |  AllocateSharedMemory(self, inNx, inNy, inNz)
+     |      Allocate a block of shared memory for data transfer
+     |      
+     |      Parameters
+     |      ----------
+     |      inNx: int
+     |          number of columns in the image
+     |      inNy: int
+     |          number of rows in the image
+     |      inNz: int
+     |          number of planes in the image
+     |      
+     |      Returns
+     |      -------
+     |      it will return the SharedMemoryImageStack object
+     |  
      |  CaptureImage(self, CameraIndex, ExposureTimeMS)
      |      Return an image from the specified camera
      |      
@@ -494,6 +512,8 @@ CLASSES
      |      -------
      |      int
      |          result (1 = success, 0 = failure)
+     |  
+     |  Flush(self)
      |  
      |  FocusSurface_AddCalibrationPoint(self, inXum, inYum, inZum, inAuxZum=0, inIsAuxZ=False)
      |      Adds a calibration point to the Focus Surface
@@ -1345,6 +1365,23 @@ CLASSES
      |      int
      |          the index (timepoint) of the current image captured
      |  
+     |  GetDirectCaptureStatus(self)
+     |      Returns the current status of direct to disk capture
+     |      
+     |      Parameters
+     |      ----------
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          Is direct to disk capture running (1 = yes 0 = no)
+     |      int
+     |          Last completed direct to disk experiment index
+     |      int
+     |          Total experiment count from last direct to disk capture session
+     |      int
+     |          Success (1 = success 0 = failure)
+     |  
      |  GetElapsedTime(self, inCaptureIndex, inTimepointIndex)
      |      Gets the elapsed time in ms at a given time point in an image group
      |      
@@ -1435,6 +1472,19 @@ CLASSES
      |      -------
      |      list
      |          a list of CFluorDef70 objects for each channel
+     |  
+     |  GetHardwareComponentForIndex(self, inComponentID: 'MicroscopeHardwareComponent')
+     |      Returns the device name of a hardware component
+     |      
+     |      Parameters
+     |      ----------
+     |      inComponentID: MicroscopeHardwareComponent
+     |          The component ID (0 <= inComponentID <= 46)
+     |      
+     |      Returns
+     |      -------
+     |      list
+     |          Returns the device name of inComponentID. If not enabled returns keyword 'Empty'
      |  
      |  GetHardwareComponentLocationMicrons(self, inComponentID: 'MicroscopeHardwareComponent')
      |      Gets the current XYZ location of hardware component inComponentIndex
@@ -2008,6 +2058,19 @@ CLASSES
      |      Serial : Int
      |          SlideBook hardware protection key serial number
      |  
+     |  GetSupportedCameraList(self, inIndex, inPointDescription)
+     |      Sets the description of an XYZ point
+     |      Parameters
+     |      ----------
+     |      inIndex: int
+     |          the experiment index
+     |      string
+     |          the unique experiment description
+     |      Returns
+     |      ----------
+     |      bool
+     |          Return True/False based on bounds checking AND confirmation that the inPointDescription is unique
+     |  
      |  GetSystemFluorDefs(self)
      |      Gets a list of all the system CFluorDef
      |      
@@ -2372,7 +2435,7 @@ CLASSES
      |      inChannelIndex: int
      |          The channel number
      |      inReadOneScoop: int
-     |          If true, have SB read the whole image in one scopp, else read it a plane at a time to use much less memory 
+     |          If true, have SB read the whole image in one scoop, else read it a plane at a time to use much less memory 
      |      ioArr: optional np uint16 array
      |          An optional Numpy uint16 preallocated array to receive the image
      |          To preallocate, use something like: np.empty(theNumRows*theNumColumns*theNumPlanes,np.uint16)
@@ -2383,6 +2446,27 @@ CLASSES
      |      -------
      |      if ioArr is specified, then it will return a 0 for failure, or 1 for success
      |      otherwise it will return the image as 1D numpy uint16 array
+     |  
+     |  ReadAllImagePlanesSM(self, inCaptureIndex, inImageIndex, inChannelIndex, inSharedMemory, inReadOneScoop=True)
+     |      Reads all the z planes of an image into Shared Memory
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inImageIndex: int
+     |          The Image index (or Timepoint for non montage data)
+     |      inChannelIndex: int
+     |          The channel number
+     |      inSharedMemory: a SharedMemoryImageStack object allocated with AllocateSharedMemory
+     |          The Shared Memory object. the object must be allocated with the corrct nx,ny,nz to hold the image.
+     |      inReadOneScoop: int
+     |          If true, have SB read the whole image in one scoop, else read it a plane at a time to use much less memory 
+     |      
+     |      
+     |      Returns
+     |      -------
+     |      it will return a 0 for failure, or 1 for success
      |  
      |  ReadAllMaskPlanes(self, inCaptureIndex, inMaskIndex, inImageIndex, inReadOneScoop=True, ioArr: 'Optional[np.ndarray]' = None)
      |      Reads all the z planes of a mask into a numpy array
@@ -2495,6 +2579,21 @@ CLASSES
      |      -------
      |          bool
      |              Returns True if successful and False if not successful
+     |  
+     |  RunTerminalCommand(self, inCommandLine)
+     |      Runs one SBTerminal command line (for example 'ao.perturb.set 3 0.5')
+     |      Parameters
+     |      ----------
+     |      inCommandLine: string
+     |          The command exactly as it would be typed in the SlideBook terminal
+     |      
+     |      Returns
+     |      -------
+     |          string
+     |              The text the command printed, without color codes
+     |          bool
+     |              True if the command exists and was run. The call returns when the
+     |              command finishes, so the socket must not have a timeout.
      |  
      |  RunUserScript(self, inStringParam)
      |      Runs a script file
@@ -2633,6 +2732,22 @@ CLASSES
      |       string 
      |           The text of the capture preferences (advanced capture settings: photomanipulation, autofocus, TTL, etc)
      |  
+     |  SetFluorDef(self, inCaptureIndex, inFluorDef, inChannelIndex=-1)
+     |      Sets the filter info 
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group for which to set the info. Must be in range(0,number of captures)
+     |      
+     |      inFluorDef: CFluorDef70
+     |          The CFluorDef70 object to be sent
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 for success, 0 for failure
+     |  
      |  SetHardwareComponentLocationMicrons(self, inComponentID: 'MicroscopeHardwareComponent', inXMicrons, inYMicrons, inZMicrons)
      |      Set the current XYZ position of a hardware device
      |      
@@ -2696,21 +2811,18 @@ CLASSES
      |      -------
      |      none
      |  
-     |  SetLensDef(self, inCaptureIndex, inLensDef)
-     |      Sets the lens info
+     |  SetLensDef(self, inLensDef: 'CLensDef70')
+     |      Gets the CLensDef object of an image
      |      
      |      Parameters
      |      ----------
      |      inCaptureIndex: int
-     |          The index of the image group for which to set the info. Must be in range(0,number of captures)
-     |      
-     |      inLensDef: CLensDef70
-     |          The CLensDef70 object to be sent
+     |          The index of the image group. Must be in range(0,number of captures)
      |      
      |      Returns
      |      -------
-     |      int
-     |          1 for success, 0 for failure
+     |      str
+     |          a CLensDef70 object
      |  
      |  SetLensInfo(self, inCaptureIndex, inLensDef)
      |  
@@ -2921,13 +3033,21 @@ CLASSES
      |      Stops the current capture
      |      Parameters
      |      ----------
-     |      inScriptName: int
-     |          The script name to load before starting the capture. If blank, the Default script  is loaded
      |      
      |      Returns
      |      -------
      |      int
      |          0
+     |  
+     |  StopDirectCapture(self)
+     |      Stops the current direct to disk capture after the current experiment is complete
+     |      Parameters
+     |      ----------
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 if successful and 0 if failure
      |  
      |  StopStreaming(self)
      |      Starts a streaming acquisition
@@ -2969,6 +3089,7 @@ CLASSES
      |      inImageIndex: int
      |          The image index or time point in a non montage image
      |      inNumpyArray: numpy array of u2 (unsigned 16 bit integer)
+     |          Note: undivided mask values are 0 (unset) and 1 (set). Divided (submask) values are 0 (unset) and 5-16383 (object ID 0 to 16738)
      |      
      |      Returns
      |      -------
@@ -3008,6 +3129,7 @@ CLASSES
      |      inZPlaneIndex: int
      |          The z plane number
      |      inNumpyArray: numpy array of u2 (unsigned 16 bit integer)
+     |          Note: undivided mask values are 0 (unset) and 1 (set). Divided (submask) values are 0 (unset) and 5-16383 (object ID 0 to 16738)
      |      
      |      Returns
      |      -------
@@ -3064,6 +3186,64 @@ CLASSES
      |      
      |      This mapping lists all enum members, including aliases. Note that this
      |      is a read-only view of the internal mapping.
+    
+    class SharedMemoryImageStack(multiprocessing.shared_memory.SharedMemory)
+     |  SharedMemoryImageStack(inNx, inNy, inNz, inDtype=<class 'numpy.uint16'>)
+     |  
+     |  Method resolution order:
+     |      SharedMemoryImageStack
+     |      multiprocessing.shared_memory.SharedMemory
+     |      builtins.object
+     |  
+     |  Methods defined here:
+     |  
+     |  AsArray(self)
+     |  
+     |  __init__(self, inNx, inNy, inNz, inDtype=<class 'numpy.uint16'>)
+     |      Initialize self.  See help(type(self)) for accurate signature.
+     |  
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from multiprocessing.shared_memory.SharedMemory:
+     |  
+     |  __del__(self)
+     |  
+     |  __reduce__(self)
+     |      Helper for pickle.
+     |  
+     |  __repr__(self)
+     |      Return repr(self).
+     |  
+     |  close(self)
+     |      Closes access to the shared memory from this instance but does
+     |      not destroy the shared memory block.
+     |  
+     |  unlink(self)
+     |      Requests that the underlying shared memory block be destroyed.
+     |      
+     |      In order to ensure proper cleanup of resources, unlink should be
+     |      called once (and only once) across all processes which have access
+     |      to the shared memory block.
+     |  
+     |  ----------------------------------------------------------------------
+     |  Readonly properties inherited from multiprocessing.shared_memory.SharedMemory:
+     |  
+     |  buf
+     |      A memoryview of contents of the shared memory block.
+     |  
+     |  name
+     |      Unique name that identifies the shared memory block.
+     |  
+     |  size
+     |      Size in bytes.
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from multiprocessing.shared_memory.SharedMemory:
+     |  
+     |  __dict__
+     |      dictionary for instance variables (if defined)
+     |  
+     |  __weakref__
+     |      list of weak references to the object (if defined)
 
 DATA
     Optional = typing.Optional
