@@ -2100,10 +2100,34 @@ def test_error_messages():
         for theCnt in range(100):
             theSbAccess.GetZPosition(0,0,3333)
 
+def test_image_comment():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT)) # connect to host port
+        #s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+        theSbAccess = SBAccess(s) # create a SBaccess object
+        theCurSlideId = theSbAccess.GetCurrentSlideId()
+        theText = theSbAccess.GetImageComment(0)
+        theText = theText + "changed by python"
+        theSbAccess.SetImageComment(0,theText);
+
+def test_image_name():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT)) # connect to host port
+        #s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+        theSbAccess = SBAccess(s) # create a SBaccess object
+        theCurSlideId = theSbAccess.GetCurrentSlideId()
+        theText = theSbAccess.GetImageName(0)
+        theText = theText + "_made_by_ python"
+        theSbAccess.SetImageName(0,theText);
+
 
 def main():
     try:
-#        test_new_slide()
+        #test_new_slide()
         #test_plot_mask()
         #test_send_mask()
         #test_plot_3dstack()
@@ -2158,7 +2182,7 @@ def main():
         #test_get_set_lens_def()
         #test_get_fluor_def()
         #test_get_set_fluor_def()
-        test_add_new_fluor_def()
+        #test_add_new_fluor_def()
         #test_direct_disk()
         #test_error_messages()
         #test_command_speed()
@@ -2167,6 +2191,8 @@ def main():
         #test_read_all_planes_into_shared_memory()
         #test_create_huge_slide()
         #test_set_elapsed_time()
+        test_image_comment()
+        test_image_name()
 
     except Exception as e:
         #print(f"Error: {e}")
