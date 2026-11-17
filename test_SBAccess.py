@@ -234,6 +234,43 @@ def test_new_slide():
 
         return
 
+def test_create_huge_slide():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        theSbAccess = SBAccess(s)
+
+        theNumRows = 50000
+        theNumColumns = 100000
+        theNumPlanes = 1
+        theNumChannels = 1
+
+        theOutSlideId = theSbAccess.CreateNewSlide()
+        theSbAccess.SaveAsSlide(theOutSlideId,"E:\\Data\\Slides_msi\\Big Data\\BigOne.sldy")
+
+        theOutCaptureIndex = theSbAccess.CreateImageGroup('200K_x_50K',theNumChannels,theNumPlanes,theNumRows,theNumColumns,1)
+
+        image = np.empty(theNumRows*theNumColumns,np.uint16)
+        image = image.reshape(theNumRows,theNumColumns) # reshape the image as a 2D array
+        for iy in range(theNumRows-100):
+            for ix in range(100):
+                image[iy,ix + iy] = 1000
+
+        for theZPlane in range(theNumPlanes):
+            for theChannel in range(theNumChannels):
+                #access the input slide
+                theSbAccess.WriteImagePlaneBuf(theOutCaptureIndex,0,theZPlane,theChannel,image) #CaptureIndex,TimepointIndex,ZPlaneIndex,ChannelIndex,ByteArray
+
+        theResult = theSbAccess.CloseSlide(theOutSlideId,1)
+
+        data = input("Please hit Enter to exit:\n")
+        print("Done")
+
+
+        return
+
+
 def test_create_new_slide():
     HOST = '127.0.0.1'  # The server's hostname or IP address
 
@@ -1307,6 +1344,23 @@ def test_direct_disk():
         result = theSbAccess.StopDirectCapture()
         result, last, total = theSbAccess.GetDirectCaptureStatus()
     
+def test_set_elapsed_time():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        theSbAccess = SBAccess(s)
+
+        s.connect((HOST, PORT))
+        slide_id = theSbAccess.GetCurrentSlideId()
+        print("Current Slide Id: ",slide_id)
+        theDict = theSbAccess.GetOpenSlides()
+        stored_time = theSbAccess.GetElapsedTime(0, 0);
+        new_time = stored_time + 100;
+        result = theSbAccess.SetElapsedTime(0,0, new_time);
+        stored_new_time =  theSbAccess.GetElapsedTime(0, 0);
+
+    return
+
 def test_get_set_fluor_def():
     HOST = '127.0.0.1'  # The server's hostname or IP address
 
@@ -1333,6 +1387,30 @@ def test_get_set_fluor_def():
 
 
     return
+
+def test_add_new_fluor_def():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        theSbAccess = SBAccess(s)
+
+        s.connect((HOST, PORT))
+        slide_id = theSbAccess.GetCurrentSlideId()
+
+        theCaptureIndex = 0;
+        theFluorDefList = theSbAccess.GetFluorDef(theCaptureIndex)
+
+        theFluorDef = theFluorDefList[0]
+        print("name ",theFluorDef.mName)
+        print("mLambda ",theFluorDef.mLambda)
+        print("mTurretPosition ",theFluorDef.mTurretPosition)
+        print("")
+
+        theFluorDef.mLambda = theFluorDef.mLambda + 0.5
+        theFluorDef.mTurretPosition = theFluorDef.mTurretPosition  + 2
+        theFluorDef.mName = theFluorDef.mName + '_AddNew'
+
+        theSbAccess.AddNewFluorDef(theFluorDef)
 
 def test_get_fluor_def():
     HOST = '127.0.0.1'  # The server's hostname or IP address
@@ -2080,12 +2158,15 @@ def main():
         #test_get_set_lens_def()
         #test_get_fluor_def()
         #test_get_set_fluor_def()
+        test_add_new_fluor_def()
         #test_direct_disk()
         #test_error_messages()
         #test_command_speed()
         #test_read_all_planes()
         #test_read_all_planes_into_np()
-        test_read_all_planes_into_shared_memory()
+        #test_read_all_planes_into_shared_memory()
+        #test_create_huge_slide()
+        #test_set_elapsed_time()
 
     except Exception as e:
         #print(f"Error: {e}")

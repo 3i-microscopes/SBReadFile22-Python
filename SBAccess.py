@@ -1210,7 +1210,33 @@ class SBAccess(object):
 
         return theVals[0]
 
+    def SetElapsedTime(self,inCaptureIndex,inTimepointIndex,inElapsedTimeMS):
+        """ Gets the elapsed time in ms at a given time point in an image group
 
+        Parameters
+        ----------
+        inCaptureIndex: int
+            The index of the image group. Must be in range(0,number of captures)
+        inTimepointIndex: int
+            The time point number
+        inElapsedTimeMS: int
+            Elapsed time (milliseconds)
+
+        Returns
+        -------
+        int
+           1 = success, 0 = failure
+        """
+        self.SendCommand('$SetElapsedTime(CaptureIndex=i4,TimepointIndex=i4,ElapsedTimeMS=i4)')
+        self.SendVal(int(inCaptureIndex),'i4')
+        self.SendVal(int(inTimepointIndex),'i4')
+        self.SendVal(int(inElapsedTimeMS),'i4')
+
+        theNum,theVals = self.Recv()
+        if( theNum != 1):
+            raise Exception("SetElapsedTime: invalid value")
+
+        return theVals[0]
 
     def GetChannelName(self,inCaptureIndex,inChannelIndex):
         """ Gets the name of a given channel of an image group
@@ -2064,6 +2090,48 @@ class SBAccess(object):
 
         return success
 
+    def AddNewFluorDef(self, inFluorDef):
+        """ Adds a new fluor definition
+
+        Parameters
+        ----------
+        inFluorDef: CFluorDef70 or str
+            Either a CFluorDef70 object, or its YAML encoding as a string
+            (the output of CFluorDef70.EncodeClass(), with or without
+            the '---' / '...' document markers)
+
+        Returns
+        -------
+        int
+            1 for success, 0 for failure
+        """
+        if isinstance(inFluorDef, CFluorDef70):
+            theBody = inFluorDef.EncodeClass()
+        elif isinstance(inFluorDef, str):
+            theBody = inFluorDef
+        else:
+            raise TypeError('AddNewFluorDef: expected CFluorDef70 or str, got '
+                            + type(inFluorDef).__name__)
+
+        # Add the YAML document markers if they aren't there yet
+        theYamlString = theBody
+        if not theYamlString.startswith('---'):
+            theYamlString = '---\n' + theYamlString
+        if not theYamlString.endswith('\n'):
+            theYamlString += '\n'
+        if not theYamlString.rstrip().endswith('...'):
+            theYamlString += '...\n'
+
+        print('theYamlString\n' + theYamlString)
+
+        l = len(theYamlString)
+        self.SendCommand('$AddNewFluorDef(YamlString=' + str(l) + ':s)')
+        self.SendVal(theYamlString, 's')
+
+        success = self.Recv()
+
+        return success
+
     def CaptureImage(self,CameraIndex,ExposureTimeMS):
         """ Return an image from the specified camera
 
@@ -2425,6 +2493,27 @@ class SBAccess(object):
         self.SendVal(int(inCopyCaptureIndex),'i4')
         theNum,theVals = self.Recv()
         return theVals
+
+    def SetImageName(self,inCaptureIndex,inName):
+
+        """ Sets the name (title) of an image group
+
+        Parameters
+        ----------
+        inCaptureIndex: int
+            The index of the image group. Must be in range(0,number of captures)
+        inName:    str
+            The name of the image
+
+        Returns
+        -------
+        none
+        """
+        l = len(inName)
+        self.SendCommand('$SetImageName(CaptureIndex=i4,Name='+str(l)+':s)')
+        self.SendVal(int(inCaptureIndex),'i4')
+        self.SendVal(inName,'s')
+
 
     def SetImageComment(self,inCaptureIndex,inComment):
 
@@ -5759,28 +5848,3 @@ class SBAccess(object):
     $SetHardwareComponentForIndex(ComponentIndex=i4, ComponentID=i4)
     $GetSupportedHardwareForIndex(ComponentIndex=i4)
     """
-
-    def SetLensDef(self,inLensDef:CLensDef70):
-        """ Gets the CLensDef object of an image
-
-        Parameters
-        ----------
-        inCaptureIndex: int
-            The index of the image group. Must be in range(0,number of captures)
-
-        Returns
-        -------
-        str
-            a CLensDef70 object
-        """
-        self.SendCommand('$GetLensDef(CaptureIndex=i4)')
-        self.SendVal(int(inCaptureIndex),'i4')
-
-        theStr = self.Recv()
-        # decode the string
-        txt_stream = io.StringIO(theStr)
-        theNode = yaml.compose(txt_stream)
-        theLastIndex = 0
-        theLensDef70 = CLensDef70()
-        theLastIndex = theLensDef70.Decode(theNode, theLastIndex)
-        return theLensDef70

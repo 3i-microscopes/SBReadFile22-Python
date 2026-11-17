@@ -325,6 +325,21 @@ CLASSES
      |  
      |  Methods defined here:
      |  
+     |  AddNewFluorDef(self, inFluorDef)
+     |      Adds a new fluor definition
+     |      
+     |      Parameters
+     |      ----------
+     |      inFluorDef: CFluorDef70 or str
+     |          Either a CFluorDef70 object, or its YAML encoding as a string
+     |          (the output of CFluorDef70.EncodeClass(), with or without
+     |          the '---' / '...' document markers)
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 for success, 0 for failure
+     |  
      |  AddXYZMontagePoint(self, inXum, inYum, inZum, inAuxZum, inX2um, inY2um, inZ2um, inAuxZ2um, inIsAuxZ=False)
      |      Adds a montage point to the Focus Window XY Tab defined by upper left and lower right
      |      
@@ -2710,6 +2725,23 @@ CLASSES
      |      -------
      |      none
      |  
+     |  SetElapsedTime(self, inCaptureIndex, inTimepointIndex, inElapsedTimeMS)
+     |      Gets the elapsed time in ms at a given time point in an image group
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group. Must be in range(0,number of captures)
+     |      inTimepointIndex: int
+     |          The time point number
+     |      inElapsedTimeMS: int
+     |          Elapsed time (milliseconds)
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |         1 = success, 0 = failure
+     |  
      |  SetExperimentScriptData(self, inScriptName, inCaptureScript, inCaptureSettings, inOverwriteExisting)
      |      Gets a list of the saved capture experiment script names
      |      
@@ -2811,18 +2843,35 @@ CLASSES
      |      -------
      |      none
      |  
-     |  SetLensDef(self, inLensDef: 'CLensDef70')
-     |      Gets the CLensDef object of an image
+     |  SetImageName(self, inCaptureIndex, inName)
+     |      Sets the name (title) of an image group
      |      
      |      Parameters
      |      ----------
      |      inCaptureIndex: int
      |          The index of the image group. Must be in range(0,number of captures)
+     |      inName:    str
+     |          The name of the image
      |      
      |      Returns
      |      -------
-     |      str
-     |          a CLensDef70 object
+     |      none
+     |  
+     |  SetLensDef(self, inCaptureIndex, inLensDef)
+     |      Sets the lens info
+     |      
+     |      Parameters
+     |      ----------
+     |      inCaptureIndex: int
+     |          The index of the image group for which to set the info. Must be in range(0,number of captures)
+     |      
+     |      inLensDef: CLensDef70
+     |          The CLensDef70 object to be sent
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 for success, 0 for failure
      |  
      |  SetLensInfo(self, inCaptureIndex, inLensDef)
      |  
