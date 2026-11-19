@@ -1307,6 +1307,31 @@ def test_get_objectives():
 
     return
 
+def test_add_new_lens_def():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        theSbAccess = SBAccess(s)
+
+        s.connect((HOST, PORT))
+        slide_id = theSbAccess.GetCurrentSlideId()
+        theCaptureIndex = 0;
+        theLensDef = theSbAccess.GetLensDef(theCaptureIndex)
+
+        print("lens name ",theLensDef.mName)
+        print("mActualMagnification ",theLensDef.mActualMagnification)
+        print("mMicronPerPixel ",theLensDef.mMicronPerPixel)
+        print("")
+
+        theLensDef.mMicronPerPixel = theLensDef.mMicronPerPixel + 0.5
+        theLensDef.mActualMagnification = theLensDef.mActualMagnification  + 2
+        theLensDef.mName = theLensDef.mName + '_back'
+        theLensDef.mTurretPosition = theLensDef.mTurretPosition + 5
+
+        theSbAccess.AddNewLensDef(theLensDef)
+
+
+    return
 def test_get_set_lens_def():
     HOST = '127.0.0.1'  # The server's hostname or IP address
 
@@ -1411,6 +1436,30 @@ def test_add_new_fluor_def():
         theFluorDef.mName = theFluorDef.mName + '_AddNew'
 
         theSbAccess.AddNewFluorDef(theFluorDef)
+
+def test_add_new_optovar_def():
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        theSbAccess = SBAccess(s)
+
+        s.connect((HOST, PORT))
+        slide_id = theSbAccess.GetCurrentSlideId()
+
+        theOptovarDefList = theSbAccess.GetMagnificationChangers()
+
+        theOptovarDef = theOptovarDefList[0]
+        print("mName ",theOptovarDef.mName)
+        print("mMagnification ",theOptovarDef.mMagnification)
+        print("mTurretPosition ",theOptovarDef.mTurretPosition)
+        print("")
+
+        theOptovarDef.mMagnification = theOptovarDef.mMagnification + 10
+        theOptovarDef.mTurretPosition =  2
+        theOptovarDef.mName = theOptovarDef.mName + '_AddNew'
+
+        theSbAccess.AddNewOptovarDef(theOptovarDef)
+
 
 def test_get_fluor_def():
     HOST = '127.0.0.1'  # The server's hostname or IP address
@@ -2191,8 +2240,10 @@ def main():
         #test_read_all_planes_into_shared_memory()
         #test_create_huge_slide()
         #test_set_elapsed_time()
-        test_image_comment()
-        test_image_name()
+        #test_image_comment()
+        #test_image_name()
+        #test_add_new_lens_def();
+        test_add_new_optovar_def();
 
     except Exception as e:
         #print(f"Error: {e}")

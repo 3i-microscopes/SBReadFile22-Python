@@ -1993,6 +1993,49 @@ class SBAccess(object):
 
         return theMagnificationChangerList
 
+    def AddNewOptovarDef(self, inOptovarDef):
+        """ Adds a new Magnification Changer definition
+
+        Parameters
+        ----------
+        inOptovarDef: COptovarDef70 or str
+            Either a COptovarDef70 object, or its YAML encoding as a string
+            (the output of COptovarDef70.EncodeClass(), with or without
+            the '---' / '...' document markers)
+
+        Returns
+        -------
+        int
+            1 for success, 0 for failure
+        """
+        if isinstance(inOptovarDef, COptovarDef70):
+            theBody = inOptovarDef.EncodeClass()
+        elif isinstance(inOptovarDef, str):
+            theBody = inOptovarDef
+        else:
+            raise TypeError('AddNewOptovarDef: expected COptovarDef70 or str, got '
+                            + type(inOptovarDef).__name__)
+
+        # Add the YAML document markers if they aren't there yet
+        theYamlString = theBody
+        if not theYamlString.startswith('---'):
+            theYamlString = '---\n' + theYamlString
+        if not theYamlString.endswith('\n'):
+            theYamlString += '\n'
+        if not theYamlString.rstrip().endswith('...'):
+            theYamlString += '...\n'
+
+        print('theYamlString\n' + theYamlString)
+
+        l = len(theYamlString)
+        self.SendCommand('$AddNewOptovarDef(YamlString=' + str(l) + ':s)')
+        self.SendVal(theYamlString, 's')
+
+        success = self.Recv()
+
+        return success
+
+
 
     def GetLensDef(self,inCaptureIndex):
         """ Gets the CLensDef object of an image
@@ -2047,6 +2090,49 @@ class SBAccess(object):
         success = self.Recv()
 
         return success
+
+    def AddNewLensDef(self, inLensDef):
+        """ Adds a new Lens definition
+
+        Parameters
+        ----------
+        inLensDef: CLensDef70 or str
+            Either a CLensDef70 object, or its YAML encoding as a string
+            (the output of CLensDef70.EncodeClass(), with or without
+            the '---' / '...' document markers)
+
+        Returns
+        -------
+        int
+            1 for success, 0 for failure
+        """
+        if isinstance(inLensDef, CLensDef70):
+            theBody = inLensDef.EncodeClass()
+        elif isinstance(inLensDef, str):
+            theBody = inLensDef
+        else:
+            raise TypeError('AddNewLensDef: expected CLensDef70 or str, got '
+                            + type(inLensDef).__name__)
+
+        # Add the YAML document markers if they aren't there yet
+        theYamlString = theBody
+        if not theYamlString.startswith('---'):
+            theYamlString = '---\n' + theYamlString
+        if not theYamlString.endswith('\n'):
+            theYamlString += '\n'
+        if not theYamlString.rstrip().endswith('...'):
+            theYamlString += '...\n'
+
+        print('theYamlString\n' + theYamlString)
+
+        l = len(theYamlString)
+        self.SendCommand('$AddNewLensDef(YamlString=' + str(l) + ':s)')
+        self.SendVal(theYamlString, 's')
+
+        success = self.Recv()
+
+        return success
+
 
     def SetFluorDef(self,inCaptureIndex,inFluorDef,inChannelIndex=-1):
         """ Sets the filter info 

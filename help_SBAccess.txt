@@ -340,6 +340,36 @@ CLASSES
      |      int
      |          1 for success, 0 for failure
      |  
+     |  AddNewLensDef(self, inLensDef)
+     |      Adds a new Lens definition
+     |      
+     |      Parameters
+     |      ----------
+     |      inLensDef: CLensDef70 or str
+     |          Either a CLensDef70 object, or its YAML encoding as a string
+     |          (the output of CLensDef70.EncodeClass(), with or without
+     |          the '---' / '...' document markers)
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 for success, 0 for failure
+     |  
+     |  AddNewOptovarDef(self, inOptovarDef)
+     |      Adds a new Magnification Changer definition
+     |      
+     |      Parameters
+     |      ----------
+     |      inOptovarDef: COptovarDef70 or str
+     |          Either a COptovarDef70 object, or its YAML encoding as a string
+     |          (the output of COptovarDef70.EncodeClass(), with or without
+     |          the '---' / '...' document markers)
+     |      
+     |      Returns
+     |      -------
+     |      int
+     |          1 for success, 0 for failure
+     |  
      |  AddXYZMontagePoint(self, inXum, inYum, inZum, inAuxZum, inX2um, inY2um, inZ2um, inAuxZ2um, inIsAuxZ=False)
      |      Adds a montage point to the Focus Window XY Tab defined by upper left and lower right
      |      
