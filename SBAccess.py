@@ -2877,7 +2877,7 @@ class SBAccess(object):
 
         """
 
-        self.SendCommand('$ReadMaskPlaneBuf(CaptureIndex=i4,MaskIndex=i4,ImageIndex=i4,ZPlaneIndex=i4)')
+        self.SendCommand('$ReadMaskPlaneBuf(CaptureIndex=i4,MaskIndex=i4,ImageIndex=i4,ZPlaneIndex=i4,SendHeader=i4)')
         self.SendVal(int(inCaptureIndex),'i4')
         self.SendVal(int(inMaskIndex),'i4')
         self.SendVal(int(inImageIndex),'i4')
